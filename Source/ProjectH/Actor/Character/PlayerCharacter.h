@@ -2,12 +2,21 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Interface/ICharacter.h"
 #include "PlayerCharacter.generated.h"
 
 //헤더는 전방선언 할 것
+class USpringArmComponent;
+class UCameraComponent;
+class UInputMappingContext;
+class UInputAction;
+
+class ABasicPlayerController;
+
+struct FInputActionValue;
 
 UCLASS()
-class PROJECTH_API APlayerCharacter : public ACharacter
+class PROJECTH_API APlayerCharacter : public ACharacter, public IICharacter
 {
 	GENERATED_BODY()
 
@@ -19,13 +28,16 @@ public:
 //클래스 만들 때 상속되는 기본함수 사용하지 않는다면 지워주기
 protected:
 	
-	//virtual void BeginPlay() override;
+	virtual void BeginPlay() override;
 
 public:	
 	
 	//virtual void Tick(float DeltaTime) override;
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	UFUNCTION()
+		virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 public:
 
@@ -38,15 +50,24 @@ private:
 	//캐릭터 내부에서만 호출되는 함수 작성 (주로 키입력)
 
 	//키입력 관련 함수
-	void OnMoveForward(float Axis);
-	void OnMoveRight(float Axis);
-	void OnHorizonLock(float Axis);
-	void OnVerticalLock(float Axis);
+	void Move(const FInputActionValue& value);
+	void Look(const FInputActionValue& value);
 
 private:
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Component")
-		class USpringArmComponent* SpringArm;
+		USpringArmComponent* SpringArm;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Component")
-		class UCameraComponent* Camera;
+		UCameraComponent* Camera;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+		UInputMappingContext* IMCPlayer;
+	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+		UInputAction* MovementAction;
+	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+		UInputAction* LookAction;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = "Controller")
+		ABasicPlayerController* PlayerController;
+
 };
