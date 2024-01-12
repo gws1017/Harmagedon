@@ -1,5 +1,6 @@
 #include "Actor/Character/PlayerCharacter.h"
 #include "Actor/Controller/BasicPlayerController.h"
+#include "Actor/Item/Weapon/Weapon.h"
 #include "Global.h"
 
 //언리얼 관련 헤더는 아래쪽에, 프로그래머가작성한 헤더는 위쪽으로 분리
@@ -44,8 +45,10 @@ void APlayerCharacter::BeginPlay()
 
 	PlayerController = Cast<ABasicPlayerController>(GetController());
 
-	CheckNull(PlayerController);
+	if(!!WeaponClass)
+		WeaponInstance = AWeapon::Spawn<AWeapon>(GetWorld(),WeaponClass, this);
 
+	CheckNull(PlayerController);
 	if (UEnhancedInputLocalPlayerSubsystem* SubSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 	{
 		SubSystem->AddMappingContext(IMCPlayer, 0);
@@ -60,6 +63,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	{
 		EnhancedInput->BindAction(MovementAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Move);
 		EnhancedInput->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Look);
+
+		EnhancedInput->BindAction(EquipAction, ETriggerEvent::Triggered, this, &APlayerCharacter::EquipWeapon);
 
 		EnhancedInput->BindAction(RollAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Roll);
 		EnhancedInput->BindAction(AttackAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Attack);
@@ -116,6 +121,21 @@ void APlayerCharacter::Roll()
 	CheckTrue(bIsRolling);
 	bIsRolling = true;
 	PlayAnimMontage(RollMontage);
+}
+
+void APlayerCharacter::EquipWeapon()
+{
+	//CheckFalse(Alive());
+	CLog::Print("Weapon");
+
+	CheckNull(WeaponInstance);
+	if (WeaponInstance->GetEquipped())
+	{
+		WeaponInstance->UnEquip();
+		return;
+	}
+
+	WeaponInstance->Equip();
 }
 
 void APlayerCharacter::Attack()

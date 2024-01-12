@@ -8,10 +8,12 @@
 //헤더는 전방선언 할 것
 class USpringArmComponent;
 class UCameraComponent;
+class UAnimMontage;
 class UInputMappingContext;
 class UInputAction;
 
 class ABasicPlayerController;
+class AWeapon;
 
 struct FInputActionValue;
 
@@ -52,6 +54,7 @@ public:
 
 	//외부에서 호출되는 함수 작성
 	//Getter
+	FORCEINLINE virtual AWeapon* GetWeapon() const override { return WeaponInstance; }
 	FORCEINLINE EWeaponEquipped GetWeaponEquipped() const { return WeaponEquipped; }
 	FORCEINLINE bool IsRolling() const { return bIsRolling; }
 
@@ -71,6 +74,7 @@ private:
 	void OnRunning();
 	void OffRunning();
 	void Roll();
+	void EquipWeapon();
 
 	void Attack();
 
@@ -93,15 +97,17 @@ private:
 		UInputAction* RollAction;
 	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 		UInputAction* AttackAction;
+	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+		UInputAction* EquipAction;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Montage", meta = (AllowPrivateAccess = "true"))
-		class UAnimMontage* DeathMontage;
+		UAnimMontage* DeathMontage;
 	UPROPERTY(EditDefaultsOnly, Category = "Montage", meta = (AllowPrivateAccess = "true"))
-		class UAnimMontage* HitMontage;
+		UAnimMontage* HitMontage;
 	UPROPERTY(EditDefaultsOnly, Category = "Montage", meta = (AllowPrivateAccess = "true"))
-		class UAnimMontage* AttackMontage;
+		UAnimMontage* AttackMontage;
 	UPROPERTY(EditDefaultsOnly, Category = "Montage", meta = (AllowPrivateAccess = "true"))
-		class UAnimMontage* RollMontage;
+		UAnimMontage* RollMontage;
 
 
 	UPROPERTY(VisibleAnywhere, Category = "Montage | Roll")
@@ -111,6 +117,11 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Enums")
 		EWeaponEquipped WeaponEquipped;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+		TSubclassOf<AWeapon> WeaponClass;
+	UPROPERTY(VisibleAnywhere, Category = "Weapon")
+		AWeapon* WeaponInstance;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Controller")
 		ABasicPlayerController* PlayerController;
