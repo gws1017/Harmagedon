@@ -1,12 +1,8 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
 #include "BaseAnimInstance.generated.h"
-
-//class APlayerCharacter;
 
 UCLASS()
 class PROJECTH_API UBaseAnimInstance : public UAnimInstance
@@ -24,10 +20,7 @@ protected:
 		float Speed;
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "Animation")
 		float Direction;
-	//UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "Animation")
-		//EMovementState MovementState;
 
-private:
 	UPROPERTY()
 		ACharacter* OwnerCharacter;
 };

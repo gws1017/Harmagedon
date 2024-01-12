@@ -8,13 +8,16 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Animation/AnimMontage.h"
 
 //입력
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "InputActionValue.h"
+#include "PlayerCharacter.h"
 
 APlayerCharacter::APlayerCharacter()
+	:WeaponEquipped(EWeaponEquipped::EWE_Fist)
 {
 	//Tick함수 안쓰면 일단 꺼놓기
 	PrimaryActorTick.bCanEverTick = false;
@@ -57,6 +60,12 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	{
 		EnhancedInput->BindAction(MovementAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Move);
 		EnhancedInput->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Look);
+
+		EnhancedInput->BindAction(RollAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Roll);
+		EnhancedInput->BindAction(AttackAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Attack);
+
+		EnhancedInput->BindAction(RunAction, ETriggerEvent::Triggered, this, &APlayerCharacter::OnRunning);
+		EnhancedInput->BindAction(RunAction, ETriggerEvent::Completed, this, &APlayerCharacter::OffRunning);
 	}
 	
 }
@@ -89,4 +98,28 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
+}
+
+void APlayerCharacter::OnRunning()
+{
+	GetCharacterMovement()->MaxWalkSpeed = 400;
+}
+
+void APlayerCharacter::OffRunning()
+{
+	GetCharacterMovement()->MaxWalkSpeed = 200;
+}
+
+void APlayerCharacter::Roll()
+{
+	CheckNull(RollMontage);
+	CheckTrue(bIsRolling);
+	bIsRolling = true;
+	PlayAnimMontage(RollMontage);
+}
+
+void APlayerCharacter::Attack()
+{
+	CheckNull(AttackMontage);
+	PlayAnimMontage(AttackMontage);
 }

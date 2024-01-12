@@ -15,6 +15,15 @@ class ABasicPlayerController;
 
 struct FInputActionValue;
 
+UENUM(BlueprintType)
+enum class EWeaponEquipped : uint8
+{
+	EWE_None,
+	EWE_Fist UMETA(DisplayName = "Default"),
+	EWE_Sword UMETA(DisplayName = "Sword"),
+	EWE_MAX UMETA(DisplayName = "DefaultMAX")
+};
+
 UCLASS()
 class PROJECTH_API APlayerCharacter : public ACharacter, public IICharacter
 {
@@ -42,6 +51,12 @@ public:
 public:
 
 	//외부에서 호출되는 함수 작성
+	//Getter
+	FORCEINLINE EWeaponEquipped GetWeaponEquipped() const { return WeaponEquipped; }
+	FORCEINLINE bool IsRolling() const { return bIsRolling; }
+
+	//Setter
+	FORCEINLINE void SetIsRolling(const bool value) { bIsRolling = value; }
 
 	//외부에서 접근할 수 있는 변수 작성(되도록이면 변수는 private에 작성하고 Getter Setter 이용할 것)
 
@@ -52,6 +67,12 @@ private:
 	//키입력 관련 함수
 	void Move(const FInputActionValue& value);
 	void Look(const FInputActionValue& value);
+
+	void OnRunning();
+	void OffRunning();
+	void Roll();
+
+	void Attack();
 
 private:
 
@@ -66,6 +87,30 @@ private:
 		UInputAction* MovementAction;
 	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 		UInputAction* LookAction;
+	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+		UInputAction* RunAction;
+	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+		UInputAction* RollAction;
+	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+		UInputAction* AttackAction;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Montage", meta = (AllowPrivateAccess = "true"))
+		class UAnimMontage* DeathMontage;
+	UPROPERTY(EditDefaultsOnly, Category = "Montage", meta = (AllowPrivateAccess = "true"))
+		class UAnimMontage* HitMontage;
+	UPROPERTY(EditDefaultsOnly, Category = "Montage", meta = (AllowPrivateAccess = "true"))
+		class UAnimMontage* AttackMontage;
+	UPROPERTY(EditDefaultsOnly, Category = "Montage", meta = (AllowPrivateAccess = "true"))
+		class UAnimMontage* RollMontage;
+
+
+	UPROPERTY(VisibleAnywhere, Category = "Montage | Roll")
+		bool bIsRolling = false;
+	UPROPERTY(VisibleAnywhere, Category = "Montage | Attack")
+		bool bIsAttacking = false;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Enums")
+		EWeaponEquipped WeaponEquipped;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Controller")
 		ABasicPlayerController* PlayerController;
