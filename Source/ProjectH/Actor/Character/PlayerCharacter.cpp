@@ -18,7 +18,8 @@
 #include "PlayerCharacter.h"
 
 APlayerCharacter::APlayerCharacter()
-	:WeaponEquipped(EWeaponEquipped::EWE_Fist)
+	:WeaponEquipped(EWeaponEquipped::EWE_Fist),
+	MovementState(EMovementState::EMS_Normal)
 {
 	//Tick함수 안쓰면 일단 꺼놓기
 	PrimaryActorTick.bCanEverTick = false;
@@ -80,6 +81,11 @@ float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	return 0.0f;
 }
 
+void APlayerCharacter::End_Attack()
+{
+	bIsAttacking = false;
+}
+
 void APlayerCharacter::Move(const FInputActionValue& value)
 {
 	FVector2D MovementVec = value.Get<FVector2D>();
@@ -117,17 +123,14 @@ void APlayerCharacter::OffRunning()
 
 void APlayerCharacter::Roll()
 {
-	CheckNull(RollMontage);
-	CheckTrue(bIsRolling);
-	bIsRolling = true;
+	CheckFalse(CanRoll());
+	SetMovementState(EMovementState::EMS_Roll);
 	PlayAnimMontage(RollMontage);
 }
 
 void APlayerCharacter::EquipWeapon()
 {
 	//CheckFalse(Alive());
-	CLog::Print("Weapon");
-
 	CheckNull(WeaponInstance);
 	if (WeaponInstance->GetEquipped())
 	{
@@ -140,6 +143,50 @@ void APlayerCharacter::EquipWeapon()
 
 void APlayerCharacter::Attack()
 {
-	CheckNull(AttackMontage);
+	CheckFalse(CanAttack());
+	bIsAttacking = true;
 	PlayAnimMontage(AttackMontage);
+}
+
+bool APlayerCharacter::CanRoll()
+{
+	CheckTrueResult(bIsAttacking, false);
+	CheckNullResult(RollMontage,false);
+	switch (MovementState)
+	{
+	case EMovementState::EMS_Dead:
+	case EMovementState::EMS_Hit:
+	case EMovementState::EMS_Roll:
+		return false;
+	default:
+		break;
+		/*if (Stat.Stamina - RollStamina > 0)
+			return true;
+		else return false;*/
+
+	}
+	return true;
+}
+
+bool APlayerCharacter::CanAttack()
+{
+	CheckNullResult(AttackMontage,false);
+	//if (PlayerController)CheckFalseResult(PlayerController->GetGameMode(), false);
+	CheckTrueResult(bIsAttacking, false);
+	CheckFalseResult(WeaponInstance->GetEquipped(), false);
+	CheckTrueResult(WeaponInstance->GetEquipping(), false);
+	switch (MovementState)
+	{
+	case EMovementState::EMS_Dead:
+	case EMovementState::EMS_Hit:
+	case EMovementState::EMS_Roll:
+		return false;
+	default:
+		break;
+		/*if (GetWeapon()->GetStaminaCost() < Stat.Stamina)
+			return true;
+		else return false;*/
+
+	}
+	return true;
 }

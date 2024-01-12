@@ -26,6 +26,18 @@ enum class EWeaponEquipped : uint8
 	EWE_MAX UMETA(DisplayName = "DefaultMAX")
 };
 
+UENUM(BlueprintType)
+enum class EMovementState : uint8
+{
+	EWE_None,
+	EMS_Normal UMETA(DisplayName = "Normal"),
+	EMS_Move UMETA(DisplayName = "Move"),
+	EMS_Hit UMETA(DisplayName = "Hit"),
+	EMS_Dead UMETA(DisplayName = "Dead"),
+	EMS_Roll UMETA(DisplayName = "Roll"),
+	EMS_MAX UMETA(DisplayName = "DefaultMAX")
+};
+
 UCLASS()
 class PROJECTH_API APlayerCharacter : public ACharacter, public IICharacter
 {
@@ -56,10 +68,13 @@ public:
 	//Getter
 	FORCEINLINE virtual AWeapon* GetWeapon() const override { return WeaponInstance; }
 	FORCEINLINE EWeaponEquipped GetWeaponEquipped() const { return WeaponEquipped; }
-	FORCEINLINE bool IsRolling() const { return bIsRolling; }
+	FORCEINLINE EMovementState GetMovementState() const { return MovementState; }
 
 	//Setter
-	FORCEINLINE void SetIsRolling(const bool value) { bIsRolling = value; }
+	FORCEINLINE void SetMovementState(const EMovementState& state) {  MovementState = state; }
+	FORCEINLINE void SetMovementNormal() {  MovementState = EMovementState::EMS_Normal; }
+
+	void End_Attack();
 
 	//외부에서 접근할 수 있는 변수 작성(되도록이면 변수는 private에 작성하고 Getter Setter 이용할 것)
 
@@ -75,8 +90,11 @@ private:
 	void OffRunning();
 	void Roll();
 	void EquipWeapon();
-
+	
 	void Attack();
+
+	bool CanRoll();
+	bool CanAttack();
 
 private:
 
@@ -110,13 +128,13 @@ private:
 		UAnimMontage* RollMontage;
 
 
-	UPROPERTY(VisibleAnywhere, Category = "Montage | Roll")
-		bool bIsRolling = false;
 	UPROPERTY(VisibleAnywhere, Category = "Montage | Attack")
 		bool bIsAttacking = false;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Enums")
 		EWeaponEquipped WeaponEquipped;
+	UPROPERTY(VisibleAnywhere, Category = "Enums")
+		EMovementState MovementState;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 		TSubclassOf<AWeapon> WeaponClass;

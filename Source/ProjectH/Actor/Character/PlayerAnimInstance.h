@@ -6,6 +6,7 @@
 
 class APlayerCharacter;
 enum class EWeaponEquipped : uint8;
+enum class EMovementState : uint8;
 
 UCLASS()
 class PROJECTH_API UPlayerAnimInstance : public UBaseAnimInstance
@@ -19,12 +20,16 @@ public:
 
 protected:
 
-	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "Animation")
+	/*UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "Animation")
 		bool bIsMoving;
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "Animation")
-		bool bIsRolling;
-		UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "Animation")
+		bool bIsRolling;*/
+
+	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "Animation")
 		EWeaponEquipped WeaponEquipped;
+	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "Animation")
+		EMovementState MovementState;
+
 private:
 	UPROPERTY()
 		APlayerCharacter* PlayerCharacter;

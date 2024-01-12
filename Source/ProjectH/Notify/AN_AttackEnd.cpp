@@ -1,13 +1,13 @@
-#include "Notify/AN_RollEnd.h"
+#include "Notify/AN_AttackEnd.h"
 #include "Actor/Character/PlayerCharacter.h"
 #include "Global.h"
 
-FString UAN_RollEnd::GetNotifyName_Implementation() const
+FString UAN_AttackEnd::GetNotifyName_Implementation() const
 {
 	return "RollEnd";
 }
 
-void UAN_RollEnd::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
+void UAN_AttackEnd::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
 	const FAnimNotifyEventReference& EventReference)
 {
 	Super::Notify(MeshComp, Animation, EventReference);
@@ -15,6 +15,6 @@ void UAN_RollEnd::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* An
 	auto PlayerCharacter = Cast<APlayerCharacter>(MeshComp->GetOwner());
 	if (PlayerCharacter)
 	{
-		PlayerCharacter->SetMovementNormal();
+		PlayerCharacter->End_Attack();
 	}
 }
