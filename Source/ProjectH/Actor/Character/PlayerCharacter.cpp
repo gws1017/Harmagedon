@@ -19,10 +19,13 @@
 
 APlayerCharacter::APlayerCharacter()
 	:WeaponEquipped(EWeaponEquipped::EWE_Fist),
-	MovementState(EMovementState::EMS_Normal)
+	MovementState(EMovementState::EMS_Normal),
+	Stat{ 15,15,50,50,0,1,1,1,1,0 },
+	StaminaRegenRate(2.f),
+	RollStamina(10.f)
 {
 	//Tick함수 안쓰면 일단 꺼놓기
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -56,6 +59,14 @@ void APlayerCharacter::BeginPlay()
 	}
 }
 
+void APlayerCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	float DeltaStamina = StaminaRegenRate * DeltaTime;
+	UpdateStamina(DeltaStamina);
+}
+
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -86,8 +97,52 @@ void APlayerCharacter::End_Attack()
 	bIsAttacking = false;
 }
 
+bool APlayerCharacter::Alive()
+{
+	if (MovementState != EMovementState::EMS_Dead)
+		return true;
+	else return false;
+}
+
+void APlayerCharacter::Die()
+{
+	CheckNull(DeathMontage);
+	//SaveGameData(1);
+
+	SetMovementState(EMovementState::EMS_Dead);
+	GetCharacterMovement()->StopMovementImmediately();
+
+	StopAnimMontage();
+
+	PlayAnimMontage(DeathMontage);
+
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	if (!!WeaponInstance)
+		WeaponInstance->DeactivateCollision();
+	//GetController<APlayerController>()->ShowRestartenu();
+}
+
+void APlayerCharacter::DeathEnd()
+{
+	GetMesh()->bPauseAnims = true;
+	GetMesh()->bNoSkeletonUpdate = true;
+}
+
+void APlayerCharacter::Hit(const FVector& ParticleSpawnLocation)
+{
+	CheckFalse(Alive());
+	CheckNull(HitMontage);
+	//if (AudioComponent->Sound)
+	//	AudioComponent->Play();
+
+	//ResetCombo();
+	SetMovementState(EMovementState::EMS_Hit);
+	PlayAnimMontage(HitMontage);
+}
+
 void APlayerCharacter::Move(const FInputActionValue& value)
 {
+	CheckFalse(CanMove());
 	FVector2D MovementVec = value.Get<FVector2D>();
 
 	if (Controller != nullptr)
@@ -113,11 +168,13 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 
 void APlayerCharacter::OnRunning()
 {
+	SetMovementState(EMovementState::EMS_Run);
 	GetCharacterMovement()->MaxWalkSpeed = 400;
 }
 
 void APlayerCharacter::OffRunning()
 {
+	SetMovementNormal();
 	GetCharacterMovement()->MaxWalkSpeed = 200;
 }
 
@@ -125,12 +182,13 @@ void APlayerCharacter::Roll()
 {
 	CheckFalse(CanRoll());
 	SetMovementState(EMovementState::EMS_Roll);
+	DecrementStamina(RollStamina);
 	PlayAnimMontage(RollMontage);
 }
 
 void APlayerCharacter::EquipWeapon()
 {
-	//CheckFalse(Alive());
+	CheckFalse(Alive());
 	CheckNull(WeaponInstance);
 	if (WeaponInstance->GetEquipped())
 	{
@@ -146,6 +204,7 @@ void APlayerCharacter::Attack()
 	CheckFalse(CanAttack());
 	bIsAttacking = true;
 	PlayAnimMontage(AttackMontage);
+	DecrementStamina(WeaponInstance->GetStaminaCost());
 }
 
 bool APlayerCharacter::CanRoll()
@@ -160,10 +219,9 @@ bool APlayerCharacter::CanRoll()
 		return false;
 	default:
 		break;
-		/*if (Stat.Stamina - RollStamina > 0)
+		if (Stat.Stamina - RollStamina > 0)
 			return true;
-		else return false;*/
-
+		else return false;
 	}
 	return true;
 }
@@ -182,11 +240,44 @@ bool APlayerCharacter::CanAttack()
 	case EMovementState::EMS_Roll:
 		return false;
 	default:
-		break;
-		/*if (GetWeapon()->GetStaminaCost() < Stat.Stamina)
+		if (GetWeapon()->GetStaminaCost() < Stat.Stamina)
 			return true;
-		else return false;*/
+		else return false;
 
 	}
 	return true;
+}
+
+bool APlayerCharacter::CanMove()
+{
+	CheckFalseResult(Alive(), false);
+
+	return true;
+}
+
+void APlayerCharacter::UpdateStamina(float DeltaStamina)
+{
+	CheckTrue(MovementState == EMovementState::EMS_Dead); //죽었을 때 종료
+	CheckTrue((Stat.Stamina == Stat.MaxStamina) && (MovementState != EMovementState::EMS_Run)); //스테미나 변동이 없을 시 종료
+
+	if (MovementState == EMovementState::EMS_Run && FMath::IsNearlyZero(GetVelocity().Length()) == false)
+	{
+		Stat.Stamina -= DeltaStamina;
+		Stat.Stamina = FMath::Clamp(Stat.Stamina, 0.f, Stat.MaxStamina);
+		if (Stat.Stamina <= 0)
+		{
+			OffRunning();
+		}
+		return;
+	}
+
+	Stat.Stamina += DeltaStamina;
+
+	Stat.Stamina = FMath::Clamp(Stat.Stamina, 0.f, Stat.MaxStamina);
+	return;
+}
+
+void APlayerCharacter::DecrementStamina(float Amount)
+{
+	Stat.Stamina = FMath::Clamp(Stat.Stamina - Amount, 0.f, Stat.MaxStamina);
 }
