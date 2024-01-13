@@ -11,7 +11,7 @@ public class ProjectH : ModuleRules
         //모듈추가
 		PublicDependencyModuleNames.AddRange(new string[] 
         { "Core", "CoreUObject", "Engine", "InputCore"
-        ,"EnhancedInput", "AnimGraphRuntime", "UMG"
+        ,"EnhancedInput","AIModule","GameplayTasks", "AnimGraphRuntime", "UMG"
         ,"FieldSystemEngine"});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

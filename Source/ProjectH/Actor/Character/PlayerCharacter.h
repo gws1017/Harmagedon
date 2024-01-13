@@ -76,6 +76,10 @@ public:
 
 	void End_Attack();
 
+	bool Alive();
+	//추후 인터페이스 분리
+	virtual void Hit(const FVector& ParticleSpawnLocation);
+
 	//외부에서 접근할 수 있는 변수 작성(되도록이면 변수는 private에 작성하고 Getter Setter 이용할 것)
 
 private:

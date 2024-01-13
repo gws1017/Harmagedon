@@ -86,6 +86,25 @@ void APlayerCharacter::End_Attack()
 	bIsAttacking = false;
 }
 
+bool APlayerCharacter::Alive()
+{
+	if (MovementState != EMovementState::EMS_Dead)
+		return true;
+	else return false;
+}
+
+void APlayerCharacter::Hit(const FVector& ParticleSpawnLocation)
+{
+	CheckFalse(Alive());
+
+	//if (AudioComponent->Sound)
+	//	AudioComponent->Play();
+
+	//ResetCombo();
+	SetMovementState(EMovementState::EMS_Hit);
+	PlayAnimMontage(HitMontage);
+}
+
 void APlayerCharacter::Move(const FInputActionValue& value)
 {
 	FVector2D MovementVec = value.Get<FVector2D>();
