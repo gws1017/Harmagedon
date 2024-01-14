@@ -92,6 +92,16 @@ float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	return 0.0f;
 }
 
+float APlayerCharacter::GetDamage()
+{
+	float Damage = Stat.StrengthDamage;
+	if (WeaponInstance)
+	{
+		Damage += WeaponInstance->GetDamage();
+	}
+	return Damage;
+}
+
 void APlayerCharacter::End_Attack()
 {
 	bIsAttacking = false;
@@ -138,6 +148,12 @@ void APlayerCharacter::Hit(const FVector& ParticleSpawnLocation)
 	//ResetCombo();
 	SetMovementState(EMovementState::EMS_Hit);
 	PlayAnimMontage(HitMontage);
+}
+
+void APlayerCharacter::LevelUp(const FPlayerStatus& data)
+{
+	Stat = data;
+	//SaveGameData();
 }
 
 void APlayerCharacter::Move(const FInputActionValue& value)

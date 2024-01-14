@@ -44,26 +44,26 @@ struct FPlayerStatus
 	GENERATED_BODY()
 public:
 
-	UPROPERTY(VisibleAnywhere, Category = "Status")
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
 		float HP;
-	UPROPERTY(VisibleAnywhere, Category = "Status")
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
 		float MaxHP;
-	UPROPERTY(VisibleAnywhere, Category = "Status")
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
 		float Stamina;
-	UPROPERTY(VisibleAnywhere, Category = "Status")
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
 		float MaxStamina;
-	UPROPERTY(VisibleAnywhere, Category = "Status")
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
 		float StrengthDamage;
 
-	UPROPERTY(VisibleAnywhere, Category = "Status")
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
 		int32 Vigor; //생명력 HP에 영향을 끼침
-	UPROPERTY(VisibleAnywhere, Category = "Status")
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
 		int32 Enduarance; //지구력 스테미나에 영향을 끼침
-	UPROPERTY(VisibleAnywhere, Category = "Status")
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
 		int32 Strength; //힘 최종 데미지에 영향을 끼침
-	UPROPERTY(VisibleAnywhere, Category = "Status")
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
 		int32 Level;
-	UPROPERTY(VisibleAnywhere, Category = "Status")
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
 		int32 Exp;
 
 };
@@ -100,10 +100,16 @@ public:
 	FORCEINLINE EWeaponEquipped GetWeaponEquipped() const { return WeaponEquipped; }
 	FORCEINLINE EMovementState GetMovementState() const { return MovementState; }
 
+	UFUNCTION(BlueprintCallable)
+		FORCEINLINE FPlayerStatus GetPlayerStat() const { return Stat; }
 	FORCEINLINE float GetHP() const { return Stat.HP; }
 	FORCEINLINE float GetMaxHP() const { return Stat.MaxHP; }
 	FORCEINLINE float GetStamina() const { return Stat.Stamina; }
 	FORCEINLINE float GetMaxStamina() const { return Stat.MaxStamina; }
+	FORCEINLINE	float GetStrDamage() { return Stat.StrengthDamage; }
+	FORCEINLINE int32 GetPlayerLevel() { return Stat.Level; }
+	UFUNCTION(BlueprintPure)
+		float GetDamage();
 
 	//Setter
 	FORCEINLINE void SetMovementState(const EMovementState& state) {  MovementState = state; }
@@ -116,6 +122,8 @@ public:
 	virtual void DeathEnd();
 
 	virtual void Hit(const FVector& ParticleSpawnLocation);
+	void LevelUp(const FPlayerStatus& data);
+
 	//외부에서 접근할 수 있는 변수 작성(되도록이면 변수는 private에 작성하고 Getter Setter 이용할 것)
 
 private:
@@ -183,7 +191,7 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Weapon")
 		AWeapon* WeaponInstance;
 
-	UPROPERTY(VisibleAnywhere, Category = "Status")
+	UPROPERTY(VisibleAnywhere, Category = "Status", meta = (AllowPrivateAccess = "true"))
 		FPlayerStatus Stat;
 
 	UPROPERTY(EditAnywhere, Category = "Status")
