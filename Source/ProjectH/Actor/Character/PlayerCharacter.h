@@ -31,11 +31,41 @@ enum class EMovementState : uint8
 {
 	EWE_None,
 	EMS_Normal UMETA(DisplayName = "Normal"),
-	EMS_Move UMETA(DisplayName = "Move"),
+	EMS_Run UMETA(DisplayName = "Run"),
 	EMS_Hit UMETA(DisplayName = "Hit"),
 	EMS_Dead UMETA(DisplayName = "Dead"),
 	EMS_Roll UMETA(DisplayName = "Roll"),
 	EMS_MAX UMETA(DisplayName = "DefaultMAX")
+};
+
+USTRUCT(BlueprintType)
+struct FPlayerStatus
+{
+	GENERATED_BODY()
+public:
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
+		float HP;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
+		float MaxHP;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
+		float Stamina;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
+		float MaxStamina;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
+		float StrengthDamage;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
+		int32 Vigor; //생명력 HP에 영향을 끼침
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
+		int32 Enduarance; //지구력 스테미나에 영향을 끼침
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
+		int32 Strength; //힘 최종 데미지에 영향을 끼침
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
+		int32 Level;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
+		int32 Exp;
+
 };
 
 UCLASS()
@@ -55,7 +85,7 @@ protected:
 
 public:	
 	
-	//virtual void Tick(float DeltaTime) override;
+	virtual void Tick(float DeltaTime) override;
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
@@ -70,13 +100,29 @@ public:
 	FORCEINLINE EWeaponEquipped GetWeaponEquipped() const { return WeaponEquipped; }
 	FORCEINLINE EMovementState GetMovementState() const { return MovementState; }
 
+	UFUNCTION(BlueprintCallable)
+		FORCEINLINE FPlayerStatus GetPlayerStat() const { return Stat; }
+	FORCEINLINE float GetHP() const { return Stat.HP; }
+	FORCEINLINE float GetMaxHP() const { return Stat.MaxHP; }
+	FORCEINLINE float GetStamina() const { return Stat.Stamina; }
+	FORCEINLINE float GetMaxStamina() const { return Stat.MaxStamina; }
+	FORCEINLINE	float GetStrDamage() { return Stat.StrengthDamage; }
+	FORCEINLINE int32 GetPlayerLevel() { return Stat.Level; }
+	UFUNCTION(BlueprintPure)
+		float GetDamage();
+
 	//Setter
 	FORCEINLINE void SetMovementState(const EMovementState& state) {  MovementState = state; }
 	FORCEINLINE void SetMovementNormal() {  MovementState = EMovementState::EMS_Normal; }
 
 	void End_Attack();
-
+	
 	bool Alive();
+	void Die();
+	virtual void DeathEnd();
+
+	void LevelUp(const FPlayerStatus& data);
+
 	//추후 인터페이스 분리
 	virtual void Hit(const FVector& ParticleSpawnLocation);
 
@@ -85,7 +131,6 @@ public:
 private:
 
 	//캐릭터 내부에서만 호출되는 함수 작성 (주로 키입력)
-
 	//키입력 관련 함수
 	void Move(const FInputActionValue& value);
 	void Look(const FInputActionValue& value);
@@ -99,7 +144,10 @@ private:
 
 	bool CanRoll();
 	bool CanAttack();
+	bool CanMove();
 
+	void UpdateStamina(float DeltaStamina);
+	void DecrementStamina(float Amount);
 private:
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Component")
@@ -144,6 +192,14 @@ private:
 		TSubclassOf<AWeapon> WeaponClass;
 	UPROPERTY(VisibleAnywhere, Category = "Weapon")
 		AWeapon* WeaponInstance;
+
+	UPROPERTY(VisibleAnywhere, Category = "Status", meta = (AllowPrivateAccess = "true"))
+		FPlayerStatus Stat;
+
+	UPROPERTY(EditAnywhere, Category = "Status")
+		float StaminaRegenRate;
+	UPROPERTY(EditAnywhere, Category = "Status")
+		float RollStamina;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Controller")
 		ABasicPlayerController* PlayerController;
