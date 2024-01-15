@@ -9,7 +9,8 @@
 #include "Particles/ParticleSystem.h"
 
 AEnemy::AEnemy()
-	: MaxHP(1), HP(1), Exp(1)
+	: MaxHP(1), HP(1), Exp(1),
+	AttackRange(20.f)
 {
 	PrimaryActorTick.bCanEverTick = false;
 
@@ -18,6 +19,8 @@ AEnemy::AEnemy()
 
 	AgroSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Ignore);
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+	AIControllerClass = nullptr;
+	Controller = nullptr;
 	Tags.Add("Enemy");
 }
 
@@ -25,8 +28,10 @@ void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 
+	//블루프린트 클래스를 등록할거면 생성자말고 BeginPlay에서해주어야한다
 	AIControllerClass = EnemyControllerClass;
-	EnemyController = Cast<AEnemyController>(GetController());
+	//블루프린트 클래스로 등록된 객체로 교체하는 함수
+	SpawnDefaultController();
 
 	AgroSphere->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::AgroSphereOnOverlapBegin);
 	AgroSphere->OnComponentEndOverlap.AddDynamic(this, &AEnemy::AgroSphereOnOverlapEnd);

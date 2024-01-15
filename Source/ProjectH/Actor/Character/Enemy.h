@@ -54,6 +54,8 @@ public:
 		FORCEINLINE float GetMaxHP() { return MaxHP; }
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE float GetExp() { return Exp; }
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE float GetAttackRange() { return AttackRange; }
 	FVector GetCombatTargetLocation() const;
 
 	//Setter
@@ -82,7 +84,7 @@ public:
 		virtual bool IsHitActorAreaAttack(const FVector& start, const FVector& end,
 			float radius, TArray<AActor*>& HitActors);
 	UFUNCTION(BlueprintPure)
-		bool IsRanged(float radius);
+		bool IsRanged(float radius );
 
 protected:
 
@@ -92,6 +94,8 @@ protected:
 		float HP;
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
 		int32 Exp;
+	UPROPERTY(EditAnywhere, Category = "AI")
+		float AttackRange;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Status")
 		FVector SpawnLocation;
@@ -126,6 +130,8 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "AI")
 		APlayerCharacter* CombatTarget;
+
+
 
 
 	FTimerHandle AlertTimer;

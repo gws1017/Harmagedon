@@ -72,7 +72,7 @@ void ABasicPlayerController::RemoveGameUI(UUserWidget* GameUI)
 		bShowMouseCursor = false;
 		bGameInputMode = false;
 		SetInputMode(FInputModeGameOnly{});
-		if (GameUI->IsInViewport())GameUI->RemoveFromViewport();
+		if (GameUI->IsInViewport())GameUI->RemoveFromParent();
 	}
 }
 
