@@ -1,5 +1,6 @@
 #include "Actor/Item/Weapon/Weapon.h"
-#include "Interface/ICharacter.h"
+#include "Interface/HitInterface.h"
+#include "Actor/Character/PlayerCharacter.h"
 #include "Global.h"
 
 #include "Engine/World.h"
@@ -61,16 +62,16 @@ void AWeapon::BoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 
 	if (!!OtherActor && !IgnoreActors.Contains(OtherActor))
 	{
-		IICharacter* other = Cast<IICharacter>(OtherActor);
+		IHitInterface* other = Cast<IHitInterface>(OtherActor);
 
 		CheckNull(other); 
-		/*if (Owner->ActorHasTag("Player"))
-			AdditionalDamage = Cast<APlayerCharacter>(Owner)->GetStrDamage();*/
+		if (Owner->ActorHasTag("Player"))
+			AdditionalDamage = Cast<APlayerCharacter>(Owner)->GetStrDamage();
 
 		IgnoreActors.AddUnique(OtherActor);
 		CreateField(GetActorLocation());
 
-		//other->Hit(GetActorLocation());
+		other->Hit(GetActorLocation());
 		UGameplayStatics::ApplyDamage(OtherActor, Damage + AdditionalDamage, WeaponInstigator, Owner, DamageTypeClass);
 	}
 

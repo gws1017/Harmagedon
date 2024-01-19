@@ -30,6 +30,7 @@ void AEnemyMeele::AgroSphereOnOverlapBegin(UPrimitiveComponent* OverlappedCompon
 		if (!!player)
 		{
 			SetAlerted(true);
+			WeaponInstance->Equip();
 			CombatTarget = player;
 			//player->SetTarget(this);
 		}
@@ -44,6 +45,7 @@ void AEnemyMeele::AgroSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponen
 		if (!!player)
 		{
 			CombatTarget = nullptr;
+			WeaponInstance->UnEquip();
 			//player->SetTarget(nullptr);
 		}
 	}
@@ -53,5 +55,7 @@ void AEnemyMeele::Attack()
 {
 	AEnemy::Attack();
 	CheckNull(AttackMontage);
+	if (bAlerted && !WeaponInstance->GetEquipped())
+		WeaponInstance->Equip();
 	PlayAnimMontage(AttackMontage);
 }

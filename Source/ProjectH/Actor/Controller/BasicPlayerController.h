@@ -28,6 +28,8 @@ public:
 
 	void ChangeMenuWidget(UUserWidget* NewWidget);
 
+	void ShowRestartMenu();
+
 private:
 
 	void InitializeUIInstance();

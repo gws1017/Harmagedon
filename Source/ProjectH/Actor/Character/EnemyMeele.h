@@ -24,6 +24,8 @@ public:
 	virtual void AgroSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
 
 public:
+	//Getter
+	FORCEINLINE virtual AWeapon* GetWeapon() const override { return WeaponInstance; }
 
 	virtual void Attack() override;
 

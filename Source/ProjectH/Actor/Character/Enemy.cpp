@@ -50,7 +50,7 @@ float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AC
 	if (HP - DamageAmount <= 0.f) //체력이 0이될때 적용후 Die함수 호출
 	{
 		HP = FMath::Clamp(HP - DamageAmount, 0.0f, MaxHP);
-		//CombatTarget->IncreamentExp(Exp);
+		CombatTarget->IncrementExp(Exp);
 		Die();
 	}
 	else //일반적인 데미지 계산
@@ -172,6 +172,7 @@ bool AEnemy::IsRanged(float radius)
 	FVector end = GetActorLocation() + FVector(radius, 0, 0);
 
 	TArray<AActor*> HitActors;
+	DrawDebugSphere(GetWorld(), GetActorLocation(), radius, 12, FColor::White, true, 30.f, 0, 1.f);
 
 	if (IsHitActorAreaAttack(start, end, radius, HitActors))
 		return true;

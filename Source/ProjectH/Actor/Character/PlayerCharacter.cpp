@@ -1,5 +1,6 @@
 #include "Actor/Character/PlayerCharacter.h"
 #include "Actor/Controller/BasicPlayerController.h"
+#include "Actor/Character/Enemy.h"
 #include "Actor/Item/Weapon/Weapon.h"
 #include "Global.h"
 
@@ -41,6 +42,7 @@ APlayerCharacter::APlayerCharacter()
 
 	SpringArm->bDoCollisionTest = false;
 	SpringArm->bUsePawnControlRotation = true;
+	Tags.Add("Player");
 }
 
 void APlayerCharacter::BeginPlay()
@@ -89,7 +91,27 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	return 0.0f;
+	if (DamageAmount <= 0.f /*|| EPlayerStat::EPS_Invincible == PlayerStat*/)
+		return DamageAmount;
+
+	if (Stat.HP - DamageAmount <= 0.f)
+	{
+		Stat.HP = FMath::Clamp(Stat.HP - DamageAmount, 0.0f, Stat.MaxHP);
+		AEnemy* enemy = Cast<AEnemy>(DamageCauser);
+		if (enemy)
+		{
+			enemy->InitTarget();
+			enemy->SetAlerted(false);
+		}
+		Die();
+	}
+	else
+	{
+		Stat.HP = FMath::Clamp(Stat.HP - DamageAmount, 0.0f, Stat.MaxHP);
+	}
+
+	UE_LOG(LogTemp, Display, L"Player Current HP : %f", Stat.HP);
+	return DamageAmount;
 }
 
 float APlayerCharacter::GetDamage()
@@ -129,7 +151,7 @@ void APlayerCharacter::Die()
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	if (!!WeaponInstance)
 		WeaponInstance->DeactivateCollision();
-	//GetController<APlayerController>()->ShowRestartenu();
+	GetController<ABasicPlayerController>()->ShowRestartMenu();
 }
 
 void APlayerCharacter::DeathEnd()
@@ -148,6 +170,11 @@ void APlayerCharacter::Hit(const FVector& ParticleSpawnLocation)
 	//ResetCombo();
 	SetMovementState(EMovementState::EMS_Hit);
 	PlayAnimMontage(HitMontage);
+}
+
+void APlayerCharacter::IncrementExp(float Amount)
+{
+	Stat.Exp += Amount;
 }
 
 void APlayerCharacter::LevelUp(const FPlayerStatus& data)

@@ -2,6 +2,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Interface/HitInterface.h"
+#include "Interface/ICharacter.h"
 #include "Enemy.generated.h"
 
 class APlayerCharacter;
@@ -13,7 +15,7 @@ class UAnimMontage;
 class UDamageType;
 
 UCLASS()
-class PROJECTH_API AEnemy : public ACharacter
+class PROJECTH_API AEnemy : public ACharacter, public IICharacter, public IHitInterface
 {
 	GENERATED_BODY()
 
@@ -45,6 +47,9 @@ public:
 public:
 
 	//Getter
+
+	FORCEINLINE virtual AWeapon* GetWeapon() const { return nullptr; }//인터페이스 분리예정
+
 	FORCEINLINE bool GetAlerted() { return bAlerted; }
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE APlayerCharacter* GetTarget() { return (!!CombatTarget) ? CombatTarget : nullptr; }
@@ -70,7 +75,7 @@ public:
 	virtual void End_Attack();
 	virtual void Attack();
 
-	void Hit(const FVector& ParticleSpawnLocation);
+	virtual void Hit(const FVector& ParticleSpawnLocation);
 
 	virtual bool Alive();
 

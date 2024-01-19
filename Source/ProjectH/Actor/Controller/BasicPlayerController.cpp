@@ -90,3 +90,8 @@ void ABasicPlayerController::ChangeMenuWidget(UUserWidget* NewWidget)
 		CurrentWidget->AddToViewport();
 	}
 }
+
+void ABasicPlayerController::ShowRestartMenu()
+{
+	ShowGameUI(RestartMenuInstance);
+}

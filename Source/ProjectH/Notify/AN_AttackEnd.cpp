@@ -4,7 +4,7 @@
 
 FString UAN_AttackEnd::GetNotifyName_Implementation() const
 {
-	return "RollEnd";
+	return "AttackEnd";
 }
 
 void UAN_AttackEnd::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,

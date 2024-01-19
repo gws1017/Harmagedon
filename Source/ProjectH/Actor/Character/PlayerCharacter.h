@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Interface/ICharacter.h"
+#include "Interface/HitInterface.h"
 #include "PlayerCharacter.generated.h"
 
 //헤더는 전방선언 할 것
@@ -69,7 +70,7 @@ public:
 };
 
 UCLASS()
-class PROJECTH_API APlayerCharacter : public ACharacter, public IICharacter
+class PROJECTH_API APlayerCharacter : public ACharacter, public IICharacter, public IHitInterface
 {
 	GENERATED_BODY()
 
@@ -121,6 +122,7 @@ public:
 	void Die();
 	virtual void DeathEnd();
 
+	void IncrementExp(float Amount);
 	void LevelUp(const FPlayerStatus& data);
 
 	//추후 인터페이스 분리
