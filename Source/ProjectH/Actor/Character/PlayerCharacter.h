@@ -117,7 +117,9 @@ public:
 	FORCEINLINE void SetMovementNormal() {  MovementState = EMovementState::EMS_Normal; }
 
 	void End_Attack();
-	
+	void AttackCombo();
+	void ResetAttack();
+
 	bool Alive();
 	void Die();
 	virtual void DeathEnd();
@@ -143,6 +145,7 @@ private:
 	void EquipWeapon();
 	
 	void Attack();
+	void PlayAttackMontage();
 
 	bool CanRoll();
 	bool CanAttack();
@@ -182,8 +185,14 @@ private:
 		UAnimMontage* RollMontage;
 
 
-	UPROPERTY(VisibleAnywhere, Category = "Montage | Attack")
+	UPROPERTY(VisibleAnywhere, Category = "Attack")
 		bool bIsAttacking = false;
+	UPROPERTY(VisibleAnywhere, Category = "Attack")
+		bool bSaveAttack = false;
+	UPROPERTY(EditAnywhere, Category = "Attack")
+		int32 AttackCount;
+	UPROPERTY(EditAnywhere, Category = "Attack")
+		int32 NumberOfAttacks;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Enums")
 		EWeaponEquipped WeaponEquipped;
@@ -202,6 +211,7 @@ private:
 		float StaminaRegenRate;
 	UPROPERTY(EditAnywhere, Category = "Status")
 		float RollStamina;
+
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Controller")
 		ABasicPlayerController* PlayerController;

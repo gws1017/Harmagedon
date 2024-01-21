@@ -21,6 +21,8 @@
 APlayerCharacter::APlayerCharacter()
 	:WeaponEquipped(EWeaponEquipped::EWE_Fist),
 	MovementState(EMovementState::EMS_Normal),
+	AttackCount(0),
+	NumberOfAttacks(2),
 	Stat{ 15,15,50,50,0,1,1,1,1,0 },
 	StaminaRegenRate(2.f),
 	RollStamina(10.f)
@@ -129,6 +131,70 @@ void APlayerCharacter::End_Attack()
 	bIsAttacking = false;
 }
 
+void APlayerCharacter::AttackCombo()
+{
+	if (bSaveAttack)
+	{
+		bSaveAttack = false;
+		if (NumberOfAttacks > AttackCount)
+		{
+			PlayAttackMontage();
+		}
+		else
+		{
+			FTimerHandle ResetTimer;
+			GetWorld()->GetTimerManager().SetTimer(ResetTimer, FTimerDelegate::CreateLambda([&]()
+				{
+					ResetAttack();
+					GetWorld()->GetTimerManager().ClearTimer(ResetTimer);
+				}),0.3f,false);
+		}
+	}
+	else
+		ResetAttack();
+}
+
+void APlayerCharacter::ResetAttack()
+{
+	bSaveAttack = false;
+	AttackCount = 0;
+	bIsAttacking = false;
+}
+
+void APlayerCharacter::Attack()
+{
+	CheckFalse(CanAttack());
+	if (bIsAttacking)
+	{
+		bSaveAttack = true;
+	}
+	else
+	{
+		bIsAttacking = true;
+		PlayAttackMontage();
+	}
+		
+}
+
+void APlayerCharacter::PlayAttackMontage()
+{
+	CLog::Print(AttackCount);
+	auto AnimInstance = GetMesh()->GetAnimInstance();
+	switch (AttackCount)
+	{
+	case 0:
+		AnimInstance->Montage_Play(AttackMontage);
+		AnimInstance->Montage_JumpToSection("AttackA");
+		break;
+	case 1:
+		AnimInstance->Montage_Play(AttackMontage);
+		AnimInstance->Montage_JumpToSection("AttackB");
+		break;
+	}
+	AttackCount++;
+	DecrementStamina(WeaponInstance->GetStaminaCost());
+}
+
 bool APlayerCharacter::Alive()
 {
 	if (MovementState != EMovementState::EMS_Dead)
@@ -167,7 +233,7 @@ void APlayerCharacter::Hit(const FVector& ParticleSpawnLocation)
 	//if (AudioComponent->Sound)
 	//	AudioComponent->Play();
 
-	//ResetCombo();
+	ResetAttack();
 	SetMovementState(EMovementState::EMS_Hit);
 	PlayAnimMontage(HitMontage);
 }
@@ -242,14 +308,6 @@ void APlayerCharacter::EquipWeapon()
 	WeaponInstance->Equip();
 }
 
-void APlayerCharacter::Attack()
-{
-	CheckFalse(CanAttack());
-	bIsAttacking = true;
-	PlayAnimMontage(AttackMontage);
-	DecrementStamina(WeaponInstance->GetStaminaCost());
-}
-
 bool APlayerCharacter::CanRoll()
 {
 	CheckTrueResult(bIsAttacking, false);
@@ -273,7 +331,6 @@ bool APlayerCharacter::CanAttack()
 {
 	CheckNullResult(AttackMontage,false);
 	//if (PlayerController)CheckFalseResult(PlayerController->GetGameMode(), false);
-	CheckTrueResult(bIsAttacking, false);
 	CheckFalseResult(WeaponInstance->GetEquipped(), false);
 	CheckTrueResult(WeaponInstance->GetEquipping(), false);
 	switch (MovementState)
