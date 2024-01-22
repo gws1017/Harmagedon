@@ -2,6 +2,7 @@
 #include "Actor/Controller/BasicPlayerController.h"
 #include "Actor/Character/Enemy.h"
 #include "Actor/Item/Weapon/Weapon.h"
+#include "Actor/Item/PickupItem.h"
 #include "Global.h"
 
 //언리얼 관련 헤더는 아래쪽에, 프로그래머가작성한 헤더는 위쪽으로 분리
@@ -84,6 +85,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 		EnhancedInput->BindAction(RollAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Roll);
 		EnhancedInput->BindAction(AttackAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Attack);
+		EnhancedInput->BindAction(InteractionAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Interaction);
 
 		EnhancedInput->BindAction(RunAction, ETriggerEvent::Triggered, this, &APlayerCharacter::OnRunning);
 		EnhancedInput->BindAction(RunAction, ETriggerEvent::Completed, this, &APlayerCharacter::OffRunning);
@@ -306,6 +308,12 @@ void APlayerCharacter::EquipWeapon()
 	}
 
 	WeaponInstance->Equip();
+}
+
+void APlayerCharacter::Interaction()
+{
+	CheckNull(OverlappingItem);
+	OverlappingItem->OnInteraction();
 }
 
 bool APlayerCharacter::CanRoll()

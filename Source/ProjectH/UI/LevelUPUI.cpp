@@ -126,7 +126,8 @@ void ULevelUPUI::OnClickOKBtn()
 
 	if (OKUI)
 	{
-		OKUI->ClickOKBtnFunction.BindUFunction(this, "LevelUp");
+		if(!OKUI->ClickOKBtnFunction.IsBound())
+			OKUI->ClickOKBtnFunction.BindUFunction(this, "LevelUp");
 		OKUI->AddToViewport();
 	}
 }

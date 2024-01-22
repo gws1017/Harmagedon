@@ -15,6 +15,7 @@ class UInputAction;
 
 class ABasicPlayerController;
 class AWeapon;
+class APickupItem;
 
 struct FInputActionValue;
 
@@ -115,6 +116,7 @@ public:
 	//Setter
 	FORCEINLINE void SetMovementState(const EMovementState& state) {  MovementState = state; }
 	FORCEINLINE void SetMovementNormal() {  MovementState = EMovementState::EMS_Normal; }
+	FORCEINLINE void SetOverlappingItem(APickupItem* Item) { OverlappingItem = Item; }
 
 	void End_Attack();
 	void AttackCombo();
@@ -143,6 +145,7 @@ private:
 	void OffRunning();
 	void Roll();
 	void EquipWeapon();
+	void Interaction();
 	
 	void Attack();
 	void PlayAttackMontage();
@@ -174,6 +177,8 @@ private:
 		UInputAction* AttackAction;
 	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 		UInputAction* EquipAction;
+	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+		UInputAction* InteractionAction;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Montage", meta = (AllowPrivateAccess = "true"))
 		UAnimMontage* DeathMontage;
@@ -212,7 +217,8 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Status")
 		float RollStamina;
 
-
+	UPROPERTY(VisibleInstanceOnly, Category = "Item")
+		APickupItem* OverlappingItem;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Controller")
 		ABasicPlayerController* PlayerController;
 
