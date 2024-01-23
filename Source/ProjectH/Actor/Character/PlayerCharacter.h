@@ -16,6 +16,7 @@ class UInputAction;
 class ABasicPlayerController;
 class AWeapon;
 class APickupItem;
+class AExpItem;
 
 struct FInputActionValue;
 
@@ -132,6 +133,11 @@ public:
 	//추후 인터페이스 분리
 	virtual void Hit(const FVector& ParticleSpawnLocation);
 
+	UFUNCTION(BlueprintCallable)
+		void SaveGameData(int32 SaveType = 0);
+	UFUNCTION(BlueprintCallable)
+		void LoadGameData();
+
 	//외부에서 접근할 수 있는 변수 작성(되도록이면 변수는 private에 작성하고 Getter Setter 이용할 것)
 
 private:
@@ -217,6 +223,13 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Status")
 		float RollStamina;
 
+	UPROPERTY(EditAnywhere, Category = "SaveData")
+		FVector StartPoint;
+	UPROPERTY(VisibleDefaultsOnly, Category = "SaveData")
+		FVector DeathLocation;
+
+	UPROPERTY(EditAnywhere, Category = "BPClass")
+		TSubclassOf<AExpItem> LostExpClass;
 	UPROPERTY(VisibleInstanceOnly, Category = "Item")
 		APickupItem* OverlappingItem;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Controller")

@@ -3,6 +3,8 @@
 #include "Actor/Character/Enemy.h"
 #include "Actor/Item/Weapon/Weapon.h"
 #include "Actor/Item/PickupItem.h"
+#include "Actor/Item/ExpItem.h"
+#include "System/MySaveGame.h"
 #include "Global.h"
 
 //언리얼 관련 헤더는 아래쪽에, 프로그래머가작성한 헤더는 위쪽으로 분리
@@ -20,13 +22,14 @@
 #include "PlayerCharacter.h"
 
 APlayerCharacter::APlayerCharacter()
-	:WeaponEquipped(EWeaponEquipped::EWE_Fist),
-	MovementState(EMovementState::EMS_Normal),
-	AttackCount(0),
+	:AttackCount(0),
 	NumberOfAttacks(2),
+	WeaponEquipped(EWeaponEquipped::EWE_Fist),
+	MovementState(EMovementState::EMS_Normal),
 	Stat{ 15,15,50,50,0,1,1,1,1,0 },
 	StaminaRegenRate(2.f),
-	RollStamina(10.f)
+	RollStamina(10.f),
+	StartPoint(0.f,0.f,0.f)
 {
 	//Tick함수 안쓰면 일단 꺼놓기
 	PrimaryActorTick.bCanEverTick = true;
@@ -56,6 +59,7 @@ void APlayerCharacter::BeginPlay()
 
 	if(!!WeaponClass)
 		WeaponInstance = AWeapon::Spawn<AWeapon>(GetWorld(),WeaponClass, this);
+	LoadGameData();
 
 	CheckNull(PlayerController);
 	if (UEnhancedInputLocalPlayerSubsystem* SubSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
@@ -207,7 +211,7 @@ bool APlayerCharacter::Alive()
 void APlayerCharacter::Die()
 {
 	CheckNull(DeathMontage);
-	//SaveGameData(1);
+	SaveGameData(1);
 
 	SetMovementState(EMovementState::EMS_Dead);
 	GetCharacterMovement()->StopMovementImmediately();
@@ -240,6 +244,60 @@ void APlayerCharacter::Hit(const FVector& ParticleSpawnLocation)
 	PlayAnimMontage(HitMontage);
 }
 
+void APlayerCharacter::SaveGameData(int32 SaveType)
+{
+	UMySaveGame* SaveGameInstance = Cast<UMySaveGame>(UGameplayStatics::CreateSaveGameObject(UMySaveGame::StaticClass()));
+
+	SaveGameInstance->SaveData = {
+		Stat,
+		0,
+		GetActorLocation(),
+		GetActorRotation(),
+		StartPoint,
+		DeathLocation
+	};
+	if (SaveType == 1)//죽었을때 수정해야하는 부분
+	{
+		SaveGameInstance->SaveData.Location = StartPoint;
+		SaveGameInstance->SaveData.LostExp = Stat.Exp; //현재경험치를 LostExp로 저장, 평소에는 0이 기본
+		SaveGameInstance->SaveData.Status.Exp = 0;
+		SaveGameInstance->SaveData.Status.HP = Stat.MaxHP;
+		SaveGameInstance->SaveData.DeathLocation = GetActorLocation();
+	}
+	UGameplayStatics::SaveGameToSlot(SaveGameInstance, SaveGameInstance->PlayerName, SaveGameInstance->UserIndex);
+}
+
+void APlayerCharacter::LoadGameData()
+{
+	UMySaveGame* LoadGameInstance = Cast<UMySaveGame>(UGameplayStatics::CreateSaveGameObject(UMySaveGame::StaticClass()));
+	LoadGameInstance = Cast<UMySaveGame>(UGameplayStatics::LoadGameFromSlot(LoadGameInstance->PlayerName, LoadGameInstance->UserIndex));
+
+	if (LoadGameInstance)
+	{
+		FSaveData Data = LoadGameInstance->SaveData;
+		Stat = Data.Status;
+		Stat.Stamina = Stat.MaxStamina;
+		SetActorLocation(Data.Location);
+		SetActorRotation(Data.Rotation);
+		StartPoint = Data.StartPoint;
+		if (Data.LostExp != 0) {
+			if (LostExpClass)
+			{
+				AExpItem* actor = GetWorld()->SpawnActor<AExpItem>(LostExpClass);
+				FVector Loc = Data.DeathLocation;
+				Loc.Z -= 90.f;
+				actor->Init(Data.LostExp, Loc);
+			}
+			else CLog::Log("LostExp BP is not valid");
+		}
+
+		SetMovementState(EMovementState::EMS_Normal);
+		GetMesh()->bPauseAnims = false;
+		GetMesh()->bNoSkeletonUpdate = false;
+	}
+	else CLog::Log("SaveData is not valid");
+}
+
 void APlayerCharacter::IncrementExp(float Amount)
 {
 	Stat.Exp += Amount;
@@ -248,7 +306,7 @@ void APlayerCharacter::IncrementExp(float Amount)
 void APlayerCharacter::LevelUp(const FPlayerStatus& data)
 {
 	Stat = data;
-	//SaveGameData();
+	SaveGameData();
 }
 
 void APlayerCharacter::Move(const FInputActionValue& value)
