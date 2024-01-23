@@ -60,6 +60,8 @@ void AWeapon::BoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 	if (IsSameTagWithTarget(OtherActor, "Enemy")) return;
 	if (IsSameTagWithTarget(OtherActor, "Player")) return;
 
+	CreateField(GetActorLocation());
+
 	if (!!OtherActor && !IgnoreActors.Contains(OtherActor))
 	{
 		IHitInterface* other = Cast<IHitInterface>(OtherActor);
@@ -69,12 +71,10 @@ void AWeapon::BoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 			AdditionalDamage = Cast<APlayerCharacter>(Owner)->GetStrDamage();
 
 		IgnoreActors.AddUnique(OtherActor);
-		CreateField(GetActorLocation());
 
 		other->Hit(GetActorLocation());
 		UGameplayStatics::ApplyDamage(OtherActor, Damage + AdditionalDamage, WeaponInstigator, Owner, DamageTypeClass);
 	}
-
 }
 
 void AWeapon::ActivateCollision()
@@ -97,7 +97,7 @@ void AWeapon::CreateField(const FVector& FieldLocation)
 	FieldSystemComponent->ApplyPhysicsField(true, EFieldPhysicsType::Field_ExternalClusterStrain, nullptr, RadialFalloff);
 	FieldSystemComponent->ApplyPhysicsField(true, EFieldPhysicsType::Field_LinearForce, MetaData, RadialVector);
 
-	//DrawDebugSphere(GetWorld(), FieldLocation, 25.f, 12, FColor::White, true, 30.f, 0, 1.f);
+	DrawDebugSphere(GetWorld(), FieldLocation, 25.f, 12, FColor::White, true, 30.f, 0, 1.f);
 }
 
 void AWeapon::Equip()
