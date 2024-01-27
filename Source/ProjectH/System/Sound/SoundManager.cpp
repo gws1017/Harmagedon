@@ -81,13 +81,12 @@ void ASoundManager::PlaySFXAtLocation(AActor* PlayActor, ESFXType Type, FVector 
 		//재생할 액터에 채널이 달려있나 확인
 		if (SFXChannelMap.Contains(PlayActor->GetName()) == false)
 			AttachSFXChannel(PlayActor, Type);
-
-		SFXChannelMap[PlayActor->GetName()]->SetSound(SFXSoundMap[Type]);
+		
 		//미리 지정한 사운드가 있으면 그걸로 교체후 재생
 		if (!!Sound)
 			SFXChannelMap[PlayActor->GetName()]->SetSound(Sound);
 		else
-			CLog::Log("Invalid SoundCue Asset!");
+			SFXChannelMap[PlayActor->GetName()]->SetSound(SFXSoundMap[Type]);
 
 		SFXChannelMap[PlayActor->GetName()]->Play();
 	}

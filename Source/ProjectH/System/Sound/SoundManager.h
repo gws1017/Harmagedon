@@ -21,6 +21,7 @@ UENUM(BlueprintType)
 enum class ESFXType : uint8
 {
 	ESFXType_None UMETA(DisplayName = "None"),
+	ESFXType_FootStep UMETA(DisplayName = "FootStep"),
 	ESFXType_DefaultMax UMETA(DisplayName = "Max")
 };
 
