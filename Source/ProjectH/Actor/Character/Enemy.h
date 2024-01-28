@@ -14,6 +14,8 @@ class USphereComponent;
 class UAnimMontage;
 class UDamageType;
 
+DECLARE_DELEGATE(FDercementEnemyCount);
+
 UCLASS()
 class PROJECTH_API AEnemy : public ACharacter, public IICharacter, public IHitInterface
 {
@@ -26,6 +28,7 @@ public:
 protected:
 	
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:	
 
@@ -91,6 +94,8 @@ public:
 	UFUNCTION(BlueprintPure)
 		bool IsRanged(float radius );
 
+	FDercementEnemyCount DecrementEnemyFunc;
+
 protected:
 
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "Status")
@@ -135,8 +140,6 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "AI")
 		APlayerCharacter* CombatTarget;
-
-
 
 
 	FTimerHandle AlertTimer;

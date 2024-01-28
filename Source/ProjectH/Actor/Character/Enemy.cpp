@@ -42,6 +42,12 @@ void AEnemy::BeginPlay()
 	SpawnLocation = GetActorLocation();
 }
 
+void AEnemy::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+	DecrementEnemyFunc.Unbind();
+}
+
 float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	if (DamageAmount <= 0.f)
@@ -116,8 +122,8 @@ bool AEnemy::Alive()
 
 void AEnemy::Die()
 {
-	//if (Spawner)
-	//	Spawner->DecrementMonsterCount();
+	if (DecrementEnemyFunc.IsBound())
+		DecrementEnemyFunc.Execute();
 	if (CombatTarget)
 		CombatTarget = nullptr;
 
