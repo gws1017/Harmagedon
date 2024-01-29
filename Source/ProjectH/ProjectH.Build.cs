@@ -13,7 +13,7 @@ public class ProjectH : ModuleRules
         { "Core", "CoreUObject", "Engine", "InputCore"
         ,"EnhancedInput","AIModule","GameplayTasks", "AnimGraphRuntime", "UMG"
         ,"FieldSystemEngine","NavigationSystem", "Niagara"
-        ,"GeometryCollectionEngine","PhysicsCore"});
+        ,"GeometryCollectionEngine","PhysicsCore","LevelSequence","MovieScene"});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
