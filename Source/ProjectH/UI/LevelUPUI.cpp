@@ -1,6 +1,6 @@
 #include "UI/LevelUPUI.h"
 #include "UI/DialogBoxUI.h"
-#include "DataTable/CharacterAbilityTables.h"
+#include "Data/CharacterAbilityTables.h"
 #include "Actor/Character/PlayerCharacter.h"
 #include "System/MyGameInstance.h"
 #include "Global.h"

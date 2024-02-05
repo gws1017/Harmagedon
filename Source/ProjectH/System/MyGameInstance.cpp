@@ -1,5 +1,5 @@
 #include "System/MyGameInstance.h"
-#include "DataTable/CharacterAbilityTables.h"
+#include "Data/CharacterAbilityTables.h"
 #include "Global.h"
 
 UMyGameInstance::UMyGameInstance()
