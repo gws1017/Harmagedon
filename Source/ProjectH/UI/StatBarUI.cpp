@@ -7,7 +7,7 @@ float UStatBarUI::GetHPPercent()
 	if (!!OwnerCharacter)
 		return (OwnerCharacter->GetHP() / OwnerCharacter->GetMaxHP());
 	else
-		OwnerCharacter = GetOwnerCharacater();
+		OwnerCharacter = GetOwnerCharacter();
 	return 0.0f;
 }
 
@@ -16,6 +16,6 @@ float UStatBarUI::GetStaminaPercent()
 	if (!!OwnerCharacter)
 		return (OwnerCharacter->GetStamina() / OwnerCharacter->GetMaxStamina());
 	else
-		OwnerCharacter = GetOwnerCharacater();
+		OwnerCharacter = GetOwnerCharacter();
 	return 0.0f;
 }

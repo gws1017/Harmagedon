@@ -9,15 +9,15 @@ class AItem;
 UENUM(BlueprintType)
 enum class EEquipType : uint8
 {
-	EEquipType_None UMETA(DisplayName = "None"),
-	EEquipType_Shoe UMETA(DisplayName = "Shoe"),
-	EEquipType_LeftHand UMETA(DisplayName = "LeftHand"),
-	EEquipType_RightHand UMETA(DisplayName = "RightHand"),
-	EEquipType_Top UMETA(DisplayName = "Top"),
-	EEquipType_Bottom UMETA(DisplayName = "Bottom"),
-	EEquipType_Head UMETA(DisplayName = "Head"),
-	EEquipType_Consumalbe UMETA(DisplayName = "Consumalbe"),
-	EEquipType_DefaultMax UMETA(DisplayName = "DefaultMax")
+	ET_None UMETA(DisplayName = "None"),
+	ET_Shoe UMETA(DisplayName = "Shoe"),
+	ET_LeftHand UMETA(DisplayName = "LeftHand"),
+	ET_RightHand UMETA(DisplayName = "RightHand"),
+	ET_Top UMETA(DisplayName = "Top"),
+	ET_Bottom UMETA(DisplayName = "Bottom"),
+	ET_Head UMETA(DisplayName = "Head"),
+	ET_Consumalbe UMETA(DisplayName = "Consumalbe"),
+	ET_DefaultMax UMETA(DisplayName = "DefaultMax")
 };
 
 USTRUCT(BlueprintType)
@@ -40,6 +40,8 @@ struct FItemNumericData
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ToolTip = "구매시 필요 재화량"))
 		float PurchasePrice;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ToolTip = "무게"))
+		float Weight;
 };
 
 USTRUCT(BlueprintType)
@@ -64,7 +66,6 @@ struct FItemData : public FTableRowBase
 public:
 	FItemData() :
 		ItemCode(-1),
-		EquipType(),
 		TextData(),
 		NumericData(),
 		AssetData()
@@ -72,21 +73,18 @@ public:
 
 	}
 
-	FItemData(int itemCode, EEquipType equipType, FText name, FText description, float numericData, int32 sellValue)
-		: ItemCode(itemCode), EquipType(equipType)
+	FItemData(int itemCode, FText name, FText description, float Price, float Weight)
+		: ItemCode(itemCode), EquipType(EEquipType::ET_None)
 	{
 		TextData.Name = name;
 		TextData.Description = description;
 
-		NumericData.PurchasePrice = numericData;
+		NumericData.PurchasePrice = Price;
+		NumericData.Weight = Weight;
 	}
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemData")
 		int64 ItemCode;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemData")
-
-		EEquipType EquipType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemData")
 		FItemTextData TextData;
@@ -94,7 +92,8 @@ public:
 		FItemNumericData NumericData;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemData")
 		FItemAssetData AssetData;
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemData")
+		EEquipType EquipType;
 
 	bool operator==(const FItemData& OtherData) const
 	{

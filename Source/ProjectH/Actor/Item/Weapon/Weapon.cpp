@@ -1,6 +1,7 @@
 #include "Actor/Item/Weapon/Weapon.h"
-#include "Interface/HitInterface.h"
 #include "Actor/Character/PlayerCharacter.h"
+#include "Data/ItemData.h"
+#include "Interface/HitInterface.h"
 #include "Global.h"
 
 #include "Engine/World.h"
@@ -39,7 +40,7 @@ void AWeapon::BeginPlay()
 	WeaponCollision->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
 	WeaponCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
 	WeaponCollision->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::BoxBeginOverlap);
-	
+
 	OwnerCharacter = Cast<ACharacter>(GetOwner());
 	//이 무기를 가진 캐릭터의 컨트롤러를 등록함
 	SetInstigator(OwnerCharacter->GetController());
@@ -66,7 +67,7 @@ void AWeapon::BoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 	{
 		IHitInterface* other = Cast<IHitInterface>(OtherActor);
 
-		CheckNull(other); 
+		CheckNull(other);
 		if (Owner->ActorHasTag("Player"))
 			AdditionalDamage = Cast<APlayerCharacter>(Owner)->GetStrDamage();
 
@@ -100,20 +101,25 @@ void AWeapon::CreateField(const FVector& FieldLocation)
 	DrawDebugSphere(GetWorld(), FieldLocation, 25.f, 12, FColor::White, true, 30.f, 0, 1.f);
 }
 
-void AWeapon::Equip()
+void AWeapon::Equip(EEquipType Type)
 {
 	CheckTrue(bEquipped);//이미 착용중이면 함수 종료
 	CheckTrue(bEquipping);//무기 꺼내는중이여도 종료
+	if (OwnerCharacter == nullptr)
+	{
+		CLog::Log("Weapon Owner is Nullptr!");
+		return;
+	}
 
+	SetSocketName(Type);
 	bEquipping = true;
-
 	OwnerCharacter->PlayAnimMontage(DrawMontage);
 
 	SetInstigator(OwnerCharacter->GetController()); //무기 변경 시 컨틀롤러 재등록 고려
 
 }
 
-void AWeapon::UnEquip()
+void AWeapon::UnEquip(EEquipType Type)
 {
 	CheckFalse(bEquipped);
 	CheckTrue(bEquipping);//무기 넣는중이여도 종료
@@ -127,7 +133,7 @@ void AWeapon::UnEquip()
 void AWeapon::Begin_Equip()
 {
 	bEquipped = true;
-	AttachToComponent(OwnerCharacter->GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), DrawSocket);
+	AttachToComponent(OwnerCharacter->GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), EquipSocket);
 }
 
 void AWeapon::End_Equip()
@@ -145,7 +151,8 @@ void AWeapon::Begin_UnEquip()
 void AWeapon::End_UnEquip()
 {
 	bEquipping = false;
-	AttachToComponent(OwnerCharacter->GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), SheathSocket);
+	Destroy();
+	//AttachToComponent(OwnerCharacter->GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), SheathSocket);
 }
 
 void AWeapon::Begin_Collision()

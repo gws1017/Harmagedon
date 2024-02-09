@@ -5,6 +5,8 @@
 #include "Actor/Item/PickupItem.h"
 #include "Actor/Item/ExpItem.h"
 #include "System/MySaveGame.h"
+
+#include "Component/InventoryComponent.h"
 #include "Global.h"
 
 //언리얼 관련 헤더는 아래쪽에, 프로그래머가작성한 헤더는 위쪽으로 분리
@@ -19,7 +21,6 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "InputActionValue.h"
-#include "PlayerCharacter.h"
 
 APlayerCharacter::APlayerCharacter()
 	:AttackCount(0),
@@ -40,6 +41,7 @@ APlayerCharacter::APlayerCharacter()
 
 	UHelpers::CreateComponent<USpringArmComponent>(this, &SpringArm, "SpringArm", GetCapsuleComponent());
 	UHelpers::CreateComponent<UCameraComponent>(this, &Camera, "Camera", SpringArm);
+	UHelpers::CreateActorComponent<UInventoryComponent>(this, &InventoryComponent, "Inventory");
 
 	bUseControllerRotationYaw = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
@@ -56,9 +58,10 @@ void APlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	PlayerController = Cast<ABasicPlayerController>(GetController());
+	InventoryComponent->AddItem(1,true);
 
-	if(!!WeaponClass)
-		WeaponInstance = AWeapon::Spawn<AWeapon>(GetWorld(),WeaponClass, this);
+	//if(!!WeaponClass)
+	//	WeaponInstance = AWeapon::Spawn<AWeapon>(GetWorld(),WeaponClass, this);
 	LoadGameData();
 
 	CheckNull(PlayerController);
@@ -358,14 +361,17 @@ void APlayerCharacter::Roll()
 void APlayerCharacter::EquipWeapon()
 {
 	CheckFalse(Alive());
-	CheckNull(WeaponInstance);
-	if (WeaponInstance->GetEquipped())
+	if (WeaponInstance == nullptr)
 	{
-		WeaponInstance->UnEquip();
+		//InventoryComponent->Equip(EEquipType::ET_RightHand, WeaponInstance);
+	}
+	else
+	{
+		//InventoryComponent->UnEquip(EEquipType::ET_RightHand);
 		return;
 	}
 
-	WeaponInstance->Equip();
+	//WeaponInstance->Equip();
 }
 
 void APlayerCharacter::Interaction()
@@ -395,6 +401,7 @@ bool APlayerCharacter::CanRoll()
 
 bool APlayerCharacter::CanAttack()
 {
+	CheckNullResult(WeaponInstance,false);
 	CheckNullResult(AttackMontage,false);
 	//if (PlayerController)CheckFalseResult(PlayerController->GetGameMode(), false);
 	CheckFalseResult(WeaponInstance->GetEquipped(), false);
@@ -446,4 +453,10 @@ void APlayerCharacter::UpdateStamina(float DeltaStamina)
 void APlayerCharacter::DecrementStamina(float Amount)
 {
 	Stat.Stamina = FMath::Clamp(Stat.Stamina - Amount, 0.f, Stat.MaxStamina);
+}
+
+void APlayerCharacter::UpdateEquipItem()
+{
+	//장착중인 상태인 장비를 확인후 실제 플레이어 소켓에 장착한다.
+	
 }

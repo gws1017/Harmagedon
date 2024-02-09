@@ -8,7 +8,7 @@ void UBaseUI::NativePreConstruct()
 	Super::NativePreConstruct();
 }
 
-APlayerCharacter* UBaseUI::GetOwnerCharacater()
+APlayerCharacter* UBaseUI::GetOwnerCharacter()
 {
 	if (!OwnerCharacter)
 		OwnerCharacter = GetOwningPlayerPawn<APlayerCharacter>();

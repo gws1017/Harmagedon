@@ -16,7 +16,7 @@ public:
 	void Init(int32 LostExp, const FVector& Location);
 
 	virtual void OnInteraction() override;
-
+	virtual void Use() override;
 private:
 
 	UPROPERTY(EditAnywhere, Category = "Exp")

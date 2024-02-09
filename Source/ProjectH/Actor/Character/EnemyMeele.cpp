@@ -1,6 +1,7 @@
 #include "Actor/Character/EnemyMeele.h"
 #include "Actor/Character/PlayerCharacter.h"
 #include "Actor/Item/Weapon/Weapon.h"
+#include "Data/ItemData.h"
 #include "Global.h"
 
 #include "Components/SphereComponent.h"
@@ -18,8 +19,7 @@ AEnemyMeele::AEnemyMeele()
 void AEnemyMeele::BeginPlay()
 {
 	Super::BeginPlay();
-	if (!!WeaponClass)
-		WeaponInstance = AWeapon::Spawn<AWeapon>(GetWorld(), WeaponClass, this);
+	
 }
 
 void AEnemyMeele::AgroSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -30,7 +30,9 @@ void AEnemyMeele::AgroSphereOnOverlapBegin(UPrimitiveComponent* OverlappedCompon
 		if (!!player)
 		{
 			SetAlerted(true);
-			WeaponInstance->Equip();
+			if (!!WeaponClass)
+				WeaponInstance = AWeapon::Spawn<AWeapon>(GetWorld(), WeaponClass, this);
+			WeaponInstance->Equip(EEquipType::ET_RightHand);
 			CombatTarget = player;
 			//player->SetTarget(this);
 		}
@@ -45,7 +47,7 @@ void AEnemyMeele::AgroSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponen
 		if (!!player)
 		{
 			CombatTarget = nullptr;
-			WeaponInstance->UnEquip();
+			WeaponInstance->UnEquip(EEquipType::ET_RightHand);
 			//player->SetTarget(nullptr);
 		}
 	}
@@ -56,6 +58,6 @@ void AEnemyMeele::Attack()
 	AEnemy::Attack();
 	CheckNull(AttackMontage);
 	if (bAlerted && !WeaponInstance->GetEquipped())
-		WeaponInstance->Equip();
+		WeaponInstance->Equip(EEquipType::ET_RightHand);
 	PlayAnimMontage(AttackMontage);
 }

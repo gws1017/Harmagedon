@@ -12,6 +12,7 @@ class UCameraComponent;
 class UAnimMontage;
 class UInputMappingContext;
 class UInputAction;
+class UInventoryComponent;
 
 class ABasicPlayerController;
 class AWeapon;
@@ -102,7 +103,9 @@ public:
 	FORCEINLINE virtual AWeapon* GetWeapon() const override { return WeaponInstance; }
 	FORCEINLINE EWeaponEquipped GetWeaponEquipped() const { return WeaponEquipped; }
 	FORCEINLINE EMovementState GetMovementState() const { return MovementState; }
-
+	UFUNCTION(BlueprintCallable)
+		FORCEINLINE UInventoryComponent* GetInventory() const { return InventoryComponent; }
+	
 	UFUNCTION(BlueprintCallable)
 		FORCEINLINE FPlayerStatus GetPlayerStat() const { return Stat; }
 	FORCEINLINE float GetHP() const { return Stat.HP; }
@@ -118,6 +121,7 @@ public:
 	FORCEINLINE void SetMovementState(const EMovementState& state) {  MovementState = state; }
 	FORCEINLINE void SetMovementNormal() {  MovementState = EMovementState::EMS_Normal; }
 	FORCEINLINE void SetOverlappingItem(APickupItem* Item) { OverlappingItem = Item; }
+	FORCEINLINE void SetWeapon(AWeapon* Instance) { WeaponInstance = Instance; }
 
 	void End_Attack();
 	void AttackCombo();
@@ -162,12 +166,16 @@ private:
 
 	void UpdateStamina(float DeltaStamina);
 	void DecrementStamina(float Amount);
+	void UpdateEquipItem();
+
 private:
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Component")
 		USpringArmComponent* SpringArm;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Component")
 		UCameraComponent* Camera;
+	UPROPERTY(VisibleAnywhere, Category = "Component")
+		UInventoryComponent* InventoryComponent;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 		UInputMappingContext* IMCPlayer;

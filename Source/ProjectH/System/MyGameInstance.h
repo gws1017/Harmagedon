@@ -20,10 +20,14 @@ public:
 public:
 
 	struct FCharacterAbilityData* GetCharAbilityData(int32 Level);
+	struct FItemData* GetItemData(int64 ItemCode);
 
 
 private:
 
 	UPROPERTY(EditAnywhere, Category = "Data");
 	class UDataTable* CharacterAbilityData;
+
+	UPROPERTY(EditAnywhere, Category = "Data");
+	class UDataTable* ItemData;
 };

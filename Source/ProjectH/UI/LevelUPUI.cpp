@@ -54,7 +54,7 @@ void ULevelUPUI::OnRightKey()
 	if (IsInViewport()) {
 		//요구 경험치이상을 보유해야 레벨업 가능
 		LevelUpCount[SelectUINumber]++;
-		if (GetOwnerCharacater()->GetPlayerStat().Exp < TotalExp + NextExp)
+		if (GetOwnerCharacter()->GetPlayerStat().Exp < TotalExp + NextExp)
 			LevelUpCount[SelectUINumber]--;
 		else
 			UpdateExp();
@@ -64,9 +64,9 @@ void ULevelUPUI::OnRightKey()
 int32 ULevelUPUI::GetChangePlayerExp()
 {
 	if (bUpdatedAbility == false) {
-		return GetOwnerCharacater()->GetPlayerStat().Exp;
+		return GetOwnerCharacter()->GetPlayerStat().Exp;
 	}
-	else return GetOwnerCharacater()->GetPlayerStat().Exp - TotalExp;
+	else return GetOwnerCharacter()->GetPlayerStat().Exp - TotalExp;
 
 }
 
@@ -86,7 +86,7 @@ int32 ULevelUPUI::GetChangePlayerLevel()
 	for (const auto[type,cnt] : LevelUpCount)
 		sum += cnt;
 
-	return sum + GetOwnerCharacater()->GetPlayerStat().Level;
+	return sum + GetOwnerCharacter()->GetPlayerStat().Level;
 }
 
 int32 ULevelUPUI::GetChangeMaxHP()
@@ -96,7 +96,7 @@ int32 ULevelUPUI::GetChangeMaxHP()
 		return  StaticCast<int32>
 			(GameInstance->GetCharAbilityData(GetChangeVigor())->TotalHP);
 	}
-	return GetOwnerCharacater()->GetPlayerStat().MaxHP;
+	return GetOwnerCharacter()->GetPlayerStat().MaxHP;
 }
 
 int32 ULevelUPUI::GetChangeMaxStamina()
@@ -106,7 +106,7 @@ int32 ULevelUPUI::GetChangeMaxStamina()
 		return  StaticCast<int32>
 			(GameInstance->GetCharAbilityData(GetChangeEnduarance())->TotalStamina);
 	}
-	return GetOwnerCharacater()->GetPlayerStat().MaxStamina;
+	return GetOwnerCharacter()->GetPlayerStat().MaxStamina;
 }
 
 int32 ULevelUPUI::GetChangePlayerDamage()
@@ -115,9 +115,9 @@ int32 ULevelUPUI::GetChangePlayerDamage()
 	{
 		return  StaticCast<int32>
 			(GameInstance->GetCharAbilityData(GetChangeStrength())->TotalDmgIncrease +
-				GetOwnerCharacater()->GetDamage());
+				GetOwnerCharacter()->GetDamage());
 	}
-	return StaticCast<int32>(GetOwnerCharacater()->GetDamage());
+	return StaticCast<int32>(GetOwnerCharacter()->GetDamage());
 }
 
 void ULevelUPUI::OnClickOKBtn()
@@ -147,9 +147,9 @@ void ULevelUPUI::LevelUp()
 		GetChangePlayerExp()
 	};
 
-	GetOwnerCharacater()->LevelUp(ChangeData);
+	GetOwnerCharacter()->LevelUp(ChangeData);
 	TotalExp = 0;
-	NextExp = GameInstance->GetCharAbilityData(GetOwnerCharacater()->GetPlayerLevel() + 1)->LevelUpExp;
+	NextExp = GameInstance->GetCharAbilityData(GetOwnerCharacter()->GetPlayerLevel() + 1)->LevelUpExp;
 	for (auto& [type, cnt] : LevelUpCount)
 		cnt = 0;
 	OKBtnDisable();
@@ -158,7 +158,7 @@ void ULevelUPUI::LevelUp()
 
 void ULevelUPUI::UpdateExp()
 {
-	int32 CurrentLevel = GetOwnerCharacater()->GetPlayerLevel();
+	int32 CurrentLevel = GetOwnerCharacter()->GetPlayerLevel();
 	int32 TargetLevel = GetChangePlayerLevel();
 	int32 delta_level = TargetLevel - CurrentLevel;
 

@@ -18,3 +18,8 @@ void AExpItem::OnInteraction()
 	
 	APickupItem::OnInteraction();
 }
+
+void AExpItem::Use()
+{
+	AExpItem::OnInteraction();
+}

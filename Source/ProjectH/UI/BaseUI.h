@@ -21,7 +21,7 @@ public:
 
 public:
 	UFUNCTION(BlueprintPure)
-	APlayerCharacter* GetOwnerCharacater();
+	APlayerCharacter* GetOwnerCharacter();
 	UFUNCTION(BlueprintCallable)
 		ABasicPlayerController* GetOwnerController();
 

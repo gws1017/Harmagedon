@@ -34,16 +34,6 @@ public:
 		void BoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 public:
-	template<typename T>
-	static AWeapon* Spawn(class UWorld* InWorld, TSubclassOf<T> BPClass, ACharacter* InOwner)
-	{
-		FActorSpawnParameters params;
-		params.Owner = InOwner;
-
-		return InWorld->SpawnActor<T>(BPClass, params);
-	}
-
-public:
 
 	//Getter
 	FORCEINLINE bool GetEquipped() { return bEquipped; }
@@ -64,8 +54,8 @@ public:
 	UFUNCTION()
 		void CreateField(const FVector& FieldLocation);
 
-	virtual void Equip();
-	virtual void UnEquip();
+	virtual void Equip(EEquipType Type) override;
+	virtual void UnEquip(EEquipType Type) override;
 
 	virtual void Begin_Equip();
 	virtual void End_Equip();
@@ -95,8 +85,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Montage")
 		UAnimMontage* SheathMontage;
 
-	UPROPERTY(VisibleDefaultsOnly, Category = "Socket")
-		FName DrawSocket = "DrawSocket";
+
 	UPROPERTY(VisibleDefaultsOnly, Category = "Socket")
 		FName SheathSocket = "SheathSocket";
 
