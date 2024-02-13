@@ -96,6 +96,10 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 		EnhancedInput->BindAction(RunAction, ETriggerEvent::Triggered, this, &APlayerCharacter::OnRunning);
 		EnhancedInput->BindAction(RunAction, ETriggerEvent::Completed, this, &APlayerCharacter::OffRunning);
+
+		//UI관련 입력 바인딩
+		EnhancedInput->BindAction(OpenEquipUIAction, ETriggerEvent::Triggered, GetPlayerController(), &ABasicPlayerController::ToggleEquipMenu);
+		//EnhancedInput->BindAction(EscAction, ETriggerEvent::Triggered, this, &APlayerCharacter::);
 	}
 	
 }
@@ -310,6 +314,13 @@ void APlayerCharacter::LevelUp(const FPlayerStatus& data)
 {
 	Stat = data;
 	SaveGameData();
+}
+
+ABasicPlayerController* APlayerCharacter::GetPlayerController()
+{
+	if (!!PlayerController)
+		return PlayerController;
+	return GetController<ABasicPlayerController>();
 }
 
 void APlayerCharacter::Move(const FInputActionValue& value)

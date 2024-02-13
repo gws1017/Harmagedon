@@ -134,6 +134,8 @@ public:
 	void IncrementExp(float Amount);
 	void LevelUp(const FPlayerStatus& data);
 
+	ABasicPlayerController* GetPlayerController();
+
 	//추후 인터페이스 분리
 	virtual void Hit(const FVector& ParticleSpawnLocation);
 
@@ -193,6 +195,10 @@ private:
 		UInputAction* EquipAction;
 	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 		UInputAction* InteractionAction;
+	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+		UInputAction* OpenEquipUIAction;
+	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+		UInputAction* EscAction;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Montage", meta = (AllowPrivateAccess = "true"))
 		UAnimMontage* DeathMontage;

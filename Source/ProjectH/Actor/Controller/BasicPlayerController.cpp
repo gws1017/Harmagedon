@@ -3,6 +3,7 @@
 #include "UI/LevelUPUI.h"
 #include "UI/PasueMenuUI.h"
 #include "UI/RestartMenuUI.h"
+#include "UI/EquipmentUI.h"
 #include "Global.h"
 
 ABasicPlayerController::ABasicPlayerController()
@@ -43,6 +44,11 @@ void ABasicPlayerController::InitializeUIInstance()
 			LevelUPUIInstance = CreateWidget<ULevelUPUI>(GetWorld(), LevelUPUIClass);
 	}
 
+	if (!!EquipmentUIClass)
+	{
+		if (EquipmentUIInstance == nullptr)
+			EquipmentUIInstance = CreateWidget<UUserWidget>(GetWorld(), EquipmentUIClass);
+	}
 }
 
 void ABasicPlayerController::ToggleUI(UUserWidget* widget)
@@ -94,4 +100,10 @@ void ABasicPlayerController::ChangeMenuWidget(UUserWidget* NewWidget)
 void ABasicPlayerController::ShowRestartMenu()
 {
 	ShowGameUI(RestartMenuInstance);
+}
+
+void ABasicPlayerController::ToggleEquipMenu()
+{
+	CheckNull(EquipmentUIInstance);
+	ToggleUI(EquipmentUIInstance);
 }

@@ -8,7 +8,7 @@ void USlot::NativePreConstruct()
 {
 	Super::NativePreConstruct();
 
-	SlotUpdate();
+	//SlotUpdate();
 	//슬롯클릭하면 무기장착되게해야함
 }
 

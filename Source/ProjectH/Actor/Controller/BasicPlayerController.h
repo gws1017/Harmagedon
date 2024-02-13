@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -10,6 +8,7 @@ class UHUDOverlay;
 class URestartMenuUI;
 class UPasueMenuUI;
 class ULevelUPUI;
+class UEquipmentUI;
 
 UCLASS()
 class PROJECTH_API ABasicPlayerController : public APlayerController
@@ -30,13 +29,16 @@ public:
 
 	void ShowRestartMenu();
 
+	UFUNCTION()
+	void ToggleEquipMenu();
+
 private:
 
 	void InitializeUIInstance();
 
 	UFUNCTION(BlueprintCallable)
 		void ToggleUI(UUserWidget* widget);
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		void ShowGameUI(UUserWidget* GameUI);
 	UFUNCTION()
 		void RemoveGameUI(UUserWidget* GameUI);
@@ -62,6 +64,11 @@ protected:
 		TSubclassOf<ULevelUPUI> LevelUPUIClass;
 	UPROPERTY(BlueprintReadOnly)
 		ULevelUPUI* LevelUPUIInstance;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+		TSubclassOf<UUserWidget> EquipmentUIClass;
+	UPROPERTY(BlueprintReadOnly)
+		UUserWidget* EquipmentUIInstance;
 
 	UPROPERTY(VisibleAnywhere)
 		UUserWidget* CurrentWidget;
