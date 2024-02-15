@@ -44,12 +44,25 @@ TArray<FInventoryItem> UInventoryComponent::GetInventoryContents() const
 	return OutArray;
 }
 
-TArray<FInventoryItem> UInventoryComponent::GetInventoryItemsFromType(const EItemType Type) const
+TArray<FInventoryItem> UInventoryComponent::GetInventoryItemsFromItemType(const EItemType Type) const
 {
 	TArray<FInventoryItem> OutArray;
 	for (auto [code, data] : InventoryContents)
 	{
 		if (data.ItemInfo.ItemType == Type)
+		{
+			OutArray.Add(data);
+		}
+	}
+	return OutArray;
+}
+
+TArray<FInventoryItem> UInventoryComponent::GetInventoryItemsFromEquipType(const EEquipType Type) const
+{
+	TArray<FInventoryItem> OutArray;
+	for (auto [code, data] : InventoryContents)
+	{
+		if(CheckItemTypeIncludeInEquipType(Type, data.ItemInfo.ItemType))
 		{
 			OutArray.Add(data);
 		}
@@ -178,6 +191,7 @@ void UInventoryComponent::Equip(USlot* Slot, AItem* ItemInstance)
 		return;
 	}
 	auto Type = Slot->EquipType;
+	Slot->bEquipped = true;
 	AItem* Instance = GetCDOItem(Slot->ItemInfo.AssetData.ItemClass);
 	if (Type == EEquipType::ET_LeftWeapon || Type == EEquipType::ET_RightWeapon)
 	{
@@ -215,6 +229,58 @@ bool UInventoryComponent::CheckWeight(float weight)
 	//UI를 띄우거나 메시지를 띄우기
 	CLog::Print("인벤토리 중량을 초과했습니다.");
 	return false;
+}
+
+bool UInventoryComponent::CheckItemTypeIncludeInEquipType(const EEquipType EquipType, const EItemType ItemType) const
+{
+	CLog::Log("Type Check");
+
+	bool ret = false;
+	switch (EquipType)
+	{
+		case EEquipType::ET_RightWeapon:
+		case EEquipType::ET_LeftWeapon:
+			if (ItemType == EItemType::IT_MagicalWeapon ||
+				ItemType == EItemType::IT_PhysicalWeapon)
+				ret = true;
+			else
+				ret = false;
+			break;
+		case EEquipType::ET_Top:
+			if (ItemType == EItemType::IT_Top)
+				ret = true;
+			else ret = false;
+			break;
+		case EEquipType::ET_Head:
+			if (ItemType == EItemType::IT_Head)
+				ret = true;
+			else ret = false;
+			break;
+		case EEquipType::ET_Shoe:
+			if (ItemType == EItemType::IT_Shoe)
+				ret = true;
+			else ret = false;
+			break;
+		case EEquipType::ET_Hand:
+			if (ItemType == EItemType::IT_Hand)
+				ret = true;
+			else ret = false;
+			break;
+		case EEquipType::ET_Bottom:
+			if (ItemType == EItemType::IT_Bottom)
+				ret = true;
+			else ret = false;
+			break;
+		case EEquipType::ET_Cousumable:
+			if (ItemType == EItemType::IT_Cousumable)
+				ret = true;
+			else ret = false;
+			break;
+		default:
+			ret = false;
+			break;
+	}
+	return ret;
 }
 
 FInventoryItem UInventoryComponent::GetItemDataFromSlot(USlot* Slot)

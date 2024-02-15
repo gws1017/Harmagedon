@@ -10,6 +10,7 @@ DECLARE_MULTICAST_DELEGATE(FOnInventoryUpdated);
 struct FItemData;
 
 enum class EItemType : uint8;
+enum class EEquipType :uint8;
 class AItem;
 class USlot;
 
@@ -77,8 +78,8 @@ public:
 
 	//인벤토리에 존재하는 아이템을 전부 돌려주는 함수
 	TArray<FInventoryItem> GetInventoryContents() const;
-	TArray<FInventoryItem> GetInventoryItemsFromType(const EItemType Type) const;
-
+	TArray<FInventoryItem> GetInventoryItemsFromItemType(const EItemType Type) const;
+	TArray<FInventoryItem> GetInventoryItemsFromEquipType(const EEquipType Type) const;
 	//아이템 습득 및 삭제시 사용되는 함수(인벤토리에 추가 / 삭제)
 	//플레이어 상호작용 및 UI에서 호출된다.
 		void AddItem(const FItemData& ItemData, bool bEquipped = false);
@@ -99,6 +100,7 @@ public:
 	//	void UnEquipInSlot(EEquipType Type,int32 SlotNumber); //인벤토리에 있는 아이템중에서, 특정 아이템을 탈착상태로 전환한다.
 	
 	//실제 객체를 생성해서 탈부착하는 함수, Equip/UnEquip함수하나로 합칠것
+	UFUNCTION(BlueprintCallable)
 	void Equip(USlot* Slot, AItem* ItemInstance = nullptr);
 	void UnEquip(USlot* Slot);
 	
@@ -109,6 +111,8 @@ private:
 
 	//아이템 추가시 최대 보유 수량을 넘지않는지 확인하는 함수
 	bool CheckWeight(float weight);
+
+	bool CheckItemTypeIncludeInEquipType(const EEquipType EquipType,const EItemType ItemType ) const;
 protected:
 	// 플레이어 인벤토리, 장비하지않은 아이템 포함
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")

@@ -6,7 +6,7 @@
 #include "Data/ItemData.h"
 #include "Slot.generated.h"
 
-DECLARE_DYNAMIC_DELEGATE(FSlotClick);
+DECLARE_DYNAMIC_DELEGATE_OneParam(FSlotClick,USlot*,SlotInstance);
 
 struct FInventoryItem;
 
@@ -21,7 +21,7 @@ enum class EEquipType : uint8
 	ET_Top UMETA(DisplayName = "Top"),
 	ET_Bottom UMETA(DisplayName = "Bottom"),
 	ET_Head UMETA(DisplayName = "Head"),
-	ET_Consumalbe UMETA(DisplayName = "Consumalbe"),
+	ET_Cousumable UMETA(DisplayName = "Consumalbe"),
 	ET_DefaultMax UMETA(DisplayName = "DefaultMax")
 };
 
@@ -46,18 +46,21 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void OnClickSlot();
 
+	UFUNCTION(BlueprintCallable,BlueprintImplementableEvent)
+	void InitializeSlot();
+
 	UFUNCTION(BlueprintCallable)
 		void AddClickFunction(UObject* InObject, const FName InFunctionName);
 
 public:
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InventoryData")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SlotData")
 		FItemData ItemInfo; //아이템정보만 저장되있다
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InventoryData")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SlotData")
 		int32 Count; //아이템 수량
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InventoryData")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SlotData")
 		bool bEquipped;  //장착여부
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemData")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SlotData")
 		EEquipType EquipType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Slot")

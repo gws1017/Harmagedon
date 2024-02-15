@@ -25,13 +25,14 @@ void USlot::SlotUpdateFromData(const FInventoryItem Data)
 	ItemInfo = Data.ItemInfo;
 	Count = Data.Count;
 	bEquipped = Data.bEquipped;
+	InitializeSlot();
 }
 
 void USlot::OnClickSlot()
 {
 	if (SlotClickFunction.IsBound())
 	{
-		SlotClickFunction.Execute();
+		SlotClickFunction.Execute(this);
 	}
 	//임시기능 장착기능은 다른 UI로 뺄예정, 테스트용
 	//CheckNull(GetOwnerCharacter());
@@ -40,8 +41,7 @@ void USlot::OnClickSlot()
 
 void USlot::AddClickFunction(UObject* InObject, const FName InFunctionName)
 {
-	if (SlotClickFunction.IsBound() == false)
-	{
-		SlotClickFunction.BindUFunction(InObject, InFunctionName);
-	}
+	SlotClickFunction.Clear();
+	SlotClickFunction.BindUFunction(InObject, InFunctionName);
+	
 }

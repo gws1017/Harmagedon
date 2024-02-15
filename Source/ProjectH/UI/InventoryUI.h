@@ -6,6 +6,7 @@
 
 struct FInventoryItem;
 enum class EItemType : uint8;
+enum class EEquipType : uint8;
 
 USTRUCT(BlueprintType)
 struct FTabData
@@ -29,7 +30,9 @@ class PROJECTH_API UInventoryUI : public UBaseUI
 public:
 
 	UFUNCTION(BlueprintCallable)
-		TArray<FInventoryItem> GetInventoryItemsFromType(const EItemType Type);
+		TArray<FInventoryItem> GetInventoryItemsFromEquipType(const EEquipType Type);
+	UFUNCTION(BlueprintCallable)
+		TArray<FInventoryItem> GetInventoryItemsFromItemType(const EItemType Type);
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UIData")
 		TArray<int32> TabIndexArray;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UIData")
