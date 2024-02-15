@@ -44,6 +44,19 @@ TArray<FInventoryItem> UInventoryComponent::GetInventoryContents() const
 	return OutArray;
 }
 
+TArray<FInventoryItem> UInventoryComponent::GetInventoryItemsFromType(const EItemType Type) const
+{
+	TArray<FInventoryItem> OutArray;
+	for (auto [code, data] : InventoryContents)
+	{
+		if (data.ItemInfo.ItemType == Type)
+		{
+			OutArray.Add(data);
+		}
+	}
+	return OutArray;
+}
+
 void UInventoryComponent::AddItem(const FItemData& ItemData, bool bEquipped)
 {
 	FInventoryItem* Item = InventoryContents.Find(ItemData.ItemCode);
@@ -164,9 +177,9 @@ void UInventoryComponent::Equip(USlot* Slot, AItem* ItemInstance)
 		CLog::Log("Equip State Error");
 		return;
 	}
-	auto Type = Slot->ItemInfo.EquipType;
+	auto Type = Slot->EquipType;
 	AItem* Instance = GetCDOItem(Slot->ItemInfo.AssetData.ItemClass);
-	if (Type == EEquipType::ET_LeftHand || Type == EEquipType::ET_RightHand)
+	if (Type == EEquipType::ET_LeftWeapon || Type == EEquipType::ET_RightWeapon)
 	{
 		Instance = AItem::Spawn<AItem>(GetWorld(),
 			Slot->ItemInfo.AssetData.ItemClass, Cast<ACharacter>(GetOwner()));
@@ -174,7 +187,7 @@ void UInventoryComponent::Equip(USlot* Slot, AItem* ItemInstance)
 	}
 	if (!!ItemInstance)
 		ItemInstance = Instance;
-	Instance->Equip(Slot->ItemInfo.EquipType);
+	Instance->Equip(Slot->EquipType);
 }
 
 void UInventoryComponent::UnEquip(USlot* Slot)
@@ -185,7 +198,7 @@ void UInventoryComponent::UnEquip(USlot* Slot)
 		CLog::Log("Equip State Error");
 		return;
 	}
-	GetCDOItem(Slot->ItemInfo.AssetData.ItemClass)->UnEquip(Slot->ItemInfo.EquipType);
+	GetCDOItem(Slot->ItemInfo.AssetData.ItemClass)->UnEquip(Slot->EquipType);
 }
 
 void UInventoryComponent::Use(const int64 ItemCode)

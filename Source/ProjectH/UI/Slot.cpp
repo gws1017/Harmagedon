@@ -9,7 +9,6 @@ void USlot::NativePreConstruct()
 	Super::NativePreConstruct();
 
 	//SlotUpdate();
-	//슬롯클릭하면 무기장착되게해야함
 }
 
 void USlot::SlotUpdate()
@@ -21,9 +20,28 @@ void USlot::SlotUpdate()
 	bEquipped = Data.bEquipped;
 }
 
+void USlot::SlotUpdateFromData(const FInventoryItem Data)
+{
+	ItemInfo = Data.ItemInfo;
+	Count = Data.Count;
+	bEquipped = Data.bEquipped;
+}
+
 void USlot::OnClickSlot()
 {
+	if (SlotClickFunction.IsBound())
+	{
+		SlotClickFunction.Execute();
+	}
 	//임시기능 장착기능은 다른 UI로 뺄예정, 테스트용
-	CheckNull(GetOwnerCharacter());
-	GetOwnerCharacter()->GetInventory()->Equip(this);
+	//CheckNull(GetOwnerCharacter());
+	//GetOwnerCharacter()->GetInventory()->Equip(this);
+}
+
+void USlot::AddClickFunction(UObject* InObject, const FName InFunctionName)
+{
+	if (SlotClickFunction.IsBound() == false)
+	{
+		SlotClickFunction.BindUFunction(InObject, InFunctionName);
+	}
 }

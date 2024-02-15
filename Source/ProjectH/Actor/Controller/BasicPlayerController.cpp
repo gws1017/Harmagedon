@@ -4,6 +4,7 @@
 #include "UI/PasueMenuUI.h"
 #include "UI/RestartMenuUI.h"
 #include "UI/EquipmentUI.h"
+#include "UI/InventoryUI.h"
 #include "Global.h"
 
 ABasicPlayerController::ABasicPlayerController()
@@ -49,10 +50,17 @@ void ABasicPlayerController::InitializeUIInstance()
 		if (EquipmentUIInstance == nullptr)
 			EquipmentUIInstance = CreateWidget<UUserWidget>(GetWorld(), EquipmentUIClass);
 	}
+
+	if (!!InventoryUIClass)
+	{
+		if (InventoryUIInstance == nullptr)
+			InventoryUIInstance = CreateWidget<UInventoryUI>(GetWorld(), InventoryUIClass);
+	}
 }
 
 void ABasicPlayerController::ToggleUI(UUserWidget* widget)
 {
+	CheckNull(widget);
 	if (widget->IsInViewport())
 		RemoveGameUI(widget);
 	else
@@ -102,8 +110,12 @@ void ABasicPlayerController::ShowRestartMenu()
 	ShowGameUI(RestartMenuInstance);
 }
 
+void ABasicPlayerController::ShowInventoryMenu()
+{
+	ShowGameUI(InventoryUIInstance);
+}
+
 void ABasicPlayerController::ToggleEquipMenu()
 {
-	CheckNull(EquipmentUIInstance);
 	ToggleUI(EquipmentUIInstance);
 }

@@ -1,4 +1,4 @@
-#pragma once
+Ôªø#pragma once
 
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
@@ -7,17 +7,22 @@
 class AItem;
 
 UENUM(BlueprintType)
-enum class EEquipType : uint8
+enum class EItemType : uint8
 {
-	ET_None UMETA(DisplayName = "None"),
-	ET_Shoe UMETA(DisplayName = "Shoe"),
-	ET_LeftHand UMETA(DisplayName = "LeftHand"),
-	ET_RightHand UMETA(DisplayName = "RightHand"),
-	ET_Top UMETA(DisplayName = "Top"),
-	ET_Bottom UMETA(DisplayName = "Bottom"),
-	ET_Head UMETA(DisplayName = "Head"),
-	ET_Consumalbe UMETA(DisplayName = "Consumalbe"),
-	ET_DefaultMax UMETA(DisplayName = "DefaultMax")
+	IT_None UMETA(DisplayName = "None"),
+	IT_Cousumable UMETA(DisplayName = "Consumable"),
+	IT_Upgrade UMETA(DisplayName = "Upgrade"),
+	IT_Key UMETA(DisplayName = "Key"),
+	IT_Quest UMETA(DisplayName = "Quest"),
+	IT_PhysicalWeapon UMETA(DisplayName = "PhysicalWeapon"),
+	IT_MagicalWeapon UMETA(DisplayName = "MagicalWeapon"),
+	IT_Shield UMETA(DisplayName = "Shield"),
+	IT_Head UMETA(DisplayName = "Head"),
+	IT_Top UMETA(DisplayName = "Top"),
+	IT_Bottom UMETA(DisplayName = "Bottom"),
+	IT_Shoe UMETA(DisplayName = "Shoe"),
+	IT_Hand UMETA(DisplayName = "Hand"),
+	IT_DefaultMax UMETA(DisplayName = "DefaultMax")
 };
 
 USTRUCT(BlueprintType)
@@ -26,9 +31,9 @@ struct FItemTextData
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ToolTip = "æ∆¿Ã≈€ ¿Ã∏ß"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ToolTip = "ÏïÑÏù¥ÌÖú Ïù¥Î¶Ñ"))
 		FText Name;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ToolTip = "æ∆¿Ã≈€ º≥∏Ì ∏∂øÏΩ∫ ∞°¡Æ¥Ÿ¥Î∏È ∂ÁøÏ±‚ ∞°¥…"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (MultiLine = true,ToolTip = "ÏïÑÏù¥ÌÖú ÏÑ§Î™Ö ÎßàÏö∞Ïä§ Í∞ÄÏ†∏Îã§ÎåÄÎ©¥ ÎùÑÏö∞Í∏∞ Í∞ÄÎä•"))
 		FText Description;
 };
 
@@ -38,10 +43,14 @@ struct FItemNumericData
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ToolTip = "±∏∏≈Ω√ « ø‰ ¿Á»≠∑Æ"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ToolTip = "Íµ¨Îß§Ïãú ÌïÑÏöî Ïû¨ÌôîÎüâ"))
 		float PurchasePrice;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ToolTip = "π´∞‘"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ToolTip = "Î¨¥Í≤å"))
 		float Weight;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ToolTip = "ÏµúÎåÄ Í≤πÏπ®Ïàò"))
+		int32 MaxStackSize;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ToolTip = "Í≤πÏπ® Ïó¨Î∂Ä"))
+		bool bIsStackable;
 };
 
 USTRUCT(BlueprintType)
@@ -50,10 +59,10 @@ struct FItemAssetData
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ToolTip = "æ∆¿Ã≈€ æ∆¿Ãƒ‹(¿Œ∫•≈‰∏ÆUI)"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ToolTip = "ÏïÑÏù¥ÌÖú ÏïÑÏù¥ÏΩò(Ïù∏Î≤§ÌÜ†Î¶¨UI)"))
 		UTexture2D* Icon;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ToolTip = "ªÁøÎ«“ ∫Ì∑Á«¡∏∞∆Æ ≈¨∑°Ω∫"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ToolTip = "ÏÇ¨Ïö©Ìï† Î∏îÎ£®ÌîÑÎ¶∞Ìä∏ ÌÅ¥ÎûòÏä§"))
 		TSubclassOf<AItem> ItemClass;
 };
 
@@ -74,13 +83,15 @@ public:
 	}
 
 	FItemData(int itemCode, FText name, FText description, float Price, float Weight)
-		: ItemCode(itemCode), EquipType(EEquipType::ET_None)
+		: ItemCode(itemCode), ItemType(EItemType::IT_None)
 	{
 		TextData.Name = name;
 		TextData.Description = description;
 
 		NumericData.PurchasePrice = Price;
 		NumericData.Weight = Weight;
+		NumericData.bIsStackable = false;
+		NumericData.MaxStackSize = 99;
 	}
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemData")
@@ -93,7 +104,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemData")
 		FItemAssetData AssetData;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemData")
-		EEquipType EquipType;
+		EItemType ItemType;
 
 	bool operator==(const FItemData& OtherData) const
 	{

@@ -9,6 +9,7 @@ class URestartMenuUI;
 class UPasueMenuUI;
 class ULevelUPUI;
 class UEquipmentUI;
+class UInventoryUI;
 
 UCLASS()
 class PROJECTH_API ABasicPlayerController : public APlayerController
@@ -28,9 +29,11 @@ public:
 	void ChangeMenuWidget(UUserWidget* NewWidget);
 
 	void ShowRestartMenu();
+	void ShowInventoryMenu();
 
 	UFUNCTION()
 	void ToggleEquipMenu();
+
 
 private:
 
@@ -40,7 +43,7 @@ private:
 		void ToggleUI(UUserWidget* widget);
 	UFUNCTION(BlueprintCallable)
 		void ShowGameUI(UUserWidget* GameUI);
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		void RemoveGameUI(UUserWidget* GameUI);
 
 protected:
@@ -69,6 +72,11 @@ protected:
 		TSubclassOf<UUserWidget> EquipmentUIClass;
 	UPROPERTY(BlueprintReadOnly)
 		UUserWidget* EquipmentUIInstance;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+		TSubclassOf<UInventoryUI> InventoryUIClass;
+	UPROPERTY(BlueprintReadOnly)
+		UInventoryUI* InventoryUIInstance;
 
 	UPROPERTY(VisibleAnywhere)
 		UUserWidget* CurrentWidget;

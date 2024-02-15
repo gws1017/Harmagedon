@@ -9,6 +9,7 @@ DECLARE_MULTICAST_DELEGATE(FOnInventoryUpdated);
 
 struct FItemData;
 
+enum class EItemType : uint8;
 class AItem;
 class USlot;
 
@@ -76,6 +77,7 @@ public:
 
 	//인벤토리에 존재하는 아이템을 전부 돌려주는 함수
 	TArray<FInventoryItem> GetInventoryContents() const;
+	TArray<FInventoryItem> GetInventoryItemsFromType(const EItemType Type) const;
 
 	//아이템 습득 및 삭제시 사용되는 함수(인벤토리에 추가 / 삭제)
 	//플레이어 상호작용 및 UI에서 호출된다.

@@ -1,5 +1,5 @@
 #include "Actor/Item/Item.h"
-#include "Data/ItemData.h"
+#include "UI/Slot.h"
 #include "Global.h"
 
 AItem::AItem()
@@ -17,10 +17,10 @@ void AItem::SetSocketName(EEquipType Type)
 {
 	switch (Type)
 	{
-	case EEquipType::ET_LeftHand:
+	case EEquipType::ET_LeftWeapon:
 		EquipSocket = "LeftHand";
 		break;
-	case EEquipType::ET_RightHand:
+	case EEquipType::ET_RightWeapon:
 		EquipSocket = "RightHand";
 		break;
 	case EEquipType::ET_Top:

@@ -4,12 +4,34 @@
 #include "UI/BaseUI.h"
 #include "InventoryUI.generated.h"
 
-/**
- * 
- */
+struct FInventoryItem;
+enum class EItemType : uint8;
+
+USTRUCT(BlueprintType)
+struct FTabData
+{
+	GENERATED_BODY()
+
+public:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TabData")
+		FText TabName;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TabData")
+		EItemType ItemType;
+};
+
 UCLASS()
 class PROJECTH_API UInventoryUI : public UBaseUI
 {
 	GENERATED_BODY()
 	
+
+public:
+
+	UFUNCTION(BlueprintCallable)
+		TArray<FInventoryItem> GetInventoryItemsFromType(const EItemType Type);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UIData")
+		TArray<int32> TabIndexArray;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UIData")
+		TArray<FTabData> TabDataArray;
 };

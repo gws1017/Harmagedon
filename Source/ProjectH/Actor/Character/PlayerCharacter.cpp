@@ -58,7 +58,7 @@ void APlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	PlayerController = Cast<ABasicPlayerController>(GetController());
-	InventoryComponent->AddItem(1,true);
+	InventoryComponent->AddItem(1,false);
 
 	//if(!!WeaponClass)
 	//	WeaponInstance = AWeapon::Spawn<AWeapon>(GetWorld(),WeaponClass, this);
