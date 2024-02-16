@@ -66,7 +66,10 @@ protected:
 public:	
 	
 	//Getter
+	UFUNCTION(Blueprintcallable)
 	FORCEINLINE float GetCurrentWeight() const { return CurrentWeight; }
+	UFUNCTION(Blueprintcallable)
+	FORCEINLINE float GetCapacity() const { return Capacity; }
 	FORCEINLINE FInventoryItem GetItemData(const int64 ItemCode) const { return InventoryContents.FindRef(ItemCode); }
 	FInventoryItem GetItemDataFromSlot(USlot* Slot);
 	//FORCEINLINE int32 GetSelectSlot(EEquipType Type) const { return EquipInfo[Type].SelectSlot; }

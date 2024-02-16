@@ -21,6 +21,8 @@ class AExpItem;
 
 struct FInputActionValue;
 
+enum class EEquipType : uint8;
+
 UENUM(BlueprintType)
 enum class EWeaponEquipped : uint8
 {
@@ -116,6 +118,8 @@ public:
 	FORCEINLINE int32 GetPlayerLevel() { return Stat.Level; }
 	UFUNCTION(BlueprintPure)
 		float GetDamage();
+	UFUNCTION(BlueprintCallable)
+		float GetWeaponDamage(const EEquipType Type);
 
 	//Setter
 	FORCEINLINE void SetMovementState(const EMovementState& state) {  MovementState = state; }

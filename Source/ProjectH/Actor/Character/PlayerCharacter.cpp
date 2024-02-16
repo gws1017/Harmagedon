@@ -4,6 +4,7 @@
 #include "Actor/Item/Weapon/Weapon.h"
 #include "Actor/Item/PickupItem.h"
 #include "Actor/Item/ExpItem.h"
+#include "UI/Slot.h"
 #include "System/MySaveGame.h"
 
 #include "Component/InventoryComponent.h"
@@ -136,6 +137,22 @@ float APlayerCharacter::GetDamage()
 	{
 		Damage += WeaponInstance->GetDamage();
 	}
+	return Damage;
+}
+
+float APlayerCharacter::GetWeaponDamage(const EEquipType Type)
+{
+	float Damage = 0.f;
+	if (Type == EEquipType::ET_RightWeapon)
+	{
+		if(WeaponInstance)Damage = WeaponInstance->GetDamage();
+	}
+	else if (Type == EEquipType::ET_LeftWeapon)
+	{
+		Damage = 0.f;
+		//추후 왼쪽무기 수정필요
+	}
+	else CLog::Log("EquipType Error, Only Use Right, Left");
 	return Damage;
 }
 
