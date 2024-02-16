@@ -122,7 +122,7 @@ public:
 	FORCEINLINE void SetMovementNormal() {  MovementState = EMovementState::EMS_Normal; }
 	FORCEINLINE void SetOverlappingItem(APickupItem* Item) { OverlappingItem = Item; }
 	FORCEINLINE void SetWeapon(AWeapon* Instance) { WeaponInstance = Instance; }
-
+	
 	void End_Attack();
 	void AttackCombo();
 	void ResetAttack();
@@ -144,6 +144,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void LoadGameData();
 
+	void SetCapture(AActor* InActor, const bool bIncludeFromChildActors);
 	//외부에서 접근할 수 있는 변수 작성(되도록이면 변수는 private에 작성하고 Getter Setter 이용할 것)
 
 private:
@@ -176,6 +177,8 @@ private:
 		USpringArmComponent* SpringArm;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Component")
 		UCameraComponent* Camera;
+	UPROPERTY(VisibleDefaultsOnly, Category = "Component")
+		USceneCaptureComponent2D* SceneCapture;
 	UPROPERTY(VisibleAnywhere, Category = "Component")
 		UInventoryComponent* InventoryComponent;
 

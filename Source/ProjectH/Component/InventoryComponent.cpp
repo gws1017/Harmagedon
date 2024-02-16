@@ -197,7 +197,9 @@ void UInventoryComponent::Equip(USlot* Slot, AItem* ItemInstance)
 	{
 		Instance = AItem::Spawn<AItem>(GetWorld(),
 			Slot->ItemInfo.AssetData.ItemClass, Cast<ACharacter>(GetOwner()));
-		Cast<APlayerCharacter>(GetOwner())->SetWeapon(Cast<AWeapon>(Instance));
+		auto Player = Cast<APlayerCharacter>(GetOwner());
+		Player->SetWeapon(Cast<AWeapon>(Instance));
+		Player->SetCapture(Instance, true);
 	}
 	if (!!ItemInstance)
 		ItemInstance = Instance;

@@ -7,8 +7,6 @@
 void USlot::NativePreConstruct()
 {
 	Super::NativePreConstruct();
-
-	//SlotUpdate();
 }
 
 void USlot::SlotUpdate()
@@ -34,9 +32,6 @@ void USlot::OnClickSlot()
 	{
 		SlotClickFunction.Execute(this);
 	}
-	//임시기능 장착기능은 다른 UI로 뺄예정, 테스트용
-	//CheckNull(GetOwnerCharacter());
-	//GetOwnerCharacter()->GetInventory()->Equip(this);
 }
 
 void USlot::AddClickFunction(UObject* InObject, const FName InFunctionName)

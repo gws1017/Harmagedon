@@ -15,6 +15,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SceneCaptureComponent2D.h"
 #include "Animation/AnimMontage.h"
 
 //ют╥б
@@ -41,6 +42,7 @@ APlayerCharacter::APlayerCharacter()
 
 	UHelpers::CreateComponent<USpringArmComponent>(this, &SpringArm, "SpringArm", GetCapsuleComponent());
 	UHelpers::CreateComponent<UCameraComponent>(this, &Camera, "Camera", SpringArm);
+	UHelpers::CreateComponent<USceneCaptureComponent2D>(this, &SceneCapture, "SceneCapture", GetCapsuleComponent());
 	UHelpers::CreateActorComponent<UInventoryComponent>(this, &InventoryComponent, "Inventory");
 
 	bUseControllerRotationYaw = false;
@@ -60,10 +62,8 @@ void APlayerCharacter::BeginPlay()
 	PlayerController = Cast<ABasicPlayerController>(GetController());
 	InventoryComponent->AddItem(1,false);
 
-	//if(!!WeaponClass)
-	//	WeaponInstance = AWeapon::Spawn<AWeapon>(GetWorld(),WeaponClass, this);
 	LoadGameData();
-
+	SceneCapture->ShowOnlyComponent(GetMesh());
 	CheckNull(PlayerController);
 	if (UEnhancedInputLocalPlayerSubsystem* SubSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 	{
@@ -303,6 +303,11 @@ void APlayerCharacter::LoadGameData()
 		GetMesh()->bNoSkeletonUpdate = false;
 	}
 	else CLog::Log("SaveData is not valid");
+}
+
+void APlayerCharacter::SetCapture(AActor* InActor, const bool bIncludeFromChildActors)
+{
+	SceneCapture->ShowOnlyActorComponents(InActor, bIncludeFromChildActors);
 }
 
 void APlayerCharacter::IncrementExp(float Amount)
