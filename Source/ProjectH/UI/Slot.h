@@ -44,6 +44,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void SlotUpdateFromData(const FInventoryItem Data);
 	UFUNCTION(BlueprintCallable)
+		void SlotUpdateFromSlot(const USlot* Data);
+
+	UFUNCTION(BlueprintCallable)
 	virtual void OnClickSlot();
 
 	UFUNCTION(BlueprintCallable,BlueprintImplementableEvent)
@@ -62,6 +65,8 @@ public:
 		bool bEquipped;  //ÀåÂø¿©ºÎ
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SlotData")
 		EEquipType EquipType;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SlotData")
+		AItem* ItemInstance;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Slot")
 		FSlotClick SlotClickFunction;

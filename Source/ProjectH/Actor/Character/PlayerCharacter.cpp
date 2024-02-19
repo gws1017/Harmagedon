@@ -23,6 +23,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "InputActionValue.h"
+#include "PlayerCharacter.h"
 
 APlayerCharacter::APlayerCharacter()
 	:AttackCount(0),
@@ -130,13 +131,20 @@ float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	return DamageAmount;
 }
 
-float APlayerCharacter::GetDamage()
+AWeapon* APlayerCharacter::GetWeapon(const EEquipType Type) const
+{
+	if (Type == EEquipType::ET_RightWeapon)
+		return RightWeapon;
+	else if (Type == EEquipType::ET_LeftWeapon)
+		return LeftWeapon;
+	else return nullptr;
+}
+
+float APlayerCharacter::GetDamage(const EEquipType Type)
 {
 	float Damage = Stat.StrengthDamage;
-	if (WeaponInstance)
-	{
-		Damage += WeaponInstance->GetDamage();
-	}
+	Damage += GetWeaponDamage(Type);
+	
 	return Damage;
 }
 
@@ -145,15 +153,26 @@ float APlayerCharacter::GetWeaponDamage(const EEquipType Type)
 	float Damage = 0.f;
 	if (Type == EEquipType::ET_RightWeapon)
 	{
-		if(WeaponInstance)Damage = WeaponInstance->GetDamage();
+		CheckNullResult(RightWeapon, Damage);
+		Damage = RightWeapon->GetDamage();
 	}
 	else if (Type == EEquipType::ET_LeftWeapon)
 	{
-		Damage = 0.f;
-		//추후 왼쪽무기 수정필요
+		CheckNullResult(LeftWeapon, Damage);
+		Damage = LeftWeapon->GetDamage();
 	}
 	else CLog::Log("EquipType Error, Only Use Right, Left");
 	return Damage;
+}
+
+void APlayerCharacter::SetWeapon(EEquipType Type, AWeapon* Instance)
+{
+	if (Type == EEquipType::ET_LeftWeapon)
+		LeftWeapon = Instance;
+	else if (Type == EEquipType::ET_RightWeapon)
+		RightWeapon = Instance;
+	else
+		CLog::Log("Only Set Left ,Right Weapon Type");
 }
 
 void APlayerCharacter::End_Attack()
@@ -222,7 +241,7 @@ void APlayerCharacter::PlayAttackMontage()
 		break;
 	}
 	AttackCount++;
-	DecrementStamina(WeaponInstance->GetStaminaCost());
+	DecrementStamina(GetWeapon(EEquipType::ET_RightWeapon)->GetStaminaCost());
 }
 
 bool APlayerCharacter::Alive()
@@ -245,8 +264,10 @@ void APlayerCharacter::Die()
 	PlayAnimMontage(DeathMontage);
 
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	if (!!WeaponInstance)
-		WeaponInstance->DeactivateCollision();
+	if (!!GetLeftWeapon())
+		GetLeftWeapon()->DeactivateCollision();
+	if (!!GetRightWeapon())
+		GetRightWeapon()->DeactivateCollision();
 	GetController<ABasicPlayerController>()->ShowRestartMenu();
 }
 
@@ -327,6 +348,39 @@ void APlayerCharacter::SetCapture(AActor* InActor, const bool bIncludeFromChildA
 	SceneCapture->ShowOnlyActorComponents(InActor, bIncludeFromChildActors);
 }
 
+void APlayerCharacter::RemoveCapture(AActor* InActor, const bool bIncludeFromChildActors)
+{
+	SceneCapture->RemoveShowOnlyActorComponents(InActor, bIncludeFromChildActors);
+}
+
+void APlayerCharacter::Equip(const EEquipType Type)
+{
+	switch (Type)
+	{
+	case EEquipType::ET_LeftWeapon:
+		LeftWeapon->Equip(Type);
+		break;
+	case EEquipType::ET_RightWeapon:
+		RightWeapon->Equip(Type);
+		break;
+	}
+}
+
+void APlayerCharacter::UnEquip(const EEquipType Type)
+{
+	if (ActiveWeapon)
+		ActiveWeapon->UnEquip(Type);
+	/*switch (Type)
+	{
+	case EEquipType::ET_LeftWeapon:
+		LeftWeapon->UnEquip(Type);
+		break;
+	case EEquipType::ET_RightWeapon:
+		RightWeapon->UnEquip(Type);
+		break;
+	}*/
+}
+
 void APlayerCharacter::IncrementExp(float Amount)
 {
 	Stat.Exp += Amount;
@@ -394,11 +448,11 @@ void APlayerCharacter::Roll()
 void APlayerCharacter::EquipWeapon()
 {
 	CheckFalse(Alive());
-	if (WeaponInstance == nullptr)
+	//if (GetWeapon() == nullptr)
 	{
 		//InventoryComponent->Equip(EEquipType::ET_RightHand, WeaponInstance);
 	}
-	else
+	//else
 	{
 		//InventoryComponent->UnEquip(EEquipType::ET_RightHand);
 		return;
@@ -434,11 +488,11 @@ bool APlayerCharacter::CanRoll()
 
 bool APlayerCharacter::CanAttack()
 {
-	CheckNullResult(WeaponInstance,false);
+	CheckNullResult(GetWeapon(EEquipType::ET_RightWeapon),false);
 	CheckNullResult(AttackMontage,false);
 	//if (PlayerController)CheckFalseResult(PlayerController->GetGameMode(), false);
-	CheckFalseResult(WeaponInstance->GetEquipped(), false);
-	CheckTrueResult(WeaponInstance->GetEquipping(), false);
+	CheckFalseResult(GetWeapon(EEquipType::ET_RightWeapon)->GetEquipped(), false);
+	CheckTrueResult(GetWeapon(EEquipType::ET_RightWeapon)->GetEquipping(), false);
 	switch (MovementState)
 	{
 	case EMovementState::EMS_Dead:
@@ -446,7 +500,7 @@ bool APlayerCharacter::CanAttack()
 	case EMovementState::EMS_Roll:
 		return false;
 	default:
-		if (GetWeapon()->GetStaminaCost() < Stat.Stamina)
+		if (GetWeapon(EEquipType::ET_RightWeapon)->GetStaminaCost() < Stat.Stamina)
 			return true;
 		else return false;
 
@@ -486,10 +540,4 @@ void APlayerCharacter::UpdateStamina(float DeltaStamina)
 void APlayerCharacter::DecrementStamina(float Amount)
 {
 	Stat.Stamina = FMath::Clamp(Stat.Stamina - Amount, 0.f, Stat.MaxStamina);
-}
-
-void APlayerCharacter::UpdateEquipItem()
-{
-	//장착중인 상태인 장비를 확인후 실제 플레이어 소켓에 장착한다.
-	
 }

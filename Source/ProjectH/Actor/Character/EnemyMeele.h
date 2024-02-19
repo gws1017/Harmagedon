@@ -25,7 +25,7 @@ public:
 
 public:
 	//Getter
-	FORCEINLINE virtual AWeapon* GetWeapon() const override { return WeaponInstance; }
+	virtual AWeapon* GetWeapon(EEquipType) const override { return WeaponInstance; }
 
 	virtual void Attack() override;
 

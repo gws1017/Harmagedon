@@ -12,6 +12,8 @@ class UCameraComponent;
 class UAnimMontage;
 class UInputMappingContext;
 class UInputAction;
+class USceneCaptureComponent2D;
+
 class UInventoryComponent;
 
 class ABasicPlayerController;
@@ -102,14 +104,16 @@ public:
 
 	//외부에서 호출되는 함수 작성
 	//Getter
-	FORCEINLINE virtual AWeapon* GetWeapon() const override { return WeaponInstance; }
+	virtual AWeapon* GetWeapon(EEquipType Type) const override;
+	FORCEINLINE AWeapon* GetRightWeapon() const { return RightWeapon; }
+	FORCEINLINE AWeapon* GetLeftWeapon() const { return LeftWeapon; }
 	FORCEINLINE EWeaponEquipped GetWeaponEquipped() const { return WeaponEquipped; }
 	FORCEINLINE EMovementState GetMovementState() const { return MovementState; }
 	UFUNCTION(BlueprintCallable)
-		FORCEINLINE UInventoryComponent* GetInventory() const { return InventoryComponent; }
+		 UInventoryComponent* GetInventory() const { return InventoryComponent; }
 	
 	UFUNCTION(BlueprintCallable)
-		FORCEINLINE FPlayerStatus GetPlayerStat() const { return Stat; }
+		 FPlayerStatus GetPlayerStat() const { return Stat; }
 	FORCEINLINE float GetHP() const { return Stat.HP; }
 	FORCEINLINE float GetMaxHP() const { return Stat.MaxHP; }
 	FORCEINLINE float GetStamina() const { return Stat.Stamina; }
@@ -117,15 +121,16 @@ public:
 	FORCEINLINE	float GetStrDamage() { return Stat.StrengthDamage; }
 	FORCEINLINE int32 GetPlayerLevel() { return Stat.Level; }
 	UFUNCTION(BlueprintPure)
-		float GetDamage();
+		float GetDamage(const EEquipType Type);
 	UFUNCTION(BlueprintCallable)
 		float GetWeaponDamage(const EEquipType Type);
+	ABasicPlayerController* GetPlayerController();
 
 	//Setter
 	FORCEINLINE void SetMovementState(const EMovementState& state) {  MovementState = state; }
 	FORCEINLINE void SetMovementNormal() {  MovementState = EMovementState::EMS_Normal; }
 	FORCEINLINE void SetOverlappingItem(APickupItem* Item) { OverlappingItem = Item; }
-	FORCEINLINE void SetWeapon(AWeapon* Instance) { WeaponInstance = Instance; }
+	void SetWeapon(EEquipType Type, AWeapon* Instance);
 	
 	void End_Attack();
 	void AttackCombo();
@@ -135,10 +140,12 @@ public:
 	void Die();
 	virtual void DeathEnd();
 
+	void Equip(const EEquipType Type);
+	void UnEquip(const EEquipType Type);
+
 	void IncrementExp(float Amount);
 	void LevelUp(const FPlayerStatus& data);
 
-	ABasicPlayerController* GetPlayerController();
 
 	//추후 인터페이스 분리
 	virtual void Hit(const FVector& ParticleSpawnLocation);
@@ -149,7 +156,11 @@ public:
 		void LoadGameData();
 
 	void SetCapture(AActor* InActor, const bool bIncludeFromChildActors);
+	void RemoveCapture(AActor* InActor, const bool bIncludeFromChildActors);
 	//외부에서 접근할 수 있는 변수 작성(되도록이면 변수는 private에 작성하고 Getter Setter 이용할 것)
+	
+	UPROPERTY(VisibleAnywhere, Category = "Weapon")
+		AWeapon* ActiveWeapon;
 
 private:
 
@@ -173,7 +184,6 @@ private:
 
 	void UpdateStamina(float DeltaStamina);
 	void DecrementStamina(float Amount);
-	void UpdateEquipItem();
 
 private:
 
@@ -231,10 +241,11 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Enums")
 		EMovementState MovementState;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
-		TSubclassOf<AWeapon> WeaponClass;
+
 	UPROPERTY(VisibleAnywhere, Category = "Weapon")
-		AWeapon* WeaponInstance;
+		AWeapon* RightWeapon;
+	UPROPERTY(VisibleAnywhere, Category = "Weapon")
+		AWeapon* LeftWeapon;
 
 	UPROPERTY(VisibleAnywhere, Category = "Status", meta = (AllowPrivateAccess = "true"))
 		FPlayerStatus Stat;

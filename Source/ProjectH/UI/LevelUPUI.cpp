@@ -1,5 +1,6 @@
 #include "UI/LevelUPUI.h"
 #include "UI/DialogBoxUI.h"
+#include "UI/Slot.h"
 #include "Data/CharacterAbilityTables.h"
 #include "Actor/Character/PlayerCharacter.h"
 #include "System/MyGameInstance.h"
@@ -111,13 +112,14 @@ int32 ULevelUPUI::GetChangeMaxStamina()
 
 int32 ULevelUPUI::GetChangePlayerDamage()
 {
+	//오른손 데미지, 왼손데미지 분리
 	if (GameInstance && bUpdatedAbility)
 	{
 		return  StaticCast<int32>
 			(GameInstance->GetCharAbilityData(GetChangeStrength())->TotalDmgIncrease +
-				GetOwnerCharacter()->GetDamage());
+				GetOwnerCharacter()->GetDamage(EEquipType::ET_RightWeapon));
 	}
-	return StaticCast<int32>(GetOwnerCharacter()->GetDamage());
+	return StaticCast<int32>(GetOwnerCharacter()->GetDamage(EEquipType::ET_RightWeapon));
 }
 
 void ULevelUPUI::OnClickOKBtn()

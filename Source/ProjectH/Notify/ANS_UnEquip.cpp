@@ -1,5 +1,6 @@
 #include "Notify/ANS_UnEquip.h"
 #include "Actor/Item/Weapon/Weapon.h"
+#include "Actor/Character/PlayerCharacter.h"
 #include "Interface/ICharacter.h"
 #include "Global.h"
 
@@ -15,7 +16,12 @@ void UANS_UnEquip::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBa
 
 	IICharacter* owner = Cast<IICharacter>(MeshComp->GetOwner());
 	CheckNull(owner);
-
+	auto Player = Cast<APlayerCharacter>(owner);
+	if (Player)
+	{
+		Player->ActiveWeapon->Begin_UnEquip();
+		return;
+	}
 	owner->GetWeapon()->Begin_UnEquip();
 }
 
@@ -26,6 +32,11 @@ void UANS_UnEquip::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase
 
 	IICharacter* owner = Cast<IICharacter>(MeshComp->GetOwner());
 	CheckNull(owner);
-
+	auto Player = Cast<APlayerCharacter>(owner);
+	if (Player)
+	{
+		Player->ActiveWeapon->End_UnEquip();
+		return;
+	}
 	owner->GetWeapon()->End_UnEquip();
 }

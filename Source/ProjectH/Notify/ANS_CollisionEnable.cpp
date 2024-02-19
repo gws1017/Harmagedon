@@ -1,5 +1,6 @@
 #include "Notify/ANS_CollisionEnable.h"
 #include "Actor/Item/Weapon/Weapon.h"
+#include "Actor/Character/PlayerCharacter.h"
 #include "Interface/ICharacter.h"
 #include "Global.h"
 
@@ -16,6 +17,13 @@ void UANS_CollisionEnable::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSe
 	IICharacter* owner = Cast<IICharacter>(MeshComp->GetOwner());
 	CheckNull(owner);
 
+	auto Player = Cast<APlayerCharacter>(owner);
+	if (Player)
+	{
+		Player->ActiveWeapon->Begin_Collision();
+		return;
+	}
+
 	AWeapon* weapon = owner->GetWeapon();
 	if (!!weapon)
 	{
@@ -30,7 +38,12 @@ void UANS_CollisionEnable::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequ
 
 	IICharacter* owner = Cast<IICharacter>(MeshComp->GetOwner());
 	CheckNull(owner);
-
+	auto Player = Cast<APlayerCharacter>(owner);
+	if (Player)
+	{
+		Player->ActiveWeapon->End_Collision();
+		return;
+	}
 	AWeapon* weapon = owner->GetWeapon();
 	if (!!weapon)
 	{

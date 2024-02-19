@@ -7,10 +7,8 @@
 
 DECLARE_MULTICAST_DELEGATE(FOnInventoryUpdated);
 
-struct FItemData;
-
 enum class EItemType : uint8;
-enum class EEquipType :uint8;
+enum class EEquipType : uint8;
 class AItem;
 class USlot;
 
@@ -102,10 +100,11 @@ public:
 	//UFUNCTION(BlueprintCallable)
 	//	void UnEquipInSlot(EEquipType Type,int32 SlotNumber); //인벤토리에 있는 아이템중에서, 특정 아이템을 탈착상태로 전환한다.
 	
-	//실제 객체를 생성해서 탈부착하는 함수, Equip/UnEquip함수하나로 합칠것
+	//실제 객체를 생성해서 탈부착하는 함수
 	UFUNCTION(BlueprintCallable)
-	void Equip(USlot* Slot, AItem* ItemInstance = nullptr);
-	void UnEquip(USlot* Slot);
+	void Equip(USlot* EquipSlot, AItem* ItemInstance = nullptr);
+	UFUNCTION(Blueprintcallable)
+		void UnEquip(USlot* EquipSlot);
 	
 	UFUNCTION(BlueprintCallable)
 		void Use(const int64 ItemCode);

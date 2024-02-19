@@ -3,7 +3,6 @@
 #include "Actor/Item/Item.h"
 #include "Actor/Item/Weapon/Weapon.h"
 #include "Actor/Character/PlayerCharacter.h"
-#include "UI/Slot.h"
 #include "Global.h"
 
 UInventoryComponent::UInventoryComponent()
@@ -182,39 +181,60 @@ void UInventoryComponent::UpdateSlot()
 //	Slot = nullptr;
 //}
 
-void UInventoryComponent::Equip(USlot* Slot, AItem* ItemInstance)
+void UInventoryComponent::Equip(USlot* EquipSlot, AItem* ItemInstance)
 {
-	//UI에서 전달받은 슬롯정보로 아이템을 장비한다
-	if (Slot->bEquipped == false || Slot == nullptr)
+	//UI에서 전달받은 장비창 슬롯정보로 아이템을 장비한다
+	if (EquipSlot == nullptr)
 	{
 		CLog::Log("Equip State Error");
 		return;
 	}
-	auto Type = Slot->EquipType;
-	Slot->bEquipped = true;
-	AItem* Instance = GetCDOItem(Slot->ItemInfo.AssetData.ItemClass);
+	EquipSlot->bEquipped = true;
+
+	auto InvenData = InventoryContents.Find(EquipSlot->ItemInfo.ItemCode);
+	InvenData->Slot = EquipSlot;
+	InvenData->bEquipped = true;
+
+	auto Type = EquipSlot->EquipType;
+	auto Player = Cast<APlayerCharacter>(GetOwner());
+
+	AItem* Instance = GetCDOItem(EquipSlot->ItemInfo.AssetData.ItemClass);
+	//무기나 장비일 경우 실제 액터를 생성한다
 	if (Type == EEquipType::ET_LeftWeapon || Type == EEquipType::ET_RightWeapon)
 	{
 		Instance = AItem::Spawn<AItem>(GetWorld(),
-			Slot->ItemInfo.AssetData.ItemClass, Cast<ACharacter>(GetOwner()));
-		auto Player = Cast<APlayerCharacter>(GetOwner());
-		Player->SetWeapon(Cast<AWeapon>(Instance));
+			EquipSlot->ItemInfo.AssetData.ItemClass, Cast<ACharacter>(GetOwner()));
+		Player->SetWeapon(Type,Cast<AWeapon>(Instance));
 		Player->SetCapture(Instance, true);
+		Player->ActiveWeapon = Cast<AWeapon>(Instance);
 	}
 	if (!!ItemInstance)
 		ItemInstance = Instance;
-	Instance->Equip(Slot->EquipType);
+
+	EquipSlot->ItemInstance = Instance;
+	Player->Equip(EquipSlot->EquipType);
 }
 
-void UInventoryComponent::UnEquip(USlot* Slot)
+void UInventoryComponent::UnEquip(USlot* EquipSlot)
 {
-
-	if (Slot->bEquipped == false || Slot == nullptr)
+	//GetEquipment(EEquipType)로 현재 장착중인 장비의 인스턴스를 가져오자
+	if (EquipSlot == nullptr)
 	{
 		CLog::Log("Equip State Error");
 		return;
 	}
-	GetCDOItem(Slot->ItemInfo.AssetData.ItemClass)->UnEquip(Slot->EquipType);
+	EquipSlot->bEquipped = false;
+
+	//아이템데이터에서 장착 해제 
+	auto InvenData = InventoryContents.Find(EquipSlot->ItemInfo.ItemCode);
+	InvenData->Slot = nullptr;
+	InvenData->bEquipped = false;
+	
+	auto Player = Cast<APlayerCharacter>(GetOwner());
+	Player->ActiveWeapon = Cast<AWeapon>(EquipSlot->ItemInstance);
+	Player->UnEquip(EquipSlot->EquipType);
+	EquipSlot->ItemInstance = nullptr;
+	
 }
 
 void UInventoryComponent::Use(const int64 ItemCode)

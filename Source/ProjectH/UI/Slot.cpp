@@ -1,4 +1,3 @@
-#include "Slot.h"
 #include "UI/Slot.h"
 #include "Actor/Character/PlayerCharacter.h"
 #include "Component/InventoryComponent.h"
@@ -23,6 +22,14 @@ void USlot::SlotUpdateFromData(const FInventoryItem Data)
 	ItemInfo = Data.ItemInfo;
 	Count = Data.Count;
 	bEquipped = Data.bEquipped;
+	InitializeSlot();
+}
+
+void USlot::SlotUpdateFromSlot(const USlot* Data)
+{
+	ItemInfo = Data->ItemInfo;
+	Count = Data->Count;
+	bEquipped = Data->bEquipped;
 	InitializeSlot();
 }
 
