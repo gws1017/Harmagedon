@@ -33,7 +33,8 @@ public:
 
 	UFUNCTION()
 	void ToggleEquipMenu();
-
+	UFUNCTION(BlueprintCallable)
+		void ToggleInventoryMenu();
 
 private:
 

@@ -119,3 +119,8 @@ void ABasicPlayerController::ToggleEquipMenu()
 {
 	ToggleUI(EquipmentUIInstance);
 }
+
+void ABasicPlayerController::ToggleInventoryMenu()
+{
+	ToggleUI(InventoryUIInstance);
+}

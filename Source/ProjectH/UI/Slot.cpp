@@ -41,9 +41,23 @@ void USlot::OnClickSlot()
 	}
 }
 
+void USlot::OnHoverSlot()
+{
+	if (SlotHoverFunction.IsBound())
+	{
+		SlotHoverFunction.Execute(this);
+	}
+}
+
 void USlot::AddClickFunction(UObject* InObject, const FName InFunctionName)
 {
 	SlotClickFunction.Clear();
 	SlotClickFunction.BindUFunction(InObject, InFunctionName);
 	
+}
+
+void USlot::AddHoverFunction(UObject* InObject, const FName InFunctionName)
+{
+	SlotHoverFunction.Clear();
+	SlotHoverFunction.BindUFunction(InObject, InFunctionName);
 }

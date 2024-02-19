@@ -7,6 +7,7 @@
 #include "Slot.generated.h"
 
 DECLARE_DYNAMIC_DELEGATE_OneParam(FSlotClick,USlot*,SlotInstance);
+DECLARE_DYNAMIC_DELEGATE_OneParam(FSlotHover,USlot*,SlotInstance);
 
 struct FInventoryItem;
 
@@ -48,12 +49,16 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	virtual void OnClickSlot();
+	UFUNCTION(BlueprintCallable)
+		virtual void OnHoverSlot();
 
 	UFUNCTION(BlueprintCallable,BlueprintImplementableEvent)
 	void InitializeSlot();
 
 	UFUNCTION(BlueprintCallable)
 		void AddClickFunction(UObject* InObject, const FName InFunctionName);
+	UFUNCTION(BlueprintCallable)
+		void AddHoverFunction(UObject* InObject, const FName InFunctionName);
 
 public:
 
@@ -64,10 +69,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SlotData")
 		bool bEquipped;  //ÀåÂø¿©ºÎ
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SlotData")
+		bool bShowInfo;  //ÀåÂø¿©ºÎ
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SlotData")
 		EEquipType EquipType;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SlotData")
 		AItem* ItemInstance;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Slot")
 		FSlotClick SlotClickFunction;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Slot")
+		FSlotHover SlotHoverFunction;
 };
