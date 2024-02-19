@@ -14,6 +14,6 @@ class PROJECTH_API USelectionUI : public UBaseUI
 public :
 
 	UFUNCTION(BlueprintCallable)
-		void OnThrow(USlot* Slot);
+		void OnThrow(USlot* SlotData);
 	
 };

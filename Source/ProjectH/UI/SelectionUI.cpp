@@ -4,8 +4,8 @@
 #include "Component/InventoryComponent.h"
 #include "Global.h"
 
-void USelectionUI::OnThrow(USlot* Slot)
+void USelectionUI::OnThrow(USlot* SlotData)
 {
 	CheckNull(Slot);
-	GetOwnerCharacter()->GetInventory()->RemoveItem(Slot->ItemInfo.ItemCode);
+	GetOwnerCharacter()->GetInventory()->RemoveItem(SlotData->ItemInfo.ItemCode);
 }
