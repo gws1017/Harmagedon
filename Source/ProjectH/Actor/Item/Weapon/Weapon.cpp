@@ -113,7 +113,17 @@ void AWeapon::Equip(EEquipType Type)
 
 	SetSocketName(Type);
 	bEquipping = true;
-	OwnerCharacter->PlayAnimMontage(DrawMontage);
+
+	auto AnimInstance = OwnerCharacter->GetMesh()->GetAnimInstance();
+	FString SectionName;
+
+	if (Type == EEquipType::ET_LeftWeapon)
+		SectionName = "Left";
+	if (Type == EEquipType::ET_RightWeapon)
+		SectionName = "Right";
+
+	AnimInstance->Montage_Play(DrawMontage);
+	AnimInstance->Montage_JumpToSection(FName(SectionName));
 
 	SetInstigator(OwnerCharacter->GetController()); //무기 변경 시 컨틀롤러 재등록 고려
 
@@ -126,7 +136,16 @@ void AWeapon::UnEquip(EEquipType Type)
 
 	bEquipping = true;
 
-	OwnerCharacter->PlayAnimMontage(SheathMontage);
+	auto AnimInstance = OwnerCharacter->GetMesh()->GetAnimInstance();
+	FString SectionName;
+
+	if (Type == EEquipType::ET_LeftWeapon)
+		SectionName = "Left";
+	if (Type == EEquipType::ET_RightWeapon)
+		SectionName = "Right";
+
+	AnimInstance->Montage_Play(SheathMontage);
+	AnimInstance->Montage_JumpToSection(FName(SectionName));
 
 }
 

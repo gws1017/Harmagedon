@@ -2,6 +2,7 @@
 #include "Actor/Item/Weapon/Weapon.h"
 #include "Actor/Character/PlayerCharacter.h"
 #include "Interface/WeaponInterface.h"
+#include "UI/Slot.h"
 #include "Global.h"
 
 FString UANS_CollisionEnable::GetNotifyName_Implementation() const
@@ -17,14 +18,7 @@ void UANS_CollisionEnable::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSe
 	IWeaponInterface* owner = Cast<IWeaponInterface>(MeshComp->GetOwner());
 	CheckNull(owner);
 
-	auto Player = Cast<APlayerCharacter>(owner);
-	if (Player)
-	{
-		Player->ActiveWeapon->Begin_Collision();
-		return;
-	}
-
-	AWeapon* weapon = owner->GetWeapon();
+	AWeapon* weapon = owner->GetWeapon(WeaponEquipType);
 	if (!!weapon)
 	{
 		weapon->Begin_Collision();
@@ -38,13 +32,8 @@ void UANS_CollisionEnable::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequ
 
 	IWeaponInterface* owner = Cast<IWeaponInterface>(MeshComp->GetOwner());
 	CheckNull(owner);
-	auto Player = Cast<APlayerCharacter>(owner);
-	if (Player)
-	{
-		Player->ActiveWeapon->End_Collision();
-		return;
-	}
-	AWeapon* weapon = owner->GetWeapon();
+
+	AWeapon* weapon = owner->GetWeapon(WeaponEquipType);
 	if (!!weapon)
 	{
 		weapon->End_Collision();

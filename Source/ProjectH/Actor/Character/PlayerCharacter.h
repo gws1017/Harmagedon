@@ -176,7 +176,7 @@ private:
 	void Interaction();
 	
 	void Attack();
-	void PlayAttackMontage();
+	void PlayAttackMontage(const EEquipType Type = EEquipType::ET_RightWeapon);
 
 	bool CanRoll();
 	bool CanAttack();

@@ -2,6 +2,7 @@
 #include "Actor/Item/Weapon/Weapon.h"
 #include "Actor/Character/PlayerCharacter.h"
 #include "Interface/WeaponInterface.h"
+#include "UI/Slot.h"
 #include "Global.h"
 
 FString UANS_UnEquip::GetNotifyName_Implementation() const
@@ -16,13 +17,9 @@ void UANS_UnEquip::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBa
 
 	IWeaponInterface* owner = Cast<IWeaponInterface>(MeshComp->GetOwner());
 	CheckNull(owner);
-	auto Player = Cast<APlayerCharacter>(owner);
-	if (Player)
-	{
-		Player->ActiveWeapon->Begin_UnEquip();
-		return;
-	}
-	owner->GetWeapon()->Begin_UnEquip();
+	CheckNull(owner->GetWeapon(WeaponEquipType));
+
+	owner->GetWeapon(WeaponEquipType)->Begin_UnEquip();
 }
 
 void UANS_UnEquip::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
@@ -32,11 +29,7 @@ void UANS_UnEquip::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase
 
 	IWeaponInterface* owner = Cast<IWeaponInterface>(MeshComp->GetOwner());
 	CheckNull(owner);
-	auto Player = Cast<APlayerCharacter>(owner);
-	if (Player)
-	{
-		Player->ActiveWeapon->End_UnEquip();
-		return;
-	}
-	owner->GetWeapon()->End_UnEquip();
+	CheckNull(owner->GetWeapon(WeaponEquipType));
+
+	owner->GetWeapon(WeaponEquipType)->End_UnEquip();
 }

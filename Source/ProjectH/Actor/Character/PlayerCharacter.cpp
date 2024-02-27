@@ -220,26 +220,35 @@ void APlayerCharacter::Attack()
 	else
 	{
 		bIsAttacking = true;
-		PlayAttackMontage();
+		//왼손공격 기능 미구현 추후 수정, 오른손 공격으로 고정
+		PlayAttackMontage(EEquipType::ET_RightWeapon);
 	}
 		
 }
 
-void APlayerCharacter::PlayAttackMontage()
+void APlayerCharacter::PlayAttackMontage(const EEquipType Type)
 {
 	CLog::Print(AttackCount);
+	FString SectionName = "Attack";
 	auto AnimInstance = GetMesh()->GetAnimInstance();
 	switch (AttackCount)
 	{
 	case 0:
-		AnimInstance->Montage_Play(AttackMontage);
-		AnimInstance->Montage_JumpToSection("AttackA");
+		SectionName += "A";
 		break;
 	case 1:
-		AnimInstance->Montage_Play(AttackMontage);
-		AnimInstance->Montage_JumpToSection("AttackB");
+		SectionName += "B";
 		break;
 	}
+
+	if (Type == EEquipType::ET_RightWeapon)
+		SectionName += "_R";
+	else if (Type == EEquipType::ET_LeftWeapon)
+		SectionName += "_L";
+
+	AnimInstance->Montage_Play(AttackMontage);
+	AnimInstance->Montage_JumpToSection(FName(SectionName));
+
 	AttackCount++;
 	DecrementStamina(GetWeapon(EEquipType::ET_RightWeapon)->GetStaminaCost());
 }
