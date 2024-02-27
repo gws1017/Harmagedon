@@ -5,6 +5,7 @@
 #include "Global.h"
 
 #include "Components/SphereComponent.h"
+#include "EnemyMeele.h"
 
 AEnemyMeele::AEnemyMeele()
 {
@@ -51,6 +52,11 @@ void AEnemyMeele::AgroSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponen
 			//player->SetTarget(nullptr);
 		}
 	}
+}
+
+float AEnemyMeele::GetDamage(const EEquipType Type) const
+{
+	return WeaponInstance->GetDamage(); 
 }
 
 void AEnemyMeele::Attack()

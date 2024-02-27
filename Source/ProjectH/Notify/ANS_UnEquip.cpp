@@ -1,7 +1,7 @@
 #include "Notify/ANS_UnEquip.h"
 #include "Actor/Item/Weapon/Weapon.h"
 #include "Actor/Character/PlayerCharacter.h"
-#include "Interface/ICharacter.h"
+#include "Interface/WeaponInterface.h"
 #include "Global.h"
 
 FString UANS_UnEquip::GetNotifyName_Implementation() const
@@ -14,7 +14,7 @@ void UANS_UnEquip::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBa
 	Super::NotifyBegin(MeshComp, Animation, TotalDuration, EventReference);
 	CheckNull(MeshComp);
 
-	IICharacter* owner = Cast<IICharacter>(MeshComp->GetOwner());
+	IWeaponInterface* owner = Cast<IWeaponInterface>(MeshComp->GetOwner());
 	CheckNull(owner);
 	auto Player = Cast<APlayerCharacter>(owner);
 	if (Player)
@@ -30,7 +30,7 @@ void UANS_UnEquip::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase
 	Super::NotifyEnd(MeshComp, Animation, EventReference);
 	CheckNull(MeshComp);
 
-	IICharacter* owner = Cast<IICharacter>(MeshComp->GetOwner());
+	IWeaponInterface* owner = Cast<IWeaponInterface>(MeshComp->GetOwner());
 	CheckNull(owner);
 	auto Player = Cast<APlayerCharacter>(owner);
 	if (Player)

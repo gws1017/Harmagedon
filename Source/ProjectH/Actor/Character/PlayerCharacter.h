@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "Interface/ICharacter.h"
+#include "Interface/WeaponInterface.h"
 #include "Interface/HitInterface.h"
 #include "PlayerCharacter.generated.h"
 
@@ -77,7 +77,7 @@ public:
 };
 
 UCLASS()
-class PROJECTH_API APlayerCharacter : public ACharacter, public IICharacter, public IHitInterface
+class PROJECTH_API APlayerCharacter : public ACharacter, public IWeaponInterface, public IHitInterface
 {
 	GENERATED_BODY()
 
@@ -104,7 +104,7 @@ public:
 
 	//외부에서 호출되는 함수 작성
 	//Getter
-	virtual AWeapon* GetWeapon(EEquipType Type) const override;
+	virtual AWeapon* GetWeapon(const EEquipType Type) const override;
 	FORCEINLINE AWeapon* GetRightWeapon() const { return RightWeapon; }
 	FORCEINLINE AWeapon* GetLeftWeapon() const { return LeftWeapon; }
 	FORCEINLINE EWeaponEquipped GetWeaponEquipped() const { return WeaponEquipped; }
@@ -121,9 +121,9 @@ public:
 	FORCEINLINE	float GetStrDamage() { return Stat.StrengthDamage; }
 	FORCEINLINE int32 GetPlayerLevel() { return Stat.Level; }
 	UFUNCTION(BlueprintPure)
-		float GetDamage(const EEquipType Type);
+		virtual float GetDamage(const EEquipType Type) const;
 	UFUNCTION(BlueprintCallable)
-		float GetWeaponDamage(const EEquipType Type);
+		float GetWeaponDamage(const EEquipType Type) const;
 	ABasicPlayerController* GetPlayerController();
 
 	//Setter

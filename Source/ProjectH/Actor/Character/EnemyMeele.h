@@ -4,12 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Actor/Character/Enemy.h"
+#include "Interface/WeaponInterface.h"
 #include "EnemyMeele.generated.h"
 
 class AWeapon;
 
 UCLASS()
-class PROJECTH_API AEnemyMeele : public AEnemy
+class PROJECTH_API AEnemyMeele : public AEnemy, public IWeaponInterface
 {
 	GENERATED_BODY()
 	
@@ -25,7 +26,8 @@ public:
 
 public:
 	//Getter
-	virtual AWeapon* GetWeapon(EEquipType) const override { return WeaponInstance; }
+	virtual AWeapon* GetWeapon(const EEquipType Type) const override { return WeaponInstance; }
+	virtual float GetDamage(const EEquipType Type) const override;
 
 	virtual void Attack() override;
 

@@ -140,7 +140,7 @@ AWeapon* APlayerCharacter::GetWeapon(const EEquipType Type) const
 	else return nullptr;
 }
 
-float APlayerCharacter::GetDamage(const EEquipType Type)
+float APlayerCharacter::GetDamage(const EEquipType Type) const
 {
 	float Damage = Stat.StrengthDamage;
 	Damage += GetWeaponDamage(Type);
@@ -148,7 +148,7 @@ float APlayerCharacter::GetDamage(const EEquipType Type)
 	return Damage;
 }
 
-float APlayerCharacter::GetWeaponDamage(const EEquipType Type)
+float APlayerCharacter::GetWeaponDamage(const EEquipType Type) const
 {
 	float Damage = 0.f;
 	if (Type == EEquipType::ET_RightWeapon)

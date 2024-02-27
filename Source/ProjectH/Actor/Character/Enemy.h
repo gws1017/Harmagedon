@@ -50,9 +50,6 @@ public:
 public:
 
 	//Getter
-
-	virtual AWeapon* GetWeapon(EEquipType Type) const { return nullptr; }//인터페이스 분리예정
-
 	FORCEINLINE bool GetAlerted() { return bAlerted; }
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE APlayerCharacter* GetTarget() { return (!!CombatTarget) ? CombatTarget : nullptr; }
