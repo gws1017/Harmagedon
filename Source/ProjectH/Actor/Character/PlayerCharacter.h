@@ -185,9 +185,12 @@ private:
 	void Roll();
 	void EquipWeapon();
 	void Interaction();
+
 	void DetectTarget();
 	void LockTarget();
 	void UnlockTarget();
+	void SwapTargetRight();
+	void SwapTargetLeft();
 
 	void Attack();
 	void PlayAttackMontage(const EEquipType Type = EEquipType::ET_RightWeapon);
@@ -282,10 +285,16 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = "TargetSystem")
 		bool bTargetLock = false; 
+	UPROPERTY(VisibleAnywhere, Category = "TargetSystem")
+		bool bLockSwitching = false; 
 	UPROPERTY(EditAnywhere, Category = "TargetSystem")
 		float LockInterpSpeed = 5.0f; 
 	UPROPERTY(VisibleAnywhere, Category = "TargetSystem")
 		TArray<AEnemy*> TargetArray;
+	UPROPERTY(VisibleAnywhere, Category = "TargetSystem")
+		TArray<AEnemy*> TargetRight;
+	UPROPERTY(VisibleAnywhere, Category = "TargetSystem")
+		TArray<AEnemy*> TargetLeft;
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly, Category = "TargetSystem", meta = (AllowPrivateAccess = "true"))
 		AActor* LockedTarget;
 

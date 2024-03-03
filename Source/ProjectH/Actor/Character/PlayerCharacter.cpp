@@ -470,8 +470,25 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 	}
 	else
 	{
-		if(FMath::Abs(LookAxisVector.X) > 40.0f)
-		CLog::Print((float)LookAxisVector.X);
+		if (FMath::Abs(LookAxisVector.X) > 40.0f)
+		{
+			CheckNull(LockedTarget);
+			CheckTrue(bLockSwitching);
+			if (LookAxisVector.X > 0.f)
+			{
+				SwapTargetRight();
+			}
+			else
+			{
+				SwapTargetLeft();
+			}
+			bLockSwitching = true;
+			FTimerHandle SwtichCoolTime;
+			GetWorldTimerManager().SetTimer(SwtichCoolTime, [this, SwtichCoolTime]() {
+				bLockSwitching = false;
+				}, 1.f, false);
+		}
+		
 	}
 }
 
@@ -568,6 +585,74 @@ void APlayerCharacter::UnlockTarget()
 {
 	bTargetLock = false;
 	LockedTarget = nullptr;
+}
+
+void APlayerCharacter::SwapTargetRight()
+{
+	TargetRight.Empty();
+	for (auto enemy : TargetArray)
+	{
+		if (enemy != LockedTarget)
+		{
+			FVector DirVec = LockedTarget->GetActorLocation() - enemy->GetActorLocation();
+			DirVec.Normalize();
+			if (Camera->GetRightVector().Dot(DirVec) <= 0)
+			{
+				TargetRight.AddUnique(enemy);
+			}
+		}
+	}
+	CheckFalse(TargetRight.Num() > 0);
+	AEnemy* CloseTarget = TargetRight[0];
+	if (CloseTarget)
+	{
+		for (auto enemy : TargetRight)
+		{
+			if (enemy != LockedTarget)
+			{
+				if (enemy->GetDistanceTo(LockedTarget) < CloseTarget->GetDistanceTo(LockedTarget))
+				{
+					CloseTarget = enemy;
+				}
+			}
+		
+		}
+	}
+	LockedTarget = CloseTarget;
+}
+
+void APlayerCharacter::SwapTargetLeft()
+{
+	TargetLeft.Empty();
+	for (auto enemy : TargetArray)
+	{
+		if (enemy != LockedTarget)
+		{
+			FVector DirVec = LockedTarget->GetActorLocation() - enemy->GetActorLocation();
+			DirVec.Normalize();
+			if (Camera->GetRightVector().Dot(DirVec) > 0)
+			{
+				TargetLeft.AddUnique(enemy);
+			}
+		}
+	}
+	CheckFalse(TargetLeft.Num() > 0);
+	AEnemy* CloseTarget = TargetLeft[0];
+	if (CloseTarget)
+	{
+		for (auto enemy : TargetLeft)
+		{
+			if (enemy != LockedTarget)
+			{
+				if (enemy->GetDistanceTo(LockedTarget) < CloseTarget->GetDistanceTo(LockedTarget))
+				{
+					CloseTarget = enemy;
+				}
+			}
+
+		}
+	}
+	LockedTarget = CloseTarget;
 }
 
 bool APlayerCharacter::CanRoll()
