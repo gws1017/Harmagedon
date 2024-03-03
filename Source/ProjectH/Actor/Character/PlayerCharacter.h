@@ -8,6 +8,7 @@
 
 //헤더는 전방선언 할 것
 class USpringArmComponent;
+class USphereComponent;
 class UCameraComponent;
 class UAnimMontage;
 class UInputMappingContext;
@@ -20,6 +21,7 @@ class ABasicPlayerController;
 class AWeapon;
 class APickupItem;
 class AExpItem;
+class AEnemy;
 
 struct FInputActionValue;
 
@@ -102,6 +104,14 @@ public:
 
 public:
 
+	UFUNCTION()
+		void TargetingBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+			UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	UFUNCTION()
+		void TargetingEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, 
+			UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+public:
+
 	//외부에서 호출되는 함수 작성
 	//Getter
 	virtual AWeapon* GetWeapon(const EEquipType Type) const override;
@@ -171,10 +181,14 @@ private:
 
 	void OnRunning();
 	void OffRunning();
+
 	void Roll();
 	void EquipWeapon();
 	void Interaction();
-	
+	void DetectTarget();
+	void LockTarget();
+	void UnlockTarget();
+
 	void Attack();
 	void PlayAttackMontage(const EEquipType Type = EEquipType::ET_RightWeapon);
 
@@ -189,8 +203,10 @@ private:
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Component")
 		USpringArmComponent* SpringArm;
-	UPROPERTY(VisibleDefaultsOnly, Category = "Component")
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Component", meta = (AllowPrivateAccess = "true"))
 		UCameraComponent* Camera;
+	UPROPERTY(VisibleDefaultsOnly, Category = "Component")
+		USphereComponent* TargetingSphere;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Component")
 		USceneCaptureComponent2D* SceneCapture;
 	UPROPERTY(VisibleAnywhere, Category = "Component")
@@ -215,6 +231,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 		UInputAction* OpenEquipUIAction;
 	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+		UInputAction* TargetLockAction;
+	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 		UInputAction* EscAction;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Montage", meta = (AllowPrivateAccess = "true"))
@@ -231,6 +249,8 @@ private:
 		bool bIsAttacking = false;
 	UPROPERTY(VisibleAnywhere, Category = "Attack")
 		bool bSaveAttack = false;
+
+
 	UPROPERTY(EditAnywhere, Category = "Attack")
 		int32 AttackCount;
 	UPROPERTY(EditAnywhere, Category = "Attack")
@@ -259,6 +279,15 @@ private:
 		FVector StartPoint;
 	UPROPERTY(VisibleDefaultsOnly, Category = "SaveData")
 		FVector DeathLocation;
+
+	UPROPERTY(VisibleAnywhere, Category = "TargetSystem")
+		bool bTargetLock = false; 
+	UPROPERTY(EditAnywhere, Category = "TargetSystem")
+		float LockInterpSpeed = 5.0f; 
+	UPROPERTY(VisibleAnywhere, Category = "TargetSystem")
+		TArray<AEnemy*> TargetArray;
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly, Category = "TargetSystem", meta = (AllowPrivateAccess = "true"))
+		AActor* LockedTarget;
 
 	UPROPERTY(EditAnywhere, Category = "BPClass")
 		TSubclassOf<AExpItem> LostExpClass;

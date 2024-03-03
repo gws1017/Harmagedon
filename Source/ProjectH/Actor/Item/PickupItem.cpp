@@ -38,6 +38,7 @@ void APickupItem::OverlapSphereEndOverlap(UPrimitiveComponent* OverlappedCompone
 
 	if (OverlapPlayer)
 	{
+		CheckNull(PlayerInstance);
 		PlayerInstance->SetOverlappingItem(nullptr);
 		PlayerInstance = nullptr;
 	}

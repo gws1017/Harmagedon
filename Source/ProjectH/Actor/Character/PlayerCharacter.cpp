@@ -16,6 +16,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SphereComponent.h"
 #include "Components/SceneCaptureComponent2D.h"
 #include "Animation/AnimMontage.h"
 
@@ -45,6 +46,7 @@ APlayerCharacter::APlayerCharacter()
 	UHelpers::CreateComponent<USpringArmComponent>(this, &SpringArm, "SpringArm", GetCapsuleComponent());
 	UHelpers::CreateComponent<UCameraComponent>(this, &Camera, "Camera", SpringArm);
 	UHelpers::CreateComponent<USceneCaptureComponent2D>(this, &SceneCapture, "SceneCapture", GetCapsuleComponent());
+	UHelpers::CreateComponent<USphereComponent>(this, &TargetingSphere, "TargetingSphere", GetCapsuleComponent());
 	UHelpers::CreateActorComponent<UInventoryComponent>(this, &InventoryComponent, "Inventory");
 
 	bUseControllerRotationYaw = false;
@@ -64,6 +66,9 @@ void APlayerCharacter::BeginPlay()
 	PlayerController = Cast<ABasicPlayerController>(GetController());
 	InventoryComponent->AddItem(1,false);
 
+	TargetingSphere->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::TargetingBeginOverlap);
+	TargetingSphere->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::TargetingEndOverlap);
+
 	LoadGameData();
 	SceneCapture->ShowOnlyComponent(GetMesh());
 	CheckNull(PlayerController);
@@ -79,6 +84,15 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 	float DeltaStamina = StaminaRegenRate * DeltaTime;
 	UpdateStamina(DeltaStamina);
+	if (bTargetLock)
+	{
+		LockTarget();
+	}
+	else
+	{
+		GetCharacterMovement()->bOrientRotationToMovement = true;
+		GetCharacterMovement()->bUseControllerDesiredRotation = false;
+	}
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -95,6 +109,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInput->BindAction(RollAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Roll);
 		EnhancedInput->BindAction(AttackAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Attack);
 		EnhancedInput->BindAction(InteractionAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Interaction);
+		EnhancedInput->BindAction(TargetLockAction, ETriggerEvent::Triggered, this, &APlayerCharacter::DetectTarget);
 
 		EnhancedInput->BindAction(RunAction, ETriggerEvent::Triggered, this, &APlayerCharacter::OnRunning);
 		EnhancedInput->BindAction(RunAction, ETriggerEvent::Completed, this, &APlayerCharacter::OffRunning);
@@ -105,6 +120,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	}
 	
 }
+
 
 float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
@@ -129,6 +145,24 @@ float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 
 	UE_LOG(LogTemp, Display, L"Player Current HP : %f", Stat.HP);
 	return DamageAmount;
+}
+
+void APlayerCharacter::TargetingBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	AEnemy* Target = Cast<AEnemy>(OtherActor);
+	if (Target)
+	{
+		TargetArray.AddUnique(Target);
+	}
+}
+
+void APlayerCharacter::TargetingEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	AEnemy* Target = Cast<AEnemy>(OtherActor);
+	if (Target)
+	{
+		TargetArray.Remove(Target);
+	}
 }
 
 AWeapon* APlayerCharacter::GetWeapon(const EEquipType Type) const
@@ -426,11 +460,18 @@ void APlayerCharacter::Move(const FInputActionValue& value)
 void APlayerCharacter::Look(const FInputActionValue& Value)
 {
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
-
-	if (Controller != nullptr)
+	if (bTargetLock == false)
 	{
-		AddControllerYawInput(LookAxisVector.X);
-		AddControllerPitchInput(LookAxisVector.Y);
+		if (Controller != nullptr)
+		{
+			AddControllerYawInput(LookAxisVector.X);
+			AddControllerPitchInput(LookAxisVector.Y);
+		}
+	}
+	else
+	{
+		if(FMath::Abs(LookAxisVector.X) > 40.0f)
+		CLog::Print((float)LookAxisVector.X);
 	}
 }
 
@@ -474,6 +515,59 @@ void APlayerCharacter::Interaction()
 {
 	CheckNull(OverlappingItem);
 	OverlappingItem->OnInteraction();
+}
+
+void APlayerCharacter::DetectTarget()
+{
+	if (bTargetLock)
+	{
+		UnlockTarget();
+	}
+	else
+	{
+		float StartOffset = 280.f;
+		float EndOffset = 2000.f;
+		float Radius = 300.f;
+
+		FVector Start = GetActorLocation();
+		Start += Camera->GetForwardVector() * StartOffset;
+		FVector End = Start + Camera->GetForwardVector() * EndOffset;
+
+		TArray<TEnumAsByte<EObjectTypeQuery>> ObjectsTypes =
+		{ UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_PhysicsBody) };
+		TArray<AActor*> IgonerActor = {this};
+		FHitResult Result;
+
+		UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), Start, End, Radius,
+			ObjectsTypes, false, IgonerActor, EDrawDebugTrace::None, Result, true);
+
+		if (Result.GetActor())
+		{
+			LockedTarget = Result.GetActor();
+			bTargetLock = true;
+		}
+	}
+}
+
+void APlayerCharacter::LockTarget()
+{
+	float TargetZOffset = 100.f;
+	FVector TargetLocation = LockedTarget->GetActorLocation();
+	TargetLocation.Z -= TargetZOffset;
+
+	float InertpSpeed = 5.f;
+	FRotator TargetRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TargetLocation);
+	FRotator LerpRotation = UKismetMathLibrary::RInterpTo_Constant(GetControlRotation(), TargetRotation,
+		UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), LockInterpSpeed);
+	LerpRotation.Roll = GetControlRotation().Roll;
+
+	GetController()->SetControlRotation(LerpRotation);
+}
+
+void APlayerCharacter::UnlockTarget()
+{
+	bTargetLock = false;
+	LockedTarget = nullptr;
 }
 
 bool APlayerCharacter::CanRoll()
