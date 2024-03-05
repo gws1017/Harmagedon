@@ -162,6 +162,16 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Weapon")
 		AWeapon* ActiveWeapon;
 
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerRPCRoll();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPCRoll();
+
+	UFUNCTION()
+	void OnRep_CanRoll();
+
 private:
 
 	//캐릭터 내부에서만 호출되는 함수 작성 (주로 키입력)
@@ -184,6 +194,8 @@ private:
 
 	void UpdateStamina(float DeltaStamina);
 	void DecrementStamina(float Amount);
+
+	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const override;
 
 private:
 

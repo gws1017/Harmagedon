@@ -25,6 +25,9 @@
 #include "InputActionValue.h"
 #include "PlayerCharacter.h"
 
+//네트워크
+#include "Net/UnrealNetwork.h"
+
 APlayerCharacter::APlayerCharacter()
 	:AttackCount(0),
 	NumberOfAttacks(2),
@@ -222,7 +225,6 @@ void APlayerCharacter::Attack()
 		bIsAttacking = true;
 		PlayAttackMontage();
 	}
-		
 }
 
 void APlayerCharacter::PlayAttackMontage()
@@ -353,6 +355,32 @@ void APlayerCharacter::RemoveCapture(AActor* InActor, const bool bIncludeFromChi
 	SceneCapture->RemoveShowOnlyActorComponents(InActor, bIncludeFromChildActors);
 }
 
+bool APlayerCharacter::ServerRPCRoll_Validate()
+{
+	return true;
+}
+
+void APlayerCharacter::ServerRPCRoll_Implementation()
+{
+	MulticastRPCRoll();
+}
+
+void APlayerCharacter::MulticastRPCRoll_Implementation()
+{
+	CheckFalse(CanRoll());
+	SetMovementState(EMovementState::EMS_Roll);
+	DecrementStamina(RollStamina);
+	PlayAnimMontage(RollMontage);
+}
+
+void APlayerCharacter::OnRep_CanRoll()
+{
+	//CheckFalse(CanRoll());
+	//SetMovementState(EMovementState::EMS_Roll);
+	//DecrementStamina(RollStamina);
+	//PlayAnimMontage(RollMontage);
+}
+
 void APlayerCharacter::Equip(const EEquipType Type)
 {
 	switch (Type)
@@ -440,9 +468,11 @@ void APlayerCharacter::OffRunning()
 void APlayerCharacter::Roll()
 {
 	CheckFalse(CanRoll());
-	SetMovementState(EMovementState::EMS_Roll);
-	DecrementStamina(RollStamina);
-	PlayAnimMontage(RollMontage);
+	//SetMovementState(EMovementState::EMS_Roll);
+	//DecrementStamina(RollStamina);
+	//PlayAnimMontage(RollMontage);
+
+	ServerRPCRoll();
 }
 
 void APlayerCharacter::EquipWeapon()
@@ -540,4 +570,11 @@ void APlayerCharacter::UpdateStamina(float DeltaStamina)
 void APlayerCharacter::DecrementStamina(float Amount)
 {
 	Stat.Stamina = FMath::Clamp(Stat.Stamina - Amount, 0.f, Stat.MaxStamina);
+}
+
+void APlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	//DOREPLIFETIME(APlayerCharacter, bIsAttacking);
 }
