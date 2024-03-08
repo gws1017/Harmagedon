@@ -52,6 +52,19 @@ USTRUCT(BlueprintType)
 struct FPlayerStatus
 {
 	GENERATED_BODY()
+
+	FPlayerStatus() = default;
+	FPlayerStatus(float hp,float Sta, float mp, int32 lev) :
+		MaxHP(hp),MaxStamina(Sta),MaxMana(mp),Level(lev)
+	{
+		HP = MaxHP;
+		Stamina = MaxStamina;
+		Mana = MaxMana;
+	}
+	FPlayerStatus(int32 lev, int32 Vit, int32 Str, int32 Eng, int32 Fai, int32 Int, int32 End) :
+		 Vitality(Vit), Strength(Str), Energy(Eng), Faith(Fai), Intelligence(Int), Enduarance(End), Level(lev)
+	{}
+
 public:
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
@@ -63,18 +76,44 @@ public:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
 		float MaxStamina;
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
-		float StrengthDamage;
+		float Mana;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
+		float MaxMana;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
-		int32 Vigor; //생명력 HP에 영향을 끼침
+		float PhyDamage;
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
-		int32 Enduarance; //지구력 스테미나에 영향을 끼침
+		float MagDamage;
+
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
-		int32 Strength; //힘 최종 데미지에 영향을 끼침
+		int32 BleedResistance;
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
-		int32 Level;
+		int32 PoisonResistance;
+
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
-		int32 Exp;
+		int32 MaxMagicSlot; //마법 슬롯, 지성에 의해 증가
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
+		float MaxWeight; //최대하중, 체력에 의해 증가
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
+		float Poise; //강인도, 근력에 의해 증가, 백분율로 강인도 데미지를 경감시켜준다.
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
+		int32 Vitality; //체력 - HP 증가 소지가능 무게증가
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
+		int32 Strength; //근력 - 물리 공격력, 강인도 소폭 증가
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
+		int32 Energy; //기력 - 스테미나 증가, 물리 공격력 증가
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
+		int32 Faith; //신앙 - 마법 공격력, 마나 소폭 증가
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
+		int32 Intelligence; //지성 - 마나, 마법 슬롯 증가
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
+		int32 Enduarance; //인내 - 강인도, 내성, 방어력 소폭 증가
+	
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
+		int32 Level; //현재 레벨
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
+		int32 Exp; //현재 경험치
 
 };
 
@@ -128,7 +167,7 @@ public:
 	FORCEINLINE float GetMaxHP() const { return Stat.MaxHP; }
 	FORCEINLINE float GetStamina() const { return Stat.Stamina; }
 	FORCEINLINE float GetMaxStamina() const { return Stat.MaxStamina; }
-	FORCEINLINE	float GetStrDamage() { return Stat.StrengthDamage; }
+	FORCEINLINE	float GetStrDamage() { return Stat.PhyDamage; }
 	FORCEINLINE int32 GetPlayerLevel() { return Stat.Level; }
 	UFUNCTION(BlueprintPure)
 		virtual float GetDamage(const EEquipType Type) const;
@@ -164,6 +203,8 @@ public:
 		void SaveGameData(int32 SaveType = 0);
 	UFUNCTION(BlueprintCallable)
 		void LoadGameData();
+
+	void InitStatusInfo();
 
 	void SetCapture(AActor* InActor, const bool bIncludeFromChildActors);
 	void RemoveCapture(AActor* InActor, const bool bIncludeFromChildActors);

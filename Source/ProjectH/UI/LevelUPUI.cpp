@@ -116,7 +116,7 @@ int32 ULevelUPUI::GetChangePlayerDamage()
 	if (GameInstance && bUpdatedAbility)
 	{
 		return  StaticCast<int32>
-			(GameInstance->GetCharAbilityData(GetChangeStrength())->TotalDmgIncrease +
+			(GameInstance->GetCharAbilityData(GetChangeStrength())->PhyDmg +
 				GetOwnerCharacter()->GetDamage(EEquipType::ET_RightWeapon));
 	}
 	return StaticCast<int32>(GetOwnerCharacter()->GetDamage(EEquipType::ET_RightWeapon));
@@ -136,18 +136,19 @@ void ULevelUPUI::OnClickOKBtn()
 
 void ULevelUPUI::LevelUp()
 {
-	FPlayerStatus ChangeData = {
-		StaticCast<float>(GetChangeMaxHP()),
-		StaticCast<float>(GetChangeMaxHP()),
-		StaticCast<float>(GetChangeMaxStamina()),
-		StaticCast<float>(GetChangeMaxStamina()),
-		GameInstance->GetCharAbilityData(GetChangeStrength())->TotalDmgIncrease,
-		GetChangeVigor(),
-		GetChangeEnduarance(),
-		GetChangeStrength(),
-		GetChangePlayerLevel(),
-		GetChangePlayerExp()
-	};
+	FPlayerStatus ChangeData = {1,0,0,0,0,0,0};
+
+	ChangeData.MaxHP = StaticCast<float>(GetChangeMaxHP());
+	ChangeData.HP = StaticCast<float>(GetChangeMaxHP());
+	ChangeData.MaxStamina = StaticCast<float>(GetChangeMaxStamina());
+	ChangeData.Stamina = StaticCast<float>(GetChangeMaxStamina());
+	ChangeData.PhyDamage = GameInstance->GetCharAbilityData(GetChangeStrength())->PhyDmg;
+	ChangeData.Vitality = GetChangeVigor();
+	ChangeData.Enduarance = GetChangeEnduarance();
+	ChangeData.Strength = GetChangeStrength();
+	ChangeData.Level = GetChangePlayerLevel();
+	ChangeData.Exp = GetChangePlayerExp();
+
 
 	GetOwnerCharacter()->LevelUp(ChangeData);
 	TotalExp = 0;

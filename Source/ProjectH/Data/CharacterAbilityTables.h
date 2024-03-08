@@ -11,23 +11,33 @@ struct FCharacterAbilityData : public FTableRowBase
 	GENERATED_BODY()
 public:
 
-	FCharacterAbilityData() : TotalHP(0.f), HPIncrease(0.f),
-		TotalStamina(0.f), StaIncrease(0.f),
-		TotalDmgIncrease(0.f), DmgIncrease(0.f),
+	FCharacterAbilityData() : TotalHP(0.f),
+		TotalStamina(0.f), TotalMana(0.f),
 		LevelUpExp(0) {}
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Data")
-		float TotalHP;
+		float TotalHP; //체력에 의해 증가
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Data")
-		float HPIncrease;
+		float TotalStamina; //기력에 의해 증가
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Data")
-		float TotalStamina;
+		float TotalMana; //지성에 의해 증가
+
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Data")
-		float StaIncrease;
+		float PhyDmg;//근력에 의해증가 (물리공격력)
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Data")
-		float TotalDmgIncrease;
+		float MagDmg;//신앙에 의해증가 (마법공격력)
+
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Data")
-		float DmgIncrease;
+		int32 BleedResistance;
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Data")
+		int32 PoisonResistance;
+
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Data")
+		int32 MaxMagicSlot; //마법 슬롯, 지성에 의해 증가
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Data")
+		float MaxWeight; //최대하중, 체력에 의해 증가
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Data")
+		float Poise; //강인도, 근력에 의해 증가 
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Data")
 		int32 LevelUpExp;

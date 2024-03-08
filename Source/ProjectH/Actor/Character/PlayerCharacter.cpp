@@ -5,7 +5,11 @@
 #include "Actor/Item/PickupItem.h"
 #include "Actor/Item/ExpItem.h"
 #include "UI/Slot.h"
+
 #include "System/MySaveGame.h"
+#include "System/MyGameInstance.h"
+
+#include "Data/CharacterAbilityTables.h"
 
 #include "Component/InventoryComponent.h"
 #include "Global.h"
@@ -31,7 +35,7 @@ APlayerCharacter::APlayerCharacter()
 	NumberOfAttacks(2),
 	WeaponEquipped(EWeaponEquipped::EWE_Fist),
 	MovementState(EMovementState::EMS_Normal),
-	Stat{ 15,15,50,50,0,1,1,1,1,0 },
+	Stat{ 1,5,5,5,5,5,5 },
 	StaminaRegenRate(2.f),
 	RollStamina(10.f),
 	StartPoint(0.f,0.f,0.f)
@@ -69,7 +73,8 @@ void APlayerCharacter::BeginPlay()
 	TargetingSphere->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::TargetingBeginOverlap);
 	TargetingSphere->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::TargetingEndOverlap);
 
-	LoadGameData();
+	//LoadGameData();
+	InitStatusInfo();
 	SceneCapture->ShowOnlyComponent(GetMesh());
 	CheckNull(PlayerController);
 	if (UEnhancedInputLocalPlayerSubsystem* SubSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
@@ -176,7 +181,7 @@ AWeapon* APlayerCharacter::GetWeapon(const EEquipType Type) const
 
 float APlayerCharacter::GetDamage(const EEquipType Type) const
 {
-	float Damage = Stat.StrengthDamage;
+	float Damage = Stat.PhyDamage;
 	Damage += GetWeaponDamage(Type);
 	
 	return Damage;
@@ -384,6 +389,26 @@ void APlayerCharacter::LoadGameData()
 		GetMesh()->bNoSkeletonUpdate = false;
 	}
 	else CLog::Log("SaveData is not valid");
+;
+}
+
+void APlayerCharacter::InitStatusInfo()
+{
+	auto GameInstance = GetGameInstance<UMyGameInstance>();
+	Stat.MaxMagicSlot = GameInstance->GetCharAbilityData(Stat.Intelligence)->MaxMagicSlot;
+	Stat.BleedResistance = GameInstance->GetCharAbilityData(Stat.Enduarance)->BleedResistance;
+	Stat.PoisonResistance = GameInstance->GetCharAbilityData(Stat.Enduarance)->PoisonResistance;
+	Stat.PhyDamage = GameInstance->GetCharAbilityData(Stat.Strength)->PhyDmg;
+	Stat.MagDamage = GameInstance->GetCharAbilityData(Stat.Intelligence)->MagDmg;
+	Stat.MaxWeight = GameInstance->GetCharAbilityData(Stat.Vitality)->MaxWeight;
+	Stat.Poise = GameInstance->GetCharAbilityData(Stat.Enduarance)->Poise;
+	Stat.MaxMana = GameInstance->GetCharAbilityData(Stat.Intelligence)->TotalMana;
+	Stat.MaxHP = GameInstance->GetCharAbilityData(Stat.Vitality)->TotalHP;
+	Stat.MaxStamina = GameInstance->GetCharAbilityData(Stat.Energy)->TotalStamina;
+
+	Stat.HP = Stat.MaxHP;
+	Stat.Stamina = Stat.MaxStamina;
+	Stat.Mana = Stat.MaxMana;
 }
 
 void APlayerCharacter::SetCapture(AActor* InActor, const bool bIncludeFromChildActors)
