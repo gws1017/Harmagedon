@@ -432,12 +432,17 @@ void APlayerCharacter::Equip(const EEquipType Type)
 		RightWeapon->Equip(Type);
 		break;
 	}
+	//무기에서 장비종류를 얻어오자
+	WeaponEquipped = EWeaponEquipped::EWE_Sword;
 }
 
 void APlayerCharacter::UnEquip(const EEquipType Type)
 {
 	if (ActiveWeapon)
+	{
 		ActiveWeapon->UnEquip(Type);
+		WeaponEquipped = EWeaponEquipped::EWE_None;
+	}
 	/*switch (Type)
 	{
 	case EEquipType::ET_LeftWeapon:

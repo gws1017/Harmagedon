@@ -179,6 +179,7 @@ public:
 	FORCEINLINE void SetMovementState(const EMovementState& state) {  MovementState = state; }
 	FORCEINLINE void SetMovementNormal() {  MovementState = EMovementState::EMS_Normal; }
 	FORCEINLINE void SetOverlappingItem(APickupItem* Item) { OverlappingItem = Item; }
+	FORCEINLINE void SetWeaponEquipped(const EWeaponEquipped EquippedType) { WeaponEquipped = EquippedType; }
 	void SetWeapon(EEquipType Type, AWeapon* Instance);
 	
 	void End_Attack();
