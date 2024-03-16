@@ -9,7 +9,7 @@ class ACharacter;
 class UAnimMontage;
 class USceneComponent;
 class UBoxComponent;
-class USkeletalMeshComponent;
+class UStaticMeshComponent;
 class UDamageType;
 class UFieldSystemComponent;
 class URadialFalloff;
@@ -74,8 +74,8 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Component")
 		USceneComponent* Scene;
 
-	UPROPERTY(VisibleDefaultsOnly, Category = "Component")
-		USkeletalMeshComponent* Mesh;
+	UPROPERTY(VisibleDefaultsOnly, Category = "Component", meta = (AllowPriavteAccess = "true"))
+		UStaticMeshComponent* Mesh;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Component")
 		UBoxComponent* WeaponCollision;
@@ -89,11 +89,11 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Socket")
 		FName SheathSocket = "SheathSocket";
 
-	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 		float Damage;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
 		float AdditionalDamage;
-	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 		float StaminaCost;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")

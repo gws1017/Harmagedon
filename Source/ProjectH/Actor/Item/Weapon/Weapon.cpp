@@ -6,7 +6,7 @@
 
 #include "Engine/World.h"
 #include "GameFramework/Character.h"
-#include "Components/SkeletalMeshComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/AudioComponent.h"
 
@@ -23,7 +23,7 @@ AWeapon::AWeapon()
 
 	UHelpers::CreateComponent<USceneComponent>(this, &Scene, "Scene");
 
-	UHelpers::CreateComponent<USkeletalMeshComponent>(this, &Mesh, "Mesh", Scene);
+	UHelpers::CreateComponent<UStaticMeshComponent>(this, &Mesh, "StaticMesh", Scene);
 	UHelpers::CreateComponent<UBoxComponent>(this, &WeaponCollision, "ComatCollision", Scene);
 	UHelpers::CreateComponent<UFieldSystemComponent>(this, &FieldSystemComponent, "FieldSystemComponent", GetRootComponent());
 
@@ -36,6 +36,9 @@ AWeapon::AWeapon()
 void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
+
+	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 	WeaponCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	WeaponCollision->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
 	WeaponCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
@@ -114,16 +117,19 @@ void AWeapon::Equip(EEquipType Type)
 	SetSocketName(Type);
 	bEquipping = true;
 
-	auto AnimInstance = OwnerCharacter->GetMesh()->GetAnimInstance();
-	FString SectionName;
+	if (DrawMontage)
+	{
+		auto AnimInstance = OwnerCharacter->GetMesh()->GetAnimInstance();
+		FString SectionName;
 
-	if (Type == EEquipType::ET_LeftWeapon)
-		SectionName = "Left";
-	if (Type == EEquipType::ET_RightWeapon)
-		SectionName = "Right";
+		if (Type == EEquipType::ET_LeftWeapon)
+			SectionName = "Left";
+		if (Type == EEquipType::ET_RightWeapon)
+			SectionName = "Right";
 
-	AnimInstance->Montage_Play(DrawMontage);
-	AnimInstance->Montage_JumpToSection(FName(SectionName));
+		AnimInstance->Montage_Play(DrawMontage);
+		AnimInstance->Montage_JumpToSection(FName(SectionName));
+	}
 
 	SetInstigator(OwnerCharacter->GetController()); //무기 변경 시 컨틀롤러 재등록 고려
 
@@ -136,16 +142,19 @@ void AWeapon::UnEquip(EEquipType Type)
 
 	bEquipping = true;
 
-	auto AnimInstance = OwnerCharacter->GetMesh()->GetAnimInstance();
-	FString SectionName;
+	if (SheathMontage)
+	{
+		auto AnimInstance = OwnerCharacter->GetMesh()->GetAnimInstance();
+		FString SectionName;
 
-	if (Type == EEquipType::ET_LeftWeapon)
-		SectionName = "Left";
-	if (Type == EEquipType::ET_RightWeapon)
-		SectionName = "Right";
+		if (Type == EEquipType::ET_LeftWeapon)
+			SectionName = "Left";
+		if (Type == EEquipType::ET_RightWeapon)
+			SectionName = "Right";
 
-	AnimInstance->Montage_Play(SheathMontage);
-	AnimInstance->Montage_JumpToSection(FName(SectionName));
+		AnimInstance->Montage_Play(SheathMontage);
+		AnimInstance->Montage_JumpToSection(FName(SectionName));
+	}
 
 }
 

@@ -15,7 +15,7 @@ AEnemy::AEnemy()
 	PrimaryActorTick.bCanEverTick = false;
 
 	UHelpers::CreateComponent<USphereComponent>(this, &AgroSphere, "AgroSphere", GetRootComponent());
-	UHelpers::CreateComponent<USphereComponent>(this, &CombatSphere, "CombatSphere", GetRootComponent());
+	UHelpers::CreateComponent<USphereComponent>(this, &ActionSphere, "ActionSphere", GetRootComponent());
 
 	AgroSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Ignore);
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
@@ -33,11 +33,16 @@ void AEnemy::BeginPlay()
 	//블루프린트 클래스로 등록된 객체로 교체하는 함수
 	SpawnDefaultController();
 
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetMesh()->SetCollisionObjectType(ECollisionChannel::ECC_PhysicsBody);
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_PhysicsBody, ECollisionResponse::ECR_Ignore);
+
 	AgroSphere->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::AgroSphereOnOverlapBegin);
 	AgroSphere->OnComponentEndOverlap.AddDynamic(this, &AEnemy::AgroSphereOnOverlapEnd);
 
-	CombatSphere->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::CombatSphereOnOverlapBegin);
-	CombatSphere->OnComponentEndOverlap.AddDynamic(this, &AEnemy::CombatSphereOnOverlapEnd);
+	ActionSphere->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::ActionSphereOnOverlapBegin);
+	ActionSphere->OnComponentEndOverlap.AddDynamic(this, &AEnemy::ActionSphereOnOverlapEnd);
 
 	SpawnLocation = GetActorLocation();
 }
@@ -131,7 +136,7 @@ void AEnemy::Die()
 	PlayAnimMontage(DeathMontage);
 
 	AgroSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	CombatSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	ActionSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 

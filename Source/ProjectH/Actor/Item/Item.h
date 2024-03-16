@@ -39,6 +39,6 @@ protected:
 
 protected:
 
-	UPROPERTY(VisibleDefaultsOnly, Category = "Socket")
+	UPROPERTY(EditDefaultsOnly, Category = "Socket")
 		FName EquipSocket = "";
 };
