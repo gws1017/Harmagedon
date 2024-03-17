@@ -61,6 +61,7 @@ public:
 		FORCEINLINE float GetExp() { return Exp; }
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE float GetAttackRange() { return AttackRange; }
+	FORCEINLINE FVector GetSpawnLocation() const { return SpawnLocation; }
 	FVector GetCombatTargetLocation() const;
 
 	//Setter

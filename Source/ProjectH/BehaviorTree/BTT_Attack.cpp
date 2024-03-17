@@ -7,7 +7,7 @@
 
 UBTT_Attack::UBTT_Attack()
 {
-	NodeName = TEXT("AttackPhase");
+	NodeName = TEXT("Attack");
 }
 
 EBTNodeResult::Type UBTT_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
