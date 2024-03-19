@@ -8,9 +8,14 @@
 ANormalMonster::ANormalMonster()
 	:MaxStamina(50.f), StaminaRgenRate(2.0f), ActionState(EMonsterAction::EMA_Normal)
 {
+	PrimaryActorTick.bCanEverTick = true;
+
 	UHelpers::CreateComponent<UArrowComponent>(this, &SpawnDirection, "SpawnDirection", GetRootComponent());
+	UHelpers::CreateComponent<USceneComponent>(this, &PatrolPositionComponent, "PatrolPositionComponent", GetRootComponent());
 
 	CurrentStamina = MaxStamina;
+	GetCharacterMovement()->MaxWalkSpeed = 200.f;
+
 }
 
 void ANormalMonster::BeginPlay()
@@ -18,12 +23,16 @@ void ANormalMonster::BeginPlay()
 	Super::BeginPlay();
 
 	//기본 지정행동을 결정한다
-	bPatrol = (PatrolPosition.IsNearlyZero()) ? false : true;
+	bPatrol = (GetPatrolPosition().Equals(GetActorLocation())) ? false : true;
 	//Spawn 방향 Set
 	if (!bPatrol)
 	{
 		FVector Dir = SpawnDirection->GetForwardVector();
 		SetActorRotation(UKismetMathLibrary::MakeRotFromX(Dir));
+	}
+	else
+	{
+		PatrolPos = PatrolPositionComponent->GetComponentLocation();
 	}
 
 }
@@ -37,7 +46,9 @@ void ANormalMonster::Tick(float DeltaTime)
 	//락온
 	if (bTargetLock)
 	{
-		FRotator rot = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), CombatTarget->GetActorLocation());
+		if(CombatTarget)
+			LastTargetPos = CombatTarget->GetActorLocation();
+		FRotator rot = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), LastTargetPos);
 		SetActorRotation(rot);
 	}
 	
@@ -51,10 +62,8 @@ void ANormalMonster::AgroSphereOnOverlapBegin(UPrimitiveComponent* OverlappedCom
 		if (!!player)
 		{
 			SetAlerted(true);
-			//
-			//WeaponInstance->Equip(EEquipType::ET_RightWeapon);
+			SetActionState(EMonsterAction::EMA_Alert);
 			CombatTarget = player;
-			//player->SetTarget(this);
 		}
 	}
 }
@@ -66,11 +75,43 @@ void ANormalMonster::AgroSphereOnOverlapEnd(UPrimitiveComponent* OverlappedCompo
 		APlayerCharacter* player = Cast<APlayerCharacter>(OtherActor);
 		if (!!player)
 		{
+			SetAlerted(false);
 			CombatTarget = nullptr;
-			//WeaponInstance->UnEquip(EEquipType::ET_RightWeapon);
-			//player->SetTarget(nullptr);
+			SetActionState(EMonsterAction::EMA_Normal);
 		}
 	}
+}
+
+void ANormalMonster::ActionSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (!!OtherActor && Alive())
+	{
+		APlayerCharacter* player = Cast<APlayerCharacter>(OtherActor);
+		if (!!player)
+		{
+			SetActionState(EMonsterAction::EMA_AttackReady);
+
+		}
+	}
+}
+
+void ANormalMonster::ActionSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (!!OtherActor && Alive())
+	{
+		APlayerCharacter* player = Cast<APlayerCharacter>(OtherActor);
+		if (!!player)
+		{
+			SetActionState(EMonsterAction::EMA_Alert);
+		}
+	}
+}
+
+bool ANormalMonster::CanAttack() const
+{
+	bool result = true;
+	CheckTrueResult(bAttacking, false);
+	return result;
 }
 
 void ANormalMonster::SetChase(const float Speed)
@@ -83,15 +124,10 @@ void ANormalMonster::SetChase(const float Speed)
 	GetCharacterMovement()->MaxWalkSpeed = Speed;
 }
 
-bool ANormalMonster::IsRanged()
-{
-	//SphereTrace를이용해 플레이어 사거리 내인지 탐지
-	return true;
-}
-
 void ANormalMonster::UpdateStamina(float DeltaTime)
 {
 	float DeltaStamina = StaminaRgenRate * DeltaTime;
+	if (bAttacking) return;
 
 	if (bChased)
 	{

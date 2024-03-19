@@ -18,6 +18,6 @@ void UBTS_UpdateRanged::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 	ANormalMonster* ControlledPawn = Cast<ANormalMonster>(OwnerComp.GetAIOwner()->GetPawn());
 
 	CheckNull(ControlledPawn);
-
-	OwnerComp.GetBlackboardComponent()->SetValueAsBool("IsRanged", ControlledPawn->IsRanged());
+	float range = ControlledPawn->GetAttackRange();
+	OwnerComp.GetBlackboardComponent()->SetValueAsBool("IsRanged", ControlledPawn->IsRanged(range));
 }

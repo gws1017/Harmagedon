@@ -5,6 +5,7 @@
 #include "NormalMonster.generated.h"
 
 class UArrowComponent;
+class USceneComponent;
 
 UENUM(BlueprintType)
 enum class EMonsterAction : uint8
@@ -35,21 +36,24 @@ public:
 
 	virtual void AgroSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 	virtual void AgroSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
+	virtual void ActionSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
+	virtual void ActionSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
 
 public:
 	//Getter
 	FORCEINLINE EMonsterAction GetActionState() const { return ActionState; }
-	FORCEINLINE FVector GetPatrolPosition() const { return PatrolPosition; }
+	FORCEINLINE FVector GetPatrolPosition() const { return PatrolPos; }
 	FORCEINLINE float GetMaxStamina() const { return MaxStamina; }
 	FORCEINLINE float GetStamina() const { return CurrentStamina; }
 	FORCEINLINE bool IsPatrol() const { return bPatrol; }
+	FORCEINLINE bool CanAttack() const;
+
 
 	//Setter
 	FORCEINLINE void SetLockOn(const bool value) { bTargetLock = value; }
 	FORCEINLINE void SetActionState(const EMonsterAction value ) { ActionState = value; }
 
 	void SetChase(const float Speed);
-	bool IsRanged();
 
 private:
 
@@ -62,11 +66,16 @@ protected:
 		UArrowComponent* SpawnDirection;
 	//배회하는 몬스터의 경우 위치를 지정해야함, 미지정시 Idle이 기본
 	UPROPERTY(EditAnywhere, Category = "Behavior Tree", meta =(MakeEditWidget))
-		FVector PatrolPosition;
+		USceneComponent* PatrolPositionComponent;
+
+	UPROPERTY(VisibleAnywhere, Category = "Behavior Tree")
+		FVector PatrolPos;
+	UPROPERTY(VisibleAnywhere, Category = "Behavior Tree")
+		FVector LastTargetPos;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Status")
 	float MaxStamina;
-	UPROPERTY(EditDefaultsOnly, Category = "Status")
+	UPROPERTY(VisibleAnywhere, Category = "Status")
 	float CurrentStamina;
 	UPROPERTY(EditDefaultsOnly, Category = "Status")
 	float StaminaRgenRate;
@@ -79,6 +88,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Behavior Tree")
 		bool bChased = false;
 	//몬스터의 행동패턴을 결정짓는 enum class
-	UPROPERTY(EditDefaultsOnly, Category = "Behavior Tree")
+	UPROPERTY(VisibleAnywhere, Category = "Behavior Tree")
 		EMonsterAction ActionState;
 };

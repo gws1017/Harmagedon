@@ -10,8 +10,8 @@ AGuardianMeele::AGuardianMeele()
 	HP = MaxHP;
 	Exp = 20;
 
-	AgroSphere->InitSphereRadius(300.f);
-	ActionSphere->InitSphereRadius(75.f);
+	DetectRadius = 500.f;
+	ActionRadius = 300.f;
 
 }
 
@@ -36,6 +36,7 @@ void AGuardianMeele::Attack()
 {
 	AEnemy::Attack();
 	CheckNull(AttackMontage);
+	CurrentStamina -= WeaponInstance->GetStaminaCost();
 	//if (bAlerted && !WeaponInstance->GetEquipped())
 		//WeaponInstance->Equip(EEquipType::ET_RightWeapon);
 	PlayAnimMontage(AttackMontage);

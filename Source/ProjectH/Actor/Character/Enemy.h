@@ -51,6 +51,7 @@ public:
 
 	//Getter
 	FORCEINLINE bool GetAlerted() { return bAlerted; }
+	FORCEINLINE bool IsAttacking() { return bAttacking; }
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE APlayerCharacter* GetTarget() { return (!!CombatTarget) ? CombatTarget : nullptr; }
 	UFUNCTION(BlueprintPure)
@@ -61,6 +62,8 @@ public:
 		FORCEINLINE float GetExp() { return Exp; }
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE float GetAttackRange() { return AttackRange; }
+		FORCEINLINE float GetDetectRadius() { return DetectRadius; }
+		FORCEINLINE float GetActionRadius() { return ActionRadius; }
 	FORCEINLINE FVector GetSpawnLocation() const { return SpawnLocation; }
 	FVector GetCombatTargetLocation() const;
 
@@ -104,6 +107,10 @@ protected:
 		int32 Exp;
 	UPROPERTY(EditAnywhere, Category = "AI")
 		float AttackRange;
+	UPROPERTY(EditAnywhere, Category = "AI")
+		float DetectRadius;
+	UPROPERTY(EditAnywhere, Category = "AI")
+		float ActionRadius;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Status")
 		FVector SpawnLocation;

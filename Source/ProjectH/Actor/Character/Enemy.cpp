@@ -18,6 +18,7 @@ AEnemy::AEnemy()
 	UHelpers::CreateComponent<USphereComponent>(this, &ActionSphere, "ActionSphere", GetRootComponent());
 
 	AgroSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Ignore);
+
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	AIControllerClass = nullptr;
 	Controller = nullptr;
@@ -43,6 +44,11 @@ void AEnemy::BeginPlay()
 
 	ActionSphere->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::ActionSphereOnOverlapBegin);
 	ActionSphere->OnComponentEndOverlap.AddDynamic(this, &AEnemy::ActionSphereOnOverlapEnd);
+
+	AgroSphere->InitSphereRadius(DetectRadius);
+	ActionSphere->InitSphereRadius(ActionRadius);
+	AgroSphere->SetRelativeLocation(FVector(DetectRadius, 0.f, 0.f));
+	ActionSphere->SetRelativeLocation(FVector(ActionRadius, 0.f, 0.f));
 
 	SpawnLocation = GetActorLocation();
 }
@@ -179,8 +185,8 @@ bool AEnemy::IsHitActorAreaAttack(const FVector& start, const FVector& end, floa
 
 bool AEnemy::IsRanged(float radius)
 {
-	FVector start = GetActorLocation() - FVector(radius, 0, 0);
-	FVector end = GetActorLocation() + FVector(radius, 0, 0);
+	FVector start = GetActorLocation();
+	FVector end = GetActorLocation() + FVector(radius*2, 0, 0);
 
 	TArray<AActor*> HitActors;
 	DrawDebugSphere(GetWorld(), GetActorLocation(), radius, 12, FColor::White, true, 30.f, 0, 1.f);
