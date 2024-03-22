@@ -37,7 +37,7 @@ APlayerCharacter::APlayerCharacter()
 	MovementState(EMovementState::EMS_Normal),
 	Stat{ 1,5,5,5,5,5,5 },
 	StaminaRegenRate(2.f),
-	RollStamina(10.f),
+	RollStamina(33.f),
 	StartPoint(0.f,0.f,0.f)
 {
 	//Tick함수 안쓰면 일단 꺼놓기
@@ -129,7 +129,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	if (DamageAmount <= 0.f /*|| EPlayerStat::EPS_Invincible == PlayerStat*/)
+	if (DamageAmount <= 0.f || bIFrame == true)
 		return DamageAmount;
 
 	if (Stat.HP - DamageAmount <= 0.f)
@@ -327,8 +327,7 @@ void APlayerCharacter::DeathEnd()
 
 void APlayerCharacter::Hit(const FVector& ParticleSpawnLocation)
 {
-	CheckFalse(Alive());
-	CheckNull(HitMontage);
+	CheckFalse(CanHit());
 	//if (AudioComponent->Sound)
 	//	AudioComponent->Play();
 
@@ -697,10 +696,12 @@ bool APlayerCharacter::CanRoll()
 		return false;
 	default:
 		break;
-		if (Stat.Stamina - RollStamina > 0)
-			return true;
-		else return false;
+		
 	}
+	if (Stat.Stamina - RollStamina > 0)
+		return true;
+	else return false;
+
 	return true;
 }
 
@@ -731,6 +732,17 @@ bool APlayerCharacter::CanMove()
 	CheckFalseResult(Alive(), false);
 
 	return true;
+}
+
+bool APlayerCharacter::CanHit()
+{
+	bool result = true;
+
+	if (!Alive()) result = false;
+	if (HitMontage == nullptr) result = false;
+	if (MovementState == EMovementState::EMS_Roll) result = false;
+
+	return result;
 }
 
 void APlayerCharacter::UpdateStamina(float DeltaStamina)

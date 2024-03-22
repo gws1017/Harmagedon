@@ -163,12 +163,14 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 		 FPlayerStatus GetPlayerStat() const { return Stat; }
+	FORCEINLINE bool IsInvincible() { return bIFrame; }
 	FORCEINLINE float GetHP() const { return Stat.HP; }
 	FORCEINLINE float GetMaxHP() const { return Stat.MaxHP; }
 	FORCEINLINE float GetStamina() const { return Stat.Stamina; }
 	FORCEINLINE float GetMaxStamina() const { return Stat.MaxStamina; }
 	FORCEINLINE	float GetStrDamage() { return Stat.PhyDamage; }
 	FORCEINLINE int32 GetPlayerLevel() { return Stat.Level; }
+
 	UFUNCTION(BlueprintPure)
 		virtual float GetDamage(const EEquipType Type) const;
 	UFUNCTION(BlueprintCallable)
@@ -180,6 +182,7 @@ public:
 	FORCEINLINE void SetMovementNormal() {  MovementState = EMovementState::EMS_Normal; }
 	FORCEINLINE void SetOverlappingItem(APickupItem* Item) { OverlappingItem = Item; }
 	FORCEINLINE void SetWeaponEquipped(const EWeaponEquipped EquippedType) { WeaponEquipped = EquippedType; }
+	FORCEINLINE void SetInvincible(const bool value) { bIFrame = value; }
 	void SetWeapon(EEquipType Type, AWeapon* Instance);
 	
 	void End_Attack();
@@ -240,6 +243,7 @@ private:
 	bool CanRoll();
 	bool CanAttack();
 	bool CanMove();
+	bool CanHit();
 
 	void UpdateStamina(float DeltaStamina);
 	void DecrementStamina(float Amount);
@@ -296,6 +300,7 @@ private:
 		bool bSaveAttack = false;
 
 
+
 	UPROPERTY(EditAnywhere, Category = "Attack")
 		int32 AttackCount;
 	UPROPERTY(EditAnywhere, Category = "Attack")
@@ -315,6 +320,8 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Status", meta = (AllowPrivateAccess = "true"))
 		FPlayerStatus Stat;
 
+	UPROPERTY(VisibleAnywhere, Category = "Status")
+		bool bIFrame = false;
 	UPROPERTY(EditAnywhere, Category = "Status")
 		float StaminaRegenRate;
 	UPROPERTY(EditAnywhere, Category = "Status")
