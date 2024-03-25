@@ -14,7 +14,7 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
 	CheckNull(PlayerCharacter);
-	
+	bBlocking = PlayerCharacter->IsBlocking();
 	WeaponEquipped = PlayerCharacter->GetWeaponEquipped();
 	MovementState = PlayerCharacter->GetMovementState();
 }

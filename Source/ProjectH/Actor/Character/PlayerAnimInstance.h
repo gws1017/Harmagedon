@@ -24,11 +24,14 @@ protected:
 		bool bIsMoving;
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "Animation")
 		bool bIsRolling;*/
+	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "Animation")
+		bool bBlocking;
 
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "Animation")
 		EWeaponEquipped WeaponEquipped;
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "Animation")
 		EMovementState MovementState;
+
 
 private:
 	UPROPERTY()

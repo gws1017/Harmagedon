@@ -164,6 +164,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 		 FPlayerStatus GetPlayerStat() const { return Stat; }
 	FORCEINLINE bool IsInvincible() { return bIFrame; }
+	FORCEINLINE bool IsBlocking() { return bBlocking; }
 	FORCEINLINE float GetHP() const { return Stat.HP; }
 	FORCEINLINE float GetMaxHP() const { return Stat.MaxHP; }
 	FORCEINLINE float GetStamina() const { return Stat.Stamina; }
@@ -227,6 +228,9 @@ private:
 	void OnRunning();
 	void OffRunning();
 
+	void OnRightClick();
+	void OffRightClick();
+
 	void Roll();
 	void EquipWeapon();
 	void Interaction();
@@ -274,6 +278,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 		UInputAction* AttackAction;
 	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+		UInputAction* RightClickAction;
+	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 		UInputAction* EquipAction;
 	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 		UInputAction* InteractionAction;
@@ -292,13 +298,13 @@ private:
 		UAnimMontage* AttackMontage;
 	UPROPERTY(EditDefaultsOnly, Category = "Montage", meta = (AllowPrivateAccess = "true"))
 		UAnimMontage* RollMontage;
-
+	UPROPERTY(EditDefaultsOnly, Category = "Montage", meta = (AllowPrivateAccess = "true"))
+		UAnimMontage* BlockMontage;
 
 	UPROPERTY(VisibleAnywhere, Category = "Attack")
 		bool bIsAttacking = false;
 	UPROPERTY(VisibleAnywhere, Category = "Attack")
 		bool bSaveAttack = false;
-
 
 
 	UPROPERTY(EditAnywhere, Category = "Attack")
@@ -320,6 +326,8 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Status", meta = (AllowPrivateAccess = "true"))
 		FPlayerStatus Stat;
 
+	UPROPERTY(VisibleAnywhere, Category = "Status")
+		bool bBlocking = false;
 	UPROPERTY(VisibleAnywhere, Category = "Status")
 		bool bIFrame = false;
 	UPROPERTY(EditAnywhere, Category = "Status")

@@ -113,6 +113,10 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 		EnhancedInput->BindAction(RollAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Roll);
 		EnhancedInput->BindAction(AttackAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Attack);
+
+		EnhancedInput->BindAction(RightClickAction, ETriggerEvent::Triggered, this, &APlayerCharacter::OnRightClick);
+		EnhancedInput->BindAction(RightClickAction, ETriggerEvent::Completed, this, &APlayerCharacter::OffRightClick);
+
 		EnhancedInput->BindAction(InteractionAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Interaction);
 		EnhancedInput->BindAction(TargetLockAction, ETriggerEvent::Triggered, this, &APlayerCharacter::DetectTarget);
 
@@ -531,6 +535,19 @@ void APlayerCharacter::OffRunning()
 {
 	SetMovementNormal();
 	GetCharacterMovement()->MaxWalkSpeed = 200;
+}
+
+void APlayerCharacter::OnRightClick()
+{
+	CheckNull(BlockMontage);
+	CheckTrue(bBlocking);
+	bBlocking = true;
+	//PlayAnimMontage(BlockMontage);
+}
+
+void APlayerCharacter::OffRightClick()
+{
+	bBlocking = false;
 }
 
 void APlayerCharacter::Roll()
