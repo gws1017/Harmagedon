@@ -248,6 +248,7 @@ private:
 	bool CanAttack();
 	bool CanMove();
 	bool CanHit();
+	bool CanBlock();
 
 	void UpdateStamina(float DeltaStamina);
 	void DecrementStamina(float Amount);
@@ -327,9 +328,13 @@ private:
 		FPlayerStatus Stat;
 
 	UPROPERTY(VisibleAnywhere, Category = "Status")
+		bool bBlockFail = false;
+	UPROPERTY(VisibleAnywhere, Category = "Status")
 		bool bBlocking = false;
 	UPROPERTY(VisibleAnywhere, Category = "Status")
 		bool bIFrame = false;
+	UPROPERTY(EditAnywhere, Category = "Status")
+		float BlockMinStamina;
 	UPROPERTY(EditAnywhere, Category = "Status")
 		float StaminaRegenRate;
 	UPROPERTY(EditAnywhere, Category = "Status")

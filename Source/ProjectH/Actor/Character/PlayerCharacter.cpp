@@ -1,4 +1,5 @@
 #include "Actor/Character/PlayerCharacter.h"
+#include "Actor/Character/PlayerAnimInstance.h"
 #include "Actor/Controller/BasicPlayerController.h"
 #include "Actor/Character/Enemy.h"
 #include "Actor/Item/Weapon/Weapon.h"
@@ -36,6 +37,7 @@ APlayerCharacter::APlayerCharacter()
 	WeaponEquipped(EWeaponEquipped::EWE_Fist),
 	MovementState(EMovementState::EMS_Normal),
 	Stat{ 1,5,5,5,5,5,5 },
+	BlockMinStamina(0.1f),
 	StaminaRegenRate(2.f),
 	RollStamina(33.f),
 	StartPoint(0.f,0.f,0.f)
@@ -135,6 +137,19 @@ float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 {
 	if (DamageAmount <= 0.f || bIFrame == true)
 		return DamageAmount;
+
+	if (bBlocking && !bBlockFail)
+	{
+		//방패에서 물리경감률을 얻어오자
+		DamageAmount = DamageAmount * (1.0f - 0.85f);
+		DecrementStamina(Stat.MaxStamina * 0.35f);
+	}
+	if (bBlockFail)
+	{
+		//받는 데미지 증가
+		DamageAmount *= 1.2f;
+		CLog::Print(DamageAmount);
+	}
 
 	if (Stat.HP - DamageAmount <= 0.f)
 	{
@@ -541,13 +556,15 @@ void APlayerCharacter::OnRightClick()
 {
 	CheckNull(BlockMontage);
 	CheckTrue(bBlocking);
+	CheckFalse(CanBlock());
 	bBlocking = true;
-	//PlayAnimMontage(BlockMontage);
+	StaminaRegenRate *= 0.4f;
 }
 
 void APlayerCharacter::OffRightClick()
 {
 	bBlocking = false;
+	StaminaRegenRate = 2.f;
 }
 
 void APlayerCharacter::Roll()
@@ -762,10 +779,33 @@ bool APlayerCharacter::CanHit()
 	return result;
 }
 
+bool APlayerCharacter::CanBlock()
+{
+	if (Stat.Stamina < Stat.MaxStamina * BlockMinStamina)
+	{
+		if (!bBlockFail)
+		{
+			FTimerHandle BlockFailTimer;
+			GetWorldTimerManager().SetTimer(BlockFailTimer, [this]() {
+				bBlockFail = false;
+				CLog::Print("Panalty End");
+
+				}, 1.f, false);
+		}
+		bBlockFail = true;
+		OffRightClick();
+		//받는데미지 1초간 증가
+		return false;
+	}
+	return true;
+}
+
 void APlayerCharacter::UpdateStamina(float DeltaStamina)
 {
 	CheckTrue(MovementState == EMovementState::EMS_Dead); //죽었을 때 종료
 	CheckTrue((Stat.Stamina == Stat.MaxStamina) && (MovementState != EMovementState::EMS_Run)); //스테미나 변동이 없을 시 종료
+
+	CanBlock();
 
 	if (MovementState == EMovementState::EMS_Run && FMath::IsNearlyZero(GetVelocity().Length()) == false)
 	{
@@ -781,7 +821,6 @@ void APlayerCharacter::UpdateStamina(float DeltaStamina)
 	Stat.Stamina += DeltaStamina;
 
 	Stat.Stamina = FMath::Clamp(Stat.Stamina, 0.f, Stat.MaxStamina);
-	return;
 }
 
 void APlayerCharacter::DecrementStamina(float Amount)
