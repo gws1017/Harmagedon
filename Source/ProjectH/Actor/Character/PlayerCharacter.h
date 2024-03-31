@@ -165,6 +165,8 @@ public:
 		 FPlayerStatus GetPlayerStat() const { return Stat; }
 	FORCEINLINE bool IsInvincible() { return bIFrame; }
 	FORCEINLINE bool IsBlocking() { return bBlocking; }
+	FORCEINLINE bool GetParrySucc() { return bParrySucc; }
+	FORCEINLINE bool GetParryFail() { return bParryFail; }
 	FORCEINLINE float GetHP() const { return Stat.HP; }
 	FORCEINLINE float GetMaxHP() const { return Stat.MaxHP; }
 	FORCEINLINE float GetStamina() const { return Stat.Stamina; }
@@ -183,7 +185,12 @@ public:
 	FORCEINLINE void SetMovementNormal() {  MovementState = EMovementState::EMS_Normal; }
 	FORCEINLINE void SetOverlappingItem(APickupItem* Item) { OverlappingItem = Item; }
 	FORCEINLINE void SetWeaponEquipped(const EWeaponEquipped EquippedType) { WeaponEquipped = EquippedType; }
+	FORCEINLINE void SetBlockStaminaRate(const float value) { BlockStaminaRate = value; }
 	FORCEINLINE void SetInvincible(const bool value) { bIFrame = value; }
+	FORCEINLINE void SetParrySucc(const bool value) { bParrySucc = value; }
+	FORCEINLINE void SetParryFail(const bool value) { bParryFail = value; }
+	FORCEINLINE void SetCanParryed(const bool value) { bCanParry = value; }
+	FORCEINLINE void SetBlock(const bool value) { bBlocking = value; }
 	void SetWeapon(EEquipType Type, AWeapon* Instance);
 	
 	void End_Attack();
@@ -200,6 +207,7 @@ public:
 	void IncrementExp(float Amount);
 	void LevelUp(const FPlayerStatus& data);
 
+	void DecrementStamina(float Amount);
 
 	//추후 인터페이스 분리
 	virtual void Hit(const FVector& ParticleSpawnLocation);
@@ -230,6 +238,7 @@ private:
 
 	void OnRightClick();
 	void OffRightClick();
+	void RightSpecialAttack();
 
 	void Roll();
 	void EquipWeapon();
@@ -251,7 +260,6 @@ private:
 	bool CanBlock();
 
 	void UpdateStamina(float DeltaStamina);
-	void DecrementStamina(float Amount);
 
 private:
 
@@ -278,8 +286,12 @@ private:
 		UInputAction* RollAction;
 	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 		UInputAction* AttackAction;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 		UInputAction* RightClickAction;
+	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+		UInputAction* RightClickSpecialAction;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 		UInputAction* EquipAction;
 	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
@@ -301,6 +313,8 @@ private:
 		UAnimMontage* RollMontage;
 	UPROPERTY(EditDefaultsOnly, Category = "Montage", meta = (AllowPrivateAccess = "true"))
 		UAnimMontage* BlockMontage;
+	UPROPERTY(EditDefaultsOnly, Category = "Montage", meta = (AllowPrivateAccess = "true"))
+		UAnimMontage* ParryMontage;
 
 	UPROPERTY(VisibleAnywhere, Category = "Attack")
 		bool bIsAttacking = false;
@@ -332,13 +346,23 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Status")
 		bool bBlocking = false;
 	UPROPERTY(VisibleAnywhere, Category = "Status")
+		bool bParrySucc = false;
+	UPROPERTY(VisibleAnywhere, Category = "Status")
+		bool bParryFail = false;
+	UPROPERTY(VisibleAnywhere, Category = "Status")
+		bool bCanParry = false;
+	UPROPERTY(VisibleAnywhere, Category = "Status")
 		bool bIFrame = false;
 	UPROPERTY(EditAnywhere, Category = "Status")
 		float BlockMinStamina;
 	UPROPERTY(EditAnywhere, Category = "Status")
+		float BlockStaminaRate;
+	UPROPERTY(EditAnywhere, Category = "Status")
 		float StaminaRegenRate;
 	UPROPERTY(EditAnywhere, Category = "Status")
 		float RollStamina;
+	UPROPERTY(EditAnywhere, Category = "Status")
+		float ParryStamina;
 
 	UPROPERTY(EditAnywhere, Category = "SaveData")
 		FVector StartPoint;

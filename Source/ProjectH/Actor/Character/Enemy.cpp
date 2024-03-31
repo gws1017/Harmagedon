@@ -7,6 +7,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
 #include "Particles/ParticleSystem.h"
+#include "Enemy.h"
 
 AEnemy::AEnemy()
 	: MaxHP(1), HP(1), Exp(1),
@@ -123,6 +124,14 @@ void AEnemy::Hit(const FVector& ParticleSpawnLocation)
 	if (HitParticle)
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitParticle, ParticleSpawnLocation, FRotator(0.f), false);
 	PlayAnimMontage(HitMontage);
+}
+
+void AEnemy::Stun()
+{
+	CheckNull(StunMontage);
+	bAttacking = false;
+	PlayAnimMontage(StunMontage);
+	CLog::Print("Stun");
 }
 
 bool AEnemy::Alive()

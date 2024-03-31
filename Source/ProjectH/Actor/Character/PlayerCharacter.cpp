@@ -38,8 +38,10 @@ APlayerCharacter::APlayerCharacter()
 	MovementState(EMovementState::EMS_Normal),
 	Stat{ 1,5,5,5,5,5,5 },
 	BlockMinStamina(0.1f),
+	BlockStaminaRate(0.35f),
 	StaminaRegenRate(2.f),
 	RollStamina(33.f),
+	ParryStamina(10.f),
 	StartPoint(0.f,0.f,0.f)
 {
 	//Tick함수 안쓰면 일단 꺼놓기
@@ -108,22 +110,31 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	if (UEnhancedInputComponent* EnhancedInput = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
 	{
+		//기본 조작 - 이동, 회전, 달리기
 		EnhancedInput->BindAction(MovementAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Move);
 		EnhancedInput->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Look);
-
-		EnhancedInput->BindAction(EquipAction, ETriggerEvent::Triggered, this, &APlayerCharacter::EquipWeapon);
-
-		EnhancedInput->BindAction(RollAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Roll);
-		EnhancedInput->BindAction(AttackAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Attack);
-
-		EnhancedInput->BindAction(RightClickAction, ETriggerEvent::Triggered, this, &APlayerCharacter::OnRightClick);
-		EnhancedInput->BindAction(RightClickAction, ETriggerEvent::Completed, this, &APlayerCharacter::OffRightClick);
-
-		EnhancedInput->BindAction(InteractionAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Interaction);
-		EnhancedInput->BindAction(TargetLockAction, ETriggerEvent::Triggered, this, &APlayerCharacter::DetectTarget);
-
 		EnhancedInput->BindAction(RunAction, ETriggerEvent::Triggered, this, &APlayerCharacter::OnRunning);
 		EnhancedInput->BindAction(RunAction, ETriggerEvent::Completed, this, &APlayerCharacter::OffRunning);
+
+
+		//구르기
+		EnhancedInput->BindAction(RollAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Roll);
+
+		//우측 무기 공격
+		EnhancedInput->BindAction(AttackAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Attack);
+		
+		//좌측 무기 공격
+		EnhancedInput->BindAction(RightClickAction, ETriggerEvent::Triggered, this, &APlayerCharacter::OnRightClick);
+		EnhancedInput->BindAction(RightClickAction, ETriggerEvent::Completed, this, &APlayerCharacter::OffRightClick);
+		//좌측 무기 특수 능력
+		EnhancedInput->BindAction(RightClickSpecialAction, ETriggerEvent::Triggered, this, &APlayerCharacter::RightSpecialAttack);
+
+		//무기 장착
+		EnhancedInput->BindAction(EquipAction, ETriggerEvent::Triggered, this, &APlayerCharacter::EquipWeapon);
+		//상호작용
+		EnhancedInput->BindAction(InteractionAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Interaction);
+		//락온
+		EnhancedInput->BindAction(TargetLockAction, ETriggerEvent::Triggered, this, &APlayerCharacter::DetectTarget);
 
 		//UI관련 입력 바인딩
 		EnhancedInput->BindAction(OpenEquipUIAction, ETriggerEvent::Triggered, GetPlayerController(), &ABasicPlayerController::ToggleEquipMenu);
@@ -135,20 +146,48 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	if (DamageAmount <= 0.f || bIFrame == true)
+	if (DamageAmount <= 0.f)
 		return DamageAmount;
 
+	// 무적상태
+	if (bIFrame)
+	{
+		DamageAmount = 0;
+	}
+
+	//가드성공
 	if (bBlocking && !bBlockFail)
 	{
 		//방패에서 물리경감률을 얻어오자
 		DamageAmount = DamageAmount * (1.0f - 0.85f);
-		DecrementStamina(Stat.MaxStamina * 0.35f);
-	}
-	if (bBlockFail)
+		DecrementStamina(Stat.MaxStamina * BlockStaminaRate);
+	}//가드 실패
+	else if (bBlockFail)
 	{
 		//받는 데미지 증가
 		DamageAmount *= 1.2f;
-		CLog::Print(DamageAmount);
+	}
+
+	//패리가능한상태에서 데미지가 들어오면 패리성공처리
+	if (bCanParry)
+	{
+		if (DamageAmount > 0)//무적은아니지만 이후 4프레임에서 패링을 성공함
+		{
+			DamageAmount = DamageAmount * (1.0f - 0.85f);
+			DecrementStamina(Stat.MaxStamina * 0.2f);
+		}
+		bParrySucc = true;
+
+		auto enemy = Cast<AEnemy>(DamageCauser);
+		enemy->Stun();
+
+		CLog::Print("Parry Succ");
+	}
+	else if (bParryFail) //패리 실패시 패널티 부여
+	{
+		CLog::Print("Parry Fail");
+		DamageAmount = DamageAmount * (1.0f - 0.85f);
+		DecrementStamina(Stat.MaxStamina * 0.4f);
 	}
 
 	if (Stat.HP - DamageAmount <= 0.f)
@@ -554,7 +593,6 @@ void APlayerCharacter::OffRunning()
 
 void APlayerCharacter::OnRightClick()
 {
-	CheckNull(BlockMontage);
 	CheckTrue(bBlocking);
 	CheckFalse(CanBlock());
 	bBlocking = true;
@@ -565,6 +603,14 @@ void APlayerCharacter::OffRightClick()
 {
 	bBlocking = false;
 	StaminaRegenRate = 2.f;
+}
+
+void APlayerCharacter::RightSpecialAttack()
+{
+	CheckNull(ParryMontage);
+	if (Stat.Stamina < ParryStamina) return;
+	DecrementStamina(ParryStamina);
+	PlayAnimMontage(ParryMontage);
 }
 
 void APlayerCharacter::Roll()
@@ -788,7 +834,6 @@ bool APlayerCharacter::CanBlock()
 			FTimerHandle BlockFailTimer;
 			GetWorldTimerManager().SetTimer(BlockFailTimer, [this]() {
 				bBlockFail = false;
-				CLog::Print("Panalty End");
 
 				}, 1.f, false);
 		}

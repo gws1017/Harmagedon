@@ -81,6 +81,8 @@ public:
 
 	virtual void Hit(const FVector& ParticleSpawnLocation);
 
+	virtual void Stun();
+
 	virtual bool Alive();
 
 	virtual void Die();
@@ -134,11 +136,13 @@ protected:
 		bool bShowDebug = false;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Montage")
+		UAnimMontage* StunMontage;
+	UPROPERTY(EditDefaultsOnly, Category = "Montage")
 		UAnimMontage* DeathMontage;
 	UPROPERTY(EditDefaultsOnly, Category = "Montage")
 		UAnimMontage* HitMontage;
 	UPROPERTY(EditDefaultsOnly, Category = "Montage")
-		class UAnimMontage* AttackMontage;
+		UAnimMontage* AttackMontage;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Particle")
 		UParticleSystem* HitParticle;

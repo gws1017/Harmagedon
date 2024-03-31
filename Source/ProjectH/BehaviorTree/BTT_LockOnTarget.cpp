@@ -14,7 +14,8 @@ EBTNodeResult::Type UBTT_LockOnTarget::ExecuteTask(UBehaviorTreeComponent& Owner
 	ANormalMonster* ControlledPawn = Cast<ANormalMonster>(OwnerComp.GetAIOwner()->GetPawn());
 	if (NULL == ControlledPawn) return EBTNodeResult::Failed;
 
-	ControlledPawn->SetLockOn(bTargetLock);
+	if(ControlledPawn->GetTarget())
+		ControlledPawn->SetLockOn(bTargetLock);
 	FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 	return EBTNodeResult::Succeeded;
 }
