@@ -179,6 +179,7 @@ float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 		bParrySucc = true;
 
 		auto enemy = Cast<AEnemy>(DamageCauser);
+		enemy->SetActionState(EMonsterAction::EMA_Stun);
 		enemy->Stun();
 
 		CLog::Print("Parry Succ");

@@ -7,16 +7,7 @@
 class UArrowComponent;
 class USceneComponent;
 
-UENUM(BlueprintType)
-enum class EMonsterAction : uint8
-{
-	EMA_None,
-	EMA_Normal UMETA(DisplayName = "Normal"),
-	EMA_Alert UMETA(DisplayName = "Alert"),
-	EMA_AttackReady UMETA(DisplayName = "AttackReady"),
-	EMA_StandBy UMETA(DisplayName = "StandBy"),
-	EMA_MAX UMETA(DisplayName = "DefaultMAX")
-};
+
 
 UCLASS()
 class PROJECTH_API ANormalMonster : public AEnemy
@@ -41,7 +32,6 @@ public:
 
 public:
 	//Getter
-	FORCEINLINE EMonsterAction GetActionState() const { return ActionState; }
 	FORCEINLINE FVector GetPatrolPosition() const { return PatrolPos; }
 	FORCEINLINE float GetMaxStamina() const { return MaxStamina; }
 	FORCEINLINE float GetStamina() const { return CurrentStamina; }
@@ -51,7 +41,6 @@ public:
 
 	//Setter
 	FORCEINLINE void SetLockOn(const bool value) { bTargetLock = value; }
-	FORCEINLINE void SetActionState(const EMonsterAction value ) { ActionState = value; }
 
 	void SetChase(const float Speed);
 
@@ -87,7 +76,5 @@ protected:
 		bool bTargetLock = false;
 	UPROPERTY(VisibleAnywhere, Category = "Behavior Tree")
 		bool bChased = false;
-	//몬스터의 행동패턴을 결정짓는 enum class
-	UPROPERTY(VisibleAnywhere, Category = "Behavior Tree")
-		EMonsterAction ActionState;
+
 };

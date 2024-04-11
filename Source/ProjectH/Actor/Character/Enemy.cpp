@@ -12,6 +12,7 @@
 AEnemy::AEnemy()
 	: MaxHP(1), HP(1), Exp(1),
 	AttackRange(20.f)
+	, ActionState(EMonsterAction::EMA_Normal)
 {
 	PrimaryActorTick.bCanEverTick = false;
 
@@ -109,6 +110,7 @@ void AEnemy::Attack()
 	CheckFalse(CombatTarget->Alive());
 	CheckFalse(bAlerted);
 	CheckTrue(bAttacking);
+	CheckTrue(ActionState == EMonsterAction::EMA_Stun);
 
 	bAttacking = true;
 
@@ -130,6 +132,13 @@ void AEnemy::Stun()
 {
 	CheckNull(StunMontage);
 	bAttacking = false;
+
+	if (EnemyController)
+	{
+		GetController()->StopMovement();
+		StopAnimMontage();
+	}
+	SetActionState(EMonsterAction::EMA_Stun);
 	PlayAnimMontage(StunMontage);
 	CLog::Print("Stun");
 }

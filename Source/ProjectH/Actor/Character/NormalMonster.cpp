@@ -6,7 +6,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 
 ANormalMonster::ANormalMonster()
-	:MaxStamina(50.f), StaminaRgenRate(2.0f), ActionState(EMonsterAction::EMA_Normal)
+	:MaxStamina(50.f), StaminaRgenRate(2.0f)
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -77,6 +77,7 @@ void ANormalMonster::AgroSphereOnOverlapEnd(UPrimitiveComponent* OverlappedCompo
 		{
 			SetAlerted(false);
 			CombatTarget = nullptr;
+			bTargetLock = false;
 			SetActionState(EMonsterAction::EMA_Normal);
 		}
 	}
@@ -110,7 +111,9 @@ void ANormalMonster::ActionSphereOnOverlapEnd(UPrimitiveComponent* OverlappedCom
 bool ANormalMonster::CanAttack() const
 {
 	bool result = true;
+
 	CheckTrueResult(bAttacking, false);
+	CheckTrueResult(ActionState == EMonsterAction::EMA_Stun, false);
 	return result;
 }
 
