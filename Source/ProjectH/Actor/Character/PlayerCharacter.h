@@ -196,6 +196,7 @@ public:
 	void End_Attack();
 	void AttackCombo();
 	void ResetAttack();
+	void PlayAttackMontage(const EEquipType Type = EEquipType::ET_RightWeapon);
 
 	bool Alive();
 	void Die();
@@ -236,10 +237,6 @@ private:
 	void OnRunning();
 	void OffRunning();
 
-	void OnRightClick();
-	void OffRightClick();
-	void RightSpecialAttack();
-
 	void Roll();
 	void EquipWeapon();
 	void Interaction();
@@ -250,8 +247,11 @@ private:
 	void SwapTargetRight();
 	void SwapTargetLeft();
 
-	void Attack();
-	void PlayAttackMontage(const EEquipType Type = EEquipType::ET_RightWeapon);
+	void LeftAttack();
+	void RightAttack();
+	void OffRightAttack();
+	void OnGuard();
+	void RightSpecialAttack();
 
 	bool CanRoll();
 	bool CanAttack();

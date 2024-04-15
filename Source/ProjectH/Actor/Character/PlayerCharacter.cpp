@@ -121,11 +121,11 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInput->BindAction(RollAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Roll);
 
 		//우측 무기 공격
-		EnhancedInput->BindAction(AttackAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Attack);
+		EnhancedInput->BindAction(AttackAction, ETriggerEvent::Triggered, this, &APlayerCharacter::LeftAttack);
 		
 		//좌측 무기 공격
-		EnhancedInput->BindAction(RightClickAction, ETriggerEvent::Triggered, this, &APlayerCharacter::OnRightClick);
-		EnhancedInput->BindAction(RightClickAction, ETriggerEvent::Completed, this, &APlayerCharacter::OffRightClick);
+		EnhancedInput->BindAction(RightClickAction, ETriggerEvent::Triggered, this, &APlayerCharacter::RightAttack);
+		EnhancedInput->BindAction(RightClickAction, ETriggerEvent::Completed, this, &APlayerCharacter::OffRightAttack);
 		//좌측 무기 특수 능력
 		EnhancedInput->BindAction(RightClickSpecialAction, ETriggerEvent::Triggered, this, &APlayerCharacter::RightSpecialAttack);
 
@@ -308,7 +308,7 @@ void APlayerCharacter::ResetAttack()
 	bIsAttacking = false;
 }
 
-void APlayerCharacter::Attack()
+void APlayerCharacter::LeftAttack()
 {
 	CheckFalse(CanAttack());
 	if (bIsAttacking)
@@ -318,10 +318,43 @@ void APlayerCharacter::Attack()
 	else
 	{
 		bIsAttacking = true;
-		//왼손공격 기능 미구현 추후 수정, 오른손 공격으로 고정
-		PlayAttackMontage(EEquipType::ET_RightWeapon);
+		LeftWeapon->BasicAttack();
 	}
 		
+}
+
+void APlayerCharacter::RightAttack()
+{
+	CheckFalse(CanAttack());
+	if (bIsAttacking)
+	{
+		bSaveAttack = true;
+	}
+	else
+	{
+		bIsAttacking = true;
+		RightWeapon->BasicAttack();
+	}
+}
+
+void APlayerCharacter::OffRightAttack()
+{
+	bBlocking = false;
+	StaminaRegenRate = 2.f;
+}
+
+void APlayerCharacter::OnGuard()
+{
+	CheckTrue(bBlocking);
+	CheckFalse(CanBlock());
+	bBlocking = true;
+	StaminaRegenRate *= 0.4f;
+}
+
+
+void APlayerCharacter::RightSpecialAttack()
+{
+	RightWeapon->SpecialAttack();
 }
 
 void APlayerCharacter::PlayAttackMontage(const EEquipType Type)
@@ -348,7 +381,7 @@ void APlayerCharacter::PlayAttackMontage(const EEquipType Type)
 	AnimInstance->Montage_JumpToSection(FName(SectionName));
 
 	AttackCount++;
-	DecrementStamina(GetWeapon(EEquipType::ET_RightWeapon)->GetStaminaCost());
+	DecrementStamina(GetWeapon(Type)->GetStaminaCost());
 }
 
 bool APlayerCharacter::Alive()
@@ -592,28 +625,6 @@ void APlayerCharacter::OffRunning()
 	GetCharacterMovement()->MaxWalkSpeed = 200;
 }
 
-void APlayerCharacter::OnRightClick()
-{
-	CheckTrue(bBlocking);
-	CheckFalse(CanBlock());
-	bBlocking = true;
-	StaminaRegenRate *= 0.4f;
-}
-
-void APlayerCharacter::OffRightClick()
-{
-	bBlocking = false;
-	StaminaRegenRate = 2.f;
-}
-
-void APlayerCharacter::RightSpecialAttack()
-{
-	CheckNull(ParryMontage);
-	if (Stat.Stamina < ParryStamina) return;
-	DecrementStamina(ParryStamina);
-	PlayAnimMontage(ParryMontage);
-}
-
 void APlayerCharacter::Roll()
 {
 	CheckFalse(CanRoll());
@@ -839,7 +850,7 @@ bool APlayerCharacter::CanBlock()
 				}, 1.f, false);
 		}
 		bBlockFail = true;
-		OffRightClick();
+		OffRightAttack();
 		//받는데미지 1초간 증가
 		return false;
 	}

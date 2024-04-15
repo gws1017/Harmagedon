@@ -31,7 +31,7 @@ protected:
 public:
 
 	UFUNCTION()
-		void BoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+		virtual void BoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) {};
 
 public:
 
@@ -66,11 +66,21 @@ public:
 	virtual void Begin_Collision();
 	virtual void End_Collision();
 
+	UFUNCTION()
+		virtual void BasicAttack();
+	UFUNCTION()
+		virtual void StrongAttack();
+	UFUNCTION(BlueprintNativeEvent)
+		void SpecialAttack();
+	virtual void SpecialAttack_Implementation();
+
 protected:
 
 	bool IsSameTagWithTarget(AActor* other, const FName& tag);
 
 protected:
+
+	//컴포넌트
 	UPROPERTY(VisibleDefaultsOnly, Category = "Component")
 		USceneComponent* Scene;
 
@@ -80,27 +90,37 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Component")
 		UBoxComponent* WeaponCollision;
 
+	//무기 애니메이션
 	UPROPERTY(EditDefaultsOnly, Category = "Montage")
 		UAnimMontage* DrawMontage;
 	UPROPERTY(EditDefaultsOnly, Category = "Montage")
 		UAnimMontage* SheathMontage;
+	UPROPERTY(EditDefaultsOnly, Category = "Montage")
+		UAnimMontage* AttackMontage;
+	UPROPERTY(EditDefaultsOnly, Category = "Montage")
+		UAnimMontage* StrongAttackMontage;
+	UPROPERTY(EditDefaultsOnly, Category = "Montage")
+		UAnimMontage* SpecialAttackMontage;
 
+	UPROPERTY(VisibleAnywhere, Category = "Weapon")
+		EEquipType EquipType;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Socket")
 		FName SheathSocket = "SheathSocket";
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 		float Damage;
-	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
-		float AdditionalDamage;
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 		float StaminaCost;
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+		float SpecialAttackStaminaCost;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
 		bool bEquipped;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
 		bool bEquipping;
 
+	//물리
 	UPROPERTY(VisibleDefaultsOnly, Category = "Field")
 		UFieldSystemComponent* FieldSystemComponent;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Field")

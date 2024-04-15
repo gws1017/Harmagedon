@@ -1,7 +1,6 @@
 #include "Actor/Item/Weapon/Weapon.h"
 #include "Actor/Character/PlayerCharacter.h"
 #include "Data/ItemData.h"
-#include "Interface/HitInterface.h"
 #include "Global.h"
 
 #include "Engine/World.h"
@@ -16,7 +15,7 @@
 #include "Field/FieldSystemComponent.h"
 
 AWeapon::AWeapon()
-	:Damage(5), AdditionalDamage(0), StaminaCost(10),
+	:Damage(5), StaminaCost(10),
 	RadialFalloffMagnitude(1000000.f), RadialVectorMagnitude(15000000.f)
 {
 	PrimaryActorTick.bCanEverTick = false;
@@ -45,6 +44,7 @@ void AWeapon::BeginPlay()
 	WeaponCollision->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::BoxBeginOverlap);
 
 	OwnerCharacter = Cast<ACharacter>(GetOwner());
+	CheckNull(OwnerCharacter);
 	//이 무기를 가진 캐릭터의 컨트롤러를 등록함
 	SetInstigator(OwnerCharacter->GetController());
 
@@ -52,33 +52,11 @@ void AWeapon::BeginPlay()
 
 }
 
+
+
 bool AWeapon::IsSameTagWithTarget(AActor* other, const FName& tag)
 {
 	return Owner->ActorHasTag(tag) && other->ActorHasTag(tag);
-}
-
-void AWeapon::BoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	IgnoreActors.AddUnique(Owner);
-
-	if (IsSameTagWithTarget(OtherActor, "Enemy")) return;
-	if (IsSameTagWithTarget(OtherActor, "Player")) return;
-
-	CreateField(GetActorLocation());
-
-	if (!!OtherActor && !IgnoreActors.Contains(OtherActor))
-	{
-		IHitInterface* other = Cast<IHitInterface>(OtherActor);
-
-		CheckNull(other);
-		if (Owner->ActorHasTag("Player"))
-			AdditionalDamage = Cast<APlayerCharacter>(Owner)->GetStrDamage();
-
-		IgnoreActors.AddUnique(OtherActor);
-
-		other->Hit(GetActorLocation());
-		UGameplayStatics::ApplyDamage(OtherActor, Damage + AdditionalDamage, WeaponInstigator, Owner, DamageTypeClass);
-	}
 }
 
 void AWeapon::ActivateCollision()
@@ -113,7 +91,7 @@ void AWeapon::Equip(EEquipType Type)
 		CLog::Log("Weapon Owner is Nullptr!");
 		return;
 	}
-
+	EquipType = Type;
 	SetSocketName(Type);
 	bEquipping = true;
 
@@ -155,6 +133,7 @@ void AWeapon::UnEquip(EEquipType Type)
 		AnimInstance->Montage_Play(SheathMontage);
 		AnimInstance->Montage_JumpToSection(FName(SectionName));
 	}
+	EquipType = EEquipType::ET_None;
 
 }
 
@@ -193,3 +172,17 @@ void AWeapon::End_Collision()
 	DeactivateCollision();
 }
 
+void AWeapon::BasicAttack()
+{
+	CLog::Log(GetName() + " Basic Attack");
+}
+
+void AWeapon::StrongAttack()
+{
+	CLog::Log(GetName() + " Strong Attack");
+}
+
+void AWeapon::SpecialAttack_Implementation()
+{
+	CLog::Log(GetName() + "This is Special Attack");
+}
