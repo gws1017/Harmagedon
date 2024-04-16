@@ -31,6 +31,9 @@
 #include "InputActionValue.h"
 #include "PlayerCharacter.h"
 
+//네트워크
+#include "Net/UnrealNetwork.h"
+
 APlayerCharacter::APlayerCharacter()
 	:AttackCount(0),
 	NumberOfAttacks(2),
@@ -320,7 +323,6 @@ void APlayerCharacter::Attack()
 		//왼손공격 기능 미구현 추후 수정, 오른손 공격으로 고정
 		PlayAttackMontage(EEquipType::ET_RightWeapon);
 	}
-		
 }
 
 void APlayerCharacter::PlayAttackMontage(const EEquipType Type)
@@ -478,6 +480,32 @@ void APlayerCharacter::RemoveCapture(AActor* InActor, const bool bIncludeFromChi
 	SceneCapture->RemoveShowOnlyActorComponents(InActor, bIncludeFromChildActors);
 }
 
+bool APlayerCharacter::ServerRPCRoll_Validate()
+{
+	return true;
+}
+
+void APlayerCharacter::ServerRPCRoll_Implementation()
+{
+	MulticastRPCRoll();
+}
+
+void APlayerCharacter::MulticastRPCRoll_Implementation()
+{
+	CheckFalse(CanRoll());
+	SetMovementState(EMovementState::EMS_Roll);
+	DecrementStamina(RollStamina);
+	PlayAnimMontage(RollMontage);
+}
+
+void APlayerCharacter::OnRep_CanRoll()
+{
+	//CheckFalse(CanRoll());
+	//SetMovementState(EMovementState::EMS_Roll);
+	//DecrementStamina(RollStamina);
+	//PlayAnimMontage(RollMontage);
+}
+
 void APlayerCharacter::Equip(const EEquipType Type)
 {
 	switch (Type)
@@ -616,9 +644,11 @@ void APlayerCharacter::RightSpecialAttack()
 void APlayerCharacter::Roll()
 {
 	CheckFalse(CanRoll());
-	SetMovementState(EMovementState::EMS_Roll);
-	DecrementStamina(RollStamina);
-	PlayAnimMontage(RollMontage);
+	//SetMovementState(EMovementState::EMS_Roll);
+	//DecrementStamina(RollStamina);
+	//PlayAnimMontage(RollMontage);
+
+	ServerRPCRoll();
 }
 
 void APlayerCharacter::EquipWeapon()
@@ -871,4 +901,11 @@ void APlayerCharacter::UpdateStamina(float DeltaStamina)
 void APlayerCharacter::DecrementStamina(float Amount)
 {
 	Stat.Stamina = FMath::Clamp(Stat.Stamina - Amount, 0.f, Stat.MaxStamina);
+}
+
+void APlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	//DOREPLIFETIME(APlayerCharacter, bIsAttacking);
 }
