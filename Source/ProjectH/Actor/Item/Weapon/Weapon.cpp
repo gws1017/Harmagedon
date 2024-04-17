@@ -59,6 +59,20 @@ bool AWeapon::IsSameTagWithTarget(AActor* other, const FName& tag)
 	return Owner->ActorHasTag(tag) && other->ActorHasTag(tag);
 }
 
+void AWeapon::PlayAttackMontage()
+{
+	CheckNull(AttackMontage);
+	auto Player = Cast<APlayerCharacter>(OwnerCharacter);
+	if (!Player)
+	{
+		OwnerCharacter->PlayAnimMontage(AttackMontage);
+	}
+	else
+	{
+		Player->PlayAttackMontage(EquipType);
+	}
+}
+
 void AWeapon::ActivateCollision()
 {
 	WeaponCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
@@ -108,7 +122,10 @@ void AWeapon::Equip(EEquipType Type)
 		AnimInstance->Montage_Play(DrawMontage);
 		AnimInstance->Montage_JumpToSection(FName(SectionName));
 	}
-
+	else
+	{
+		CLog::Log("DrawMontage is Not Set!");
+	}
 	SetInstigator(OwnerCharacter->GetController()); //무기 변경 시 컨틀롤러 재등록 고려
 
 }
@@ -175,6 +192,11 @@ void AWeapon::End_Collision()
 void AWeapon::BasicAttack()
 {
 	CLog::Log(GetName() + " Basic Attack");
+}
+
+void AWeapon::Block()
+{
+	CLog::Log(GetName() + " Block");
 }
 
 void AWeapon::StrongAttack()

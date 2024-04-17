@@ -194,9 +194,11 @@ public:
 	void SetWeapon(EEquipType Type, AWeapon* Instance);
 	
 	void End_Attack();
-	void AttackCombo();
+	void AttackCombo(const EEquipType Type);
 	void ResetAttack();
-	void PlayAttackMontage(const EEquipType Type = EEquipType::ET_RightWeapon);
+	void PlayAttackMontage(const EEquipType Type);
+
+	void OnGuard();
 
 	bool Alive();
 	void Die();
@@ -250,11 +252,10 @@ private:
 	void LeftAttack();
 	void RightAttack();
 	void OffRightAttack();
-	void OnGuard();
 	void RightSpecialAttack();
 
 	bool CanRoll();
-	bool CanAttack();
+	bool CanAttack(EEquipType Type);
 	bool CanMove();
 	bool CanHit();
 	bool CanBlock();
@@ -307,12 +308,10 @@ private:
 		UAnimMontage* DeathMontage;
 	UPROPERTY(EditDefaultsOnly, Category = "Montage", meta = (AllowPrivateAccess = "true"))
 		UAnimMontage* HitMontage;
-	UPROPERTY(EditDefaultsOnly, Category = "Montage", meta = (AllowPrivateAccess = "true"))
-		UAnimMontage* AttackMontage;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Montage", meta = (AllowPrivateAccess = "true"))
 		UAnimMontage* RollMontage;
-	UPROPERTY(EditDefaultsOnly, Category = "Montage", meta = (AllowPrivateAccess = "true"))
-		UAnimMontage* BlockMontage;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Montage", meta = (AllowPrivateAccess = "true"))
 		UAnimMontage* ParryMontage;
 

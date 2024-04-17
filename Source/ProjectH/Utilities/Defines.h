@@ -1,6 +1,8 @@
 #pragma once
+#include "CLog.h"
 
 #define CheckNull(p){if(p == NULL) return;}
+#define CheckNullMsg(p,msg){if(p == NULL) return CLog::Log(msg);}
 #define CheckNullResult(p,result){if(p == NULL) return result;}
 
 #define CheckTrue(p){if(p == true) return;}

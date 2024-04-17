@@ -6,9 +6,8 @@
 #include "Animation/AnimNotifies/AnimNotify.h"
 #include "AN_NextAttack.generated.h"
 
-/**
- * 
- */
+enum class EEquipType : uint8;
+
 UCLASS()
 class PROJECTH_API UAN_NextAttack : public UAnimNotify
 {
@@ -20,4 +19,7 @@ public:
 
 	void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
 		const FAnimNotifyEventReference& EventReference);
+
+	UPROPERTY(EditAnywhere)
+	EEquipType EquipType;
 };

@@ -13,6 +13,6 @@ void UAN_NextAttack::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase*
 	CheckNull(MeshComp);
 	APlayerCharacter* owner = Cast<APlayerCharacter>(MeshComp->GetOwner());
 	CheckNull(owner);
-	owner->AttackCombo();
+	owner->AttackCombo(EquipType);
 	CLog::Print("NextAttack");
 }

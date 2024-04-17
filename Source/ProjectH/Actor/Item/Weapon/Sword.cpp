@@ -35,16 +35,7 @@ void ASword::BasicAttack()
 {
 	Super::BasicAttack();
 
-	CheckNull(AttackMontage);
 	CLog::Print("SwordSlash");
 
-	auto Player = Cast<APlayerCharacter>(OwnerCharacter);
-	if (!Player)
-	{
-		OwnerCharacter->PlayAnimMontage(AttackMontage);
-	}
-	else
-	{
-		Player->PlayAttackMontage(EquipType);
-	}
+	PlayAttackMontage();
 }

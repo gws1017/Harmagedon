@@ -73,6 +73,7 @@ void APlayerCharacter::BeginPlay()
 
 	PlayerController = Cast<ABasicPlayerController>(GetController());
 	InventoryComponent->AddItem(1,false);
+	InventoryComponent->AddItem(10,false);
 
 	TargetingSphere->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::TargetingBeginOverlap);
 	TargetingSphere->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::TargetingEndOverlap);
@@ -278,14 +279,14 @@ void APlayerCharacter::End_Attack()
 	bIsAttacking = false;
 }
 
-void APlayerCharacter::AttackCombo()
+void APlayerCharacter::AttackCombo(const EEquipType Type)
 {
 	if (bSaveAttack)
 	{
 		bSaveAttack = false;
 		if (NumberOfAttacks > AttackCount)
 		{
-			PlayAttackMontage();
+			PlayAttackMontage(Type);
 		}
 		else
 		{
@@ -310,22 +311,8 @@ void APlayerCharacter::ResetAttack()
 
 void APlayerCharacter::LeftAttack()
 {
-	CheckFalse(CanAttack());
-	if (bIsAttacking)
-	{
-		bSaveAttack = true;
-	}
-	else
-	{
-		bIsAttacking = true;
-		LeftWeapon->BasicAttack();
-	}
-		
-}
-
-void APlayerCharacter::RightAttack()
-{
-	CheckFalse(CanAttack());
+	CheckFalse(CanAttack(EEquipType::ET_RightWeapon));
+	CheckNullMsg(RightWeapon, "Right Weapon is Nullptr");
 	if (bIsAttacking)
 	{
 		bSaveAttack = true;
@@ -335,6 +322,13 @@ void APlayerCharacter::RightAttack()
 		bIsAttacking = true;
 		RightWeapon->BasicAttack();
 	}
+		
+}
+
+void APlayerCharacter::RightAttack()
+{
+	CheckNullMsg(LeftWeapon, "Left Weapon  is Nullptr");
+	LeftWeapon->Block();
 }
 
 void APlayerCharacter::OffRightAttack()
@@ -351,7 +345,6 @@ void APlayerCharacter::OnGuard()
 	StaminaRegenRate *= 0.4f;
 }
 
-
 void APlayerCharacter::RightSpecialAttack()
 {
 	RightWeapon->SpecialAttack();
@@ -359,7 +352,11 @@ void APlayerCharacter::RightSpecialAttack()
 
 void APlayerCharacter::PlayAttackMontage(const EEquipType Type)
 {
+	auto CurrentWeapon = GetWeapon(Type);
+	CheckNull(CurrentWeapon->GetAttackMontage());
+
 	CLog::Print(AttackCount);
+
 	FString SectionName = "Attack";
 	auto AnimInstance = GetMesh()->GetAnimInstance();
 	switch (AttackCount)
@@ -377,11 +374,12 @@ void APlayerCharacter::PlayAttackMontage(const EEquipType Type)
 	else if (Type == EEquipType::ET_LeftWeapon)
 		SectionName += "_L";
 
-	AnimInstance->Montage_Play(AttackMontage);
+	AnimInstance->Montage_Play(CurrentWeapon->GetAttackMontage());
 	AnimInstance->Montage_JumpToSection(FName(SectionName));
 
 	AttackCount++;
-	DecrementStamina(GetWeapon(Type)->GetStaminaCost());
+	if(CurrentWeapon)
+		DecrementStamina(CurrentWeapon->GetStaminaCost());
 }
 
 bool APlayerCharacter::Alive()
@@ -797,13 +795,12 @@ bool APlayerCharacter::CanRoll()
 	return true;
 }
 
-bool APlayerCharacter::CanAttack()
+bool APlayerCharacter::CanAttack(EEquipType Type)
 {
-	CheckNullResult(GetWeapon(EEquipType::ET_RightWeapon),false);
-	CheckNullResult(AttackMontage,false);
+	CheckNullResult(GetWeapon(Type), false);
 	//if (PlayerController)CheckFalseResult(PlayerController->GetGameMode(), false);
-	CheckFalseResult(GetWeapon(EEquipType::ET_RightWeapon)->GetEquipped(), false);
-	CheckTrueResult(GetWeapon(EEquipType::ET_RightWeapon)->GetEquipping(), false);
+	CheckFalseResult(GetWeapon(Type)->GetEquipped(), false);
+	CheckTrueResult(GetWeapon(Type)->GetEquipping(), false);
 	switch (MovementState)
 	{
 	case EMovementState::EMS_Dead:
@@ -811,7 +808,7 @@ bool APlayerCharacter::CanAttack()
 	case EMovementState::EMS_Roll:
 		return false;
 	default:
-		if (GetWeapon(EEquipType::ET_RightWeapon)->GetStaminaCost() < Stat.Stamina)
+		if (GetWeapon(Type)->GetStaminaCost() < Stat.Stamina)
 			return true;
 		else return false;
 

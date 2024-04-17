@@ -44,6 +44,7 @@ public:
 
 	FORCEINLINE class UBoxComponent* GetWeaponCollision() { return WeaponCollision; }
 
+	FORCEINLINE UAnimMontage* GetAttackMontage() { return AttackMontage; }
 	//Setter
 	FORCEINLINE void SetInstigator(AController* Inst) { WeaponInstigator = Inst; }
 
@@ -69,6 +70,8 @@ public:
 	UFUNCTION()
 		virtual void BasicAttack();
 	UFUNCTION()
+		virtual void Block();
+	UFUNCTION()
 		virtual void StrongAttack();
 	UFUNCTION(BlueprintNativeEvent)
 		void SpecialAttack();
@@ -77,6 +80,8 @@ public:
 protected:
 
 	bool IsSameTagWithTarget(AActor* other, const FName& tag);
+
+	void PlayAttackMontage();
 
 protected:
 
@@ -97,6 +102,8 @@ protected:
 		UAnimMontage* SheathMontage;
 	UPROPERTY(EditDefaultsOnly, Category = "Montage")
 		UAnimMontage* AttackMontage;
+	UPROPERTY(EditDefaultsOnly, Category = "Montage")
+		UAnimMontage* BlockMontage;
 	UPROPERTY(EditDefaultsOnly, Category = "Montage")
 		UAnimMontage* StrongAttackMontage;
 	UPROPERTY(EditDefaultsOnly, Category = "Montage")

@@ -6,6 +6,20 @@ void AShield::BoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 {
 }
 
+void AShield::BasicAttack()
+{
+	Super::BasicAttack();
+
+	PlayAttackMontage();
+}
+
+void AShield::Block()
+{
+	Super::Block();
+
+	Guard();
+}
+
 void AShield::Parry()
 {
 	CLog::Print(GetName() + "Special Attack is Parry");
@@ -19,4 +33,13 @@ void AShield::Parry()
 
 	OwnerCharacter->PlayAnimMontage(SpecialAttackMontage);
 
+}
+
+void AShield::Guard()
+{
+	auto Player = Cast<APlayerCharacter>(OwnerCharacter);
+	if (Player)
+	{
+		Player->OnGuard();
+	}
 }
