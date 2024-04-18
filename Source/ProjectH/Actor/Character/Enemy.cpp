@@ -63,6 +63,7 @@ void AEnemy::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+	DamageAmount = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	if (DamageAmount <= 0.f)
 		return DamageAmount;
 
