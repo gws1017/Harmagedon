@@ -4,6 +4,8 @@
 
 void AShield::BoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	//방패도 타격이 가능하다
+	WeaponApplyDamage(OtherActor);
 }
 
 void AShield::BasicAttack()
@@ -40,6 +42,8 @@ void AShield::Guard()
 	auto Player = Cast<APlayerCharacter>(OwnerCharacter);
 	if (Player)
 	{
-		Player->OnGuard();
+		CheckFalse(Player->CanBlock());
+		Player->SetBlock(true);
+		Player->SetBlockStaminaRegenRate();
 	}
 }

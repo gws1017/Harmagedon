@@ -73,6 +73,34 @@ void AWeapon::PlayAttackMontage()
 	}
 }
 
+void AWeapon::WeaponApplyDamage(AActor* OtherActor)
+{
+	//자기자신 제외
+	IgnoreActors.AddUnique(Owner);
+
+	//서로 같은 그룹이면 비교하지 않는다
+	if (IsSameTagWithTarget(OtherActor, "Enemy")) return;
+	if (IsSameTagWithTarget(OtherActor, "Player")) return;
+
+	//물리 충격을 가함
+	CreateField(GetActorLocation());
+
+	if (!!OtherActor && !IgnoreActors.Contains(OtherActor))
+	{
+		IHitInterface* other = Cast<IHitInterface>(OtherActor);
+
+		CheckNull(other);
+		float AdditionalDamage = 0.f;
+		if (Owner->ActorHasTag("Player"))
+			AdditionalDamage = Cast<APlayerCharacter>(Owner)->GetStrDamage();
+
+		IgnoreActors.AddUnique(OtherActor);
+
+		other->Hit(GetActorLocation());
+		UGameplayStatics::ApplyDamage(OtherActor, Damage + AdditionalDamage, WeaponInstigator, Owner, DamageTypeClass);
+	}
+}
+
 void AWeapon::ActivateCollision()
 {
 	WeaponCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
@@ -196,7 +224,7 @@ void AWeapon::BasicAttack()
 
 void AWeapon::Block()
 {
-	CLog::Log(GetName() + " Block");
+	//CLog::Log(GetName() + " Block");
 }
 
 void AWeapon::StrongAttack()

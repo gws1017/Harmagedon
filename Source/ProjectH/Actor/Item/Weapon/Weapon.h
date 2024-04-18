@@ -41,6 +41,7 @@ public:
 
 	FORCEINLINE float GetDamage() { return Damage; }
 	FORCEINLINE float GetStaminaCost() { return StaminaCost; }
+	FORCEINLINE float GetPhysicalDefense() { return PhysicalDefense; }
 
 	FORCEINLINE class UBoxComponent* GetWeaponCollision() { return WeaponCollision; }
 
@@ -83,6 +84,8 @@ protected:
 
 	void PlayAttackMontage();
 
+	void WeaponApplyDamage(AActor* OtherActor);
+
 protected:
 
 	//ÄÄÆ÷³ÍÆ®
@@ -121,6 +124,8 @@ protected:
 		float StaminaCost;
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 		float SpecialAttackStaminaCost;
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+		float PhysicalDefense;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
 		bool bEquipped;

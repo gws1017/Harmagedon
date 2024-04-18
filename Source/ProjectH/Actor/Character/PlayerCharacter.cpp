@@ -39,9 +39,11 @@ APlayerCharacter::APlayerCharacter()
 	Stat{ 1,5,5,5,5,5,5 },
 	BlockMinStamina(0.1f),
 	BlockStaminaRate(0.35f),
+	GuardStaminaDeclineRate(0.4f),
 	StaminaRegenRate(2.f),
 	RollStamina(33.f),
 	ParryStamina(10.f),
+	FaceAngle(150.f),
 	StartPoint(0.f,0.f,0.f)
 {
 	//Tick함수 안쓰면 일단 꺼놓기
@@ -153,45 +155,10 @@ float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 
 	// 무적상태
 	if (bIFrame)
-	{
 		DamageAmount = 0;
-	}
 
-	//가드성공
-	if (bBlocking && !bBlockFail)
-	{
-		//방패에서 물리경감률을 얻어오자
-		DamageAmount = DamageAmount * (1.0f - 0.85f);
-		DecrementStamina(Stat.MaxStamina * BlockStaminaRate);
-	}//가드 실패
-	else if (bBlockFail)
-	{
-		//받는 데미지 증가
-		DamageAmount *= 1.2f;
-	}
-
-	//패리가능한상태에서 데미지가 들어오면 패리성공처리
-	if (bCanParry)
-	{
-		if (DamageAmount > 0)//무적은아니지만 이후 4프레임에서 패링을 성공함
-		{
-			DamageAmount = DamageAmount * (1.0f - 0.85f);
-			DecrementStamina(Stat.MaxStamina * 0.2f);
-		}
-		bParrySucc = true;
-
-		auto enemy = Cast<AEnemy>(DamageCauser);
-		enemy->SetActionState(EMonsterAction::EMA_Stun);
-		enemy->Stun();
-
-		CLog::Print("Parry Succ");
-	}
-	else if (bParryFail) //패리 실패시 패널티 부여
-	{
-		CLog::Print("Parry Fail");
-		DamageAmount = DamageAmount * (1.0f - 0.85f);
-		DecrementStamina(Stat.MaxStamina * 0.4f);
-	}
+	CheckGuard(DamageAmount, DamageCauser);
+	CheckParry(DamageAmount, DamageCauser);
 
 	if (Stat.HP - DamageAmount <= 0.f)
 	{
@@ -212,6 +179,7 @@ float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	UE_LOG(LogTemp, Display, L"Player Current HP : %f", Stat.HP);
 	return DamageAmount;
 }
+
 
 void APlayerCharacter::TargetingBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
@@ -340,7 +308,6 @@ void APlayerCharacter::OffRightAttack()
 
 void APlayerCharacter::OnGuard()
 {
-	CheckTrue(bBlocking);
 	CheckFalse(CanBlock());
 	bBlocking = true;
 	StaminaRegenRate *= 0.4f;
@@ -775,6 +742,70 @@ void APlayerCharacter::SwapTargetLeft()
 	LockedTarget = CloseTarget;
 }
 
+bool APlayerCharacter::CheckFace(AActor* OtherActor)
+{
+	//Yaw각도 차이는 서로 같은방향을 바라보면 0에 가까워지고(같은 각도니까), 
+	//반대로 마주본다면 각도차이는 커질 것이다.
+	float AngleZ = GetActorRotation().Yaw - OtherActor->GetActorRotation().Yaw;
+	return AngleZ > FaceAngle || AngleZ - FaceAngle;
+}
+
+bool APlayerCharacter::CheckGuard(float& DamageAmount, AActor* DamageCauser)
+{
+	bool ret = false;
+
+	if (CheckFace(DamageCauser) == false)
+		bBlockFail = true;
+	//가드성공
+	if (bBlocking && !bBlockFail)
+	{
+		//왼쪽 무기에서 물리경감률을 얻어온다, 가드는 항상 왼쪽무기로
+		CheckNullResult(LeftWeapon, false);
+		ret = true;
+		DamageAmount = DamageAmount * (1.0f - LeftWeapon->GetPhysicalDefense());
+		DecrementStamina(Stat.MaxStamina * BlockStaminaRate);
+	}//가드 실패
+	else if (bBlockFail)
+	{
+		//받는 데미지 증가
+		ret = false;
+		DamageAmount *= 1.2f;
+	}
+	return ret;
+}
+
+bool APlayerCharacter::CheckParry(float& DamageAmount, AActor* DamageCauser)
+{
+	//패리가능한상태에서 데미지가 들어오면 패리성공처리
+	//플레이어 방향을 확인하라
+	if (CheckFace(DamageCauser) == false)
+		bParryFail = true;
+		
+	if (bCanParry && !bParryFail)
+	{
+		if (DamageAmount > 0)//무적은아니지만 이후 4프레임에서 패링을 성공함
+		{
+			CheckNullResult(LeftWeapon,false);
+			DamageAmount = DamageAmount * (1.0f - LeftWeapon->GetPhysicalDefense());
+			DecrementStamina(Stat.MaxStamina * 0.2f);
+		}
+		bParrySucc = true;
+
+		auto enemy = Cast<AEnemy>(DamageCauser);
+		enemy->SetActionState(EMonsterAction::EMA_Stun);
+		enemy->Stun();
+
+		CLog::Print("Parry Succ");
+	}
+	else if (bParryFail) //패리 실패시 패널티 부여
+	{
+		CLog::Print("Parry Fail");
+		DamageAmount = DamageAmount * (1.0f - LeftWeapon->GetPhysicalDefense());
+		DecrementStamina(Stat.MaxStamina * 0.4f);
+	}
+	return bParrySucc;
+}
+
 bool APlayerCharacter::CanRoll()
 {
 	CheckTrueResult(bIsAttacking, false);
@@ -837,6 +868,7 @@ bool APlayerCharacter::CanHit()
 
 bool APlayerCharacter::CanBlock()
 {
+	CheckTrueResult(bBlocking,false);
 	if (Stat.Stamina < Stat.MaxStamina * BlockMinStamina)
 	{
 		if (!bBlockFail)

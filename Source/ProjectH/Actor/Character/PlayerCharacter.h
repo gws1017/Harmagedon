@@ -141,6 +141,8 @@ public:
 	UFUNCTION()
 		virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
+
+
 public:
 
 	UFUNCTION()
@@ -186,6 +188,7 @@ public:
 	FORCEINLINE void SetOverlappingItem(APickupItem* Item) { OverlappingItem = Item; }
 	FORCEINLINE void SetWeaponEquipped(const EWeaponEquipped EquippedType) { WeaponEquipped = EquippedType; }
 	FORCEINLINE void SetBlockStaminaRate(const float value) { BlockStaminaRate = value; }
+	FORCEINLINE void SetBlockStaminaRegenRate() { StaminaRegenRate *= GuardStaminaDeclineRate; }
 	FORCEINLINE void SetInvincible(const bool value) { bIFrame = value; }
 	FORCEINLINE void SetParrySucc(const bool value) { bParrySucc = value; }
 	FORCEINLINE void SetParryFail(const bool value) { bParryFail = value; }
@@ -193,6 +196,8 @@ public:
 	FORCEINLINE void SetBlock(const bool value) { bBlocking = value; }
 	void SetWeapon(EEquipType Type, AWeapon* Instance);
 	
+public:
+
 	void End_Attack();
 	void AttackCombo(const EEquipType Type);
 	void ResetAttack();
@@ -211,6 +216,8 @@ public:
 	void LevelUp(const FPlayerStatus& data);
 
 	void DecrementStamina(float Amount);
+
+	bool CanBlock();
 
 	//추후 인터페이스 분리
 	virtual void Hit(const FVector& ParticleSpawnLocation);
@@ -254,11 +261,15 @@ private:
 	void OffRightAttack();
 	void RightSpecialAttack();
 
+	//다른 액터와 마주보고있는지 검사하는 함수
+	bool CheckFace(AActor* OtherActor);
+	bool CheckGuard(float& DamageAmount, AActor* DamageCauser);
+	bool CheckParry(float& DamageAmount, AActor* DamageCauser);
+
 	bool CanRoll();
 	bool CanAttack(EEquipType Type);
 	bool CanMove();
 	bool CanHit();
-	bool CanBlock();
 
 	void UpdateStamina(float DeltaStamina);
 
@@ -345,9 +356,9 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Status")
 		bool bBlocking = false;
 	UPROPERTY(VisibleAnywhere, Category = "Status")
-		bool bParrySucc = false;
+		bool bParrySucc = false; //패리 성공했는지 체크하기위한 용도
 	UPROPERTY(VisibleAnywhere, Category = "Status")
-		bool bParryFail = false;
+		bool bParryFail = false; //패리 실패시 활성화
 	UPROPERTY(VisibleAnywhere, Category = "Status")
 		bool bCanParry = false;
 	UPROPERTY(VisibleAnywhere, Category = "Status")
@@ -356,12 +367,16 @@ private:
 		float BlockMinStamina;
 	UPROPERTY(EditAnywhere, Category = "Status")
 		float BlockStaminaRate;
+	UPROPERTY(EditDefaultsOnly, Category = "Status")
+		float GuardStaminaDeclineRate;
 	UPROPERTY(EditAnywhere, Category = "Status")
 		float StaminaRegenRate;
 	UPROPERTY(EditAnywhere, Category = "Status")
 		float RollStamina;
 	UPROPERTY(EditAnywhere, Category = "Status")
 		float ParryStamina;
+	UPROPERTY(EditAnywhere, Category = "Status")
+		float FaceAngle;
 
 	UPROPERTY(EditAnywhere, Category = "SaveData")
 		FVector StartPoint;
