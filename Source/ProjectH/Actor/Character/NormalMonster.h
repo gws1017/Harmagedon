@@ -41,8 +41,11 @@ public:
 
 	//Setter
 	FORCEINLINE void SetLockOn(const bool value) { bTargetLock = value; }
+public:
 
 	void SetChase(const float Speed);
+
+	virtual void DecrementStamina() {};
 
 private:
 

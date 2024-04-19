@@ -2,6 +2,7 @@
 #include "Actor/Character/NormalMonster.h"
 
 #include "AIController.h"
+#include "BehaviorTree/BlackboardComponent.h"
 
 UBTT_ChangeActionState::UBTT_ChangeActionState()
 {
@@ -13,7 +14,10 @@ EBTNodeResult::Type UBTT_ChangeActionState::ExecuteTask(UBehaviorTreeComponent& 
 	Super::ExecuteTask(OwnerComp, NodeMemory);
 	ANormalMonster* ControlledPawn = Cast<ANormalMonster>(OwnerComp.GetAIOwner()->GetPawn());
 	if (NULL == ControlledPawn) return EBTNodeResult::Failed;
-
+	if (Action == EMonsterAction::EMA_StandBy)
+	{
+		OwnerComp.GetBlackboardComponent()->SetValueAsBool("IsRanged", false);
+	}
 	ControlledPawn->SetActionState(Action);
 	FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 	return EBTNodeResult::Succeeded;

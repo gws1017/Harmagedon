@@ -40,7 +40,9 @@ void AWeapon::BeginPlay()
 
 	WeaponCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	WeaponCollision->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
-	WeaponCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
+	WeaponCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	WeaponCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+	WeaponCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_PhysicsBody, ECollisionResponse::ECR_Overlap);
 	WeaponCollision->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::BoxBeginOverlap);
 
 	OwnerCharacter = Cast<ACharacter>(GetOwner());

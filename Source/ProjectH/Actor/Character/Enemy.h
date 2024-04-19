@@ -103,6 +103,8 @@ public:
 	virtual void DeathEnd();
 	virtual void Disappear();
 
+	void StopMove();
+
 	void AlertEnd();
 
 	UFUNCTION()

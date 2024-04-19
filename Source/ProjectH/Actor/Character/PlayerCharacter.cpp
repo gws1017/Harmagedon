@@ -315,7 +315,7 @@ void APlayerCharacter::OnGuard()
 
 void APlayerCharacter::RightSpecialAttack()
 {
-	RightWeapon->SpecialAttack();
+	LeftWeapon->SpecialAttack();
 }
 
 void APlayerCharacter::PlayAttackMontage(const EEquipType Type)

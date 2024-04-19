@@ -1,5 +1,6 @@
 #include "Actor/Character/NormalMonster.h"
 #include "Actor/Character/PlayerCharacter.h"
+#include "Actor/Controller/EnemyController.h"
 #include "Global.h"
 
 #include "Components/ArrowComponent.h"
@@ -50,6 +51,9 @@ void ANormalMonster::Tick(float DeltaTime)
 			LastTargetPos = CombatTarget->GetActorLocation();
 		FRotator rot = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), LastTargetPos);
 		SetActorRotation(rot);
+
+		/*if (EnemyController)
+			EnemyController->SetFocus(CombatTarget);*/
 	}
 	
 }
@@ -77,7 +81,6 @@ void ANormalMonster::AgroSphereOnOverlapEnd(UPrimitiveComponent* OverlappedCompo
 		{
 			SetAlerted(false);
 			CombatTarget = nullptr;
-			bTargetLock = false;
 			SetActionState(EMonsterAction::EMA_Normal);
 		}
 	}
@@ -91,7 +94,6 @@ void ANormalMonster::ActionSphereOnOverlapBegin(UPrimitiveComponent* OverlappedC
 		if (!!player)
 		{
 			SetActionState(EMonsterAction::EMA_AttackReady);
-
 		}
 	}
 }

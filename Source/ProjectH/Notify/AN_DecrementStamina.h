@@ -2,20 +2,20 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotify.h"
-#include "AN_AttackEnd.generated.h"
+#include "AN_DecrementStamina.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class PROJECTH_API UAN_AttackEnd : public UAnimNotify
+class PROJECTH_API UAN_DecrementStamina : public UAnimNotify
 {
 	GENERATED_BODY()
-	
+
 public:
 
 	FString GetNotifyName_Implementation() const;
 
-	void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
+	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
 		const FAnimNotifyEventReference& EventReference);
 };

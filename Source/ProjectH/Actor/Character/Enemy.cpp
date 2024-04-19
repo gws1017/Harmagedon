@@ -35,6 +35,7 @@ void AEnemy::BeginPlay()
 	AIControllerClass = EnemyControllerClass;
 	//블루프린트 클래스로 등록된 객체로 교체하는 함수
 	SpawnDefaultController();
+	EnemyController = GetController<AEnemyController>();
 
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GetMesh()->SetCollisionObjectType(ECollisionChannel::ECC_PhysicsBody);
@@ -179,6 +180,12 @@ void AEnemy::Disappear()
 	Destroy();
 }
 
+void AEnemy::StopMove()
+{
+	StopAnimMontage();
+	bAttacking = false;
+}
+
 bool AEnemy::IsHitActorAreaAttack(const FVector& start, const FVector& end, float radius, TArray<AActor*>& HitActors)
 {
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
@@ -205,10 +212,10 @@ bool AEnemy::IsHitActorAreaAttack(const FVector& start, const FVector& end, floa
 bool AEnemy::IsRanged(float radius)
 {
 	FVector start = GetActorLocation();
-	FVector end = GetActorLocation() + FVector(radius*2, 0, 0);
+	FVector end = GetActorLocation() + GetActorForwardVector() * radius*2;
 
 	TArray<AActor*> HitActors;
-	DrawDebugSphere(GetWorld(), GetActorLocation(), radius, 12, FColor::White, true, 30.f, 0, 1.f);
+	DrawDebugSphere(GetWorld(), GetActorLocation(), radius, 12, FColor::White, true, 3.f, 0, 1.f);
 
 	if (IsHitActorAreaAttack(start, end, radius, HitActors))
 		return true;

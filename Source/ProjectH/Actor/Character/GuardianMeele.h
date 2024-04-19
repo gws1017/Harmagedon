@@ -26,6 +26,7 @@ public:
 	virtual void Attack() override;
 
 	virtual void Disappear() override;
+	virtual void DecrementStamina() override;
 
 
 private:

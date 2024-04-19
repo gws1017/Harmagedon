@@ -36,7 +36,6 @@ void AGuardianMeele::Attack()
 {
 	AEnemy::Attack();
 	CheckNull(AttackMontage);
-	CurrentStamina -= WeaponInstance->GetStaminaCost();
 	//if (bAlerted && !WeaponInstance->GetEquipped())
 		//WeaponInstance->Equip(EEquipType::ET_RightWeapon);
 	PlayAnimMontage(AttackMontage);
@@ -47,4 +46,9 @@ void AGuardianMeele::Disappear()
 	AEnemy::Disappear();
 	if (WeaponInstance)
 		WeaponInstance->End_UnEquip();
+}
+
+void AGuardianMeele::DecrementStamina()
+{
+	CurrentStamina -= WeaponInstance->GetStaminaCost();
 }
