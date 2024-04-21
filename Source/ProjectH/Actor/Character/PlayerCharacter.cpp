@@ -96,6 +96,9 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 	float DeltaStamina = StaminaRegenRate * DeltaTime;
 	UpdateStamina(DeltaStamina);
+	
+	SmoothRoll();
+
 	if (bTargetLock)
 	{
 		LockTarget();
@@ -591,12 +594,28 @@ void APlayerCharacter::OffRunning()
 	GetCharacterMovement()->MaxWalkSpeed = 200;
 }
 
+void APlayerCharacter::SmoothRoll()
+{
+	//구르기 연속으로 할경우 이전 방향 보간값으로 바꿔줘야 방향이 바뀐다.
+	if (EMovementState::EMS_Roll == MovementState)
+	{
+		if (!RollDestination.Equals(FRotator::ZeroRotator))
+		{
+			FRotator LerpRotation = UKismetMathLibrary::RInterpTo_Constant(GetActorRotation(), RollDestination,
+				UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), 720.f);
+			SetActorRotation(LerpRotation);
+		}
+	}
+}
+
 void APlayerCharacter::Roll()
 {
 	CheckFalse(CanRoll());
 	SetMovementState(EMovementState::EMS_Roll);
 	DecrementStamina(RollStamina);
 	PlayAnimMontage(RollMontage);
+	//처음 구르기 방향 저장
+	RollDestination = UKismetMathLibrary::MakeRotFromX(GetLastMovementInputVector());
 }
 
 void APlayerCharacter::EquipWeapon()

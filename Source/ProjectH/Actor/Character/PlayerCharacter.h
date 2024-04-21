@@ -246,6 +246,7 @@ private:
 	void OnRunning();
 	void OffRunning();
 
+	void SmoothRoll();
 	void Roll();
 	void EquipWeapon();
 	void Interaction();
@@ -339,7 +340,7 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Enums")
 		EWeaponEquipped WeaponEquipped;
-	UPROPERTY(VisibleAnywhere, Category = "Enums")
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly, Category = "Enums", meta = (AllowPrivateAccess = "true"))
 		EMovementState MovementState;
 
 
@@ -377,6 +378,8 @@ private:
 		float ParryStamina;
 	UPROPERTY(EditAnywhere, Category = "Status")
 		float FaceAngle;
+	UPROPERTY(EditDefaultsOnly, Category = "Status")
+		FRotator RollDestination;
 
 	UPROPERTY(EditAnywhere, Category = "SaveData")
 		FVector StartPoint;
