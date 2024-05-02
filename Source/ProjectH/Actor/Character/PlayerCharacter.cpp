@@ -319,6 +319,7 @@ void APlayerCharacter::OnGuard()
 
 void APlayerCharacter::RightSpecialAttack()
 {
+	CheckNull(LeftWeapon)
 	LeftWeapon->SpecialAttack();
 }
 
