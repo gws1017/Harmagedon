@@ -16,6 +16,12 @@ void AEnemyController::OnPossess(APawn* InPawn)
 	CheckFalse(IsUseBehaviorTree());
 	CheckNull(BlackboardData && BehaviorTree);
 
+	RunAI();
+}
+
+
+void AEnemyController::RunAI()
+{
 	UBlackboardComponent* comp = Blackboard.Get();
 	//UseBlackBoard는 TObjectPtr객체가 묵시적변환이 이루어지지 않는듯.
 	if (UseBlackboard(BlackboardData, comp))
