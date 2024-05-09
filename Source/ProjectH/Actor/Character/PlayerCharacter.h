@@ -23,6 +23,8 @@ class APickupItem;
 class AExpItem;
 class AEnemy;
 
+class IInteractionInterface;
+
 struct FInputActionValue;
 
 enum class EEquipType : uint8;
@@ -185,7 +187,7 @@ public:
 	//Setter
 	FORCEINLINE void SetMovementState(const EMovementState& state) {  MovementState = state; }
 	FORCEINLINE void SetMovementNormal() {  MovementState = EMovementState::EMS_Normal; }
-	FORCEINLINE void SetOverlappingItem(APickupItem* Item) { OverlappingItem = Item; }
+	FORCEINLINE void SetOverlappingActor(IInteractionInterface* actor) { OverlappingActor = actor; }
 	FORCEINLINE void SetWeaponEquipped(const EWeaponEquipped EquippedType) { WeaponEquipped = EquippedType; }
 	FORCEINLINE void SetBlockStaminaRate(const float value) { BlockStaminaRate = value; }
 	FORCEINLINE void SetBlockStaminaRegenRate() { StaminaRegenRate *= GuardStaminaDeclineRate; }
@@ -194,6 +196,8 @@ public:
 	FORCEINLINE void SetParryFail(const bool value) { bParryFail = value; }
 	FORCEINLINE void SetCanParryed(const bool value) { bCanParry = value; }
 	FORCEINLINE void SetBlock(const bool value) { bBlocking = value; }
+	FORCEINLINE void SetHP(const float value) { Stat.HP = value; }
+	FORCEINLINE void SetStartPoint(const FVector Loc) { StartPoint = Loc; }
 	void SetWeapon(EEquipType Type, AWeapon* Instance);
 	
 public:
@@ -409,9 +413,8 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "BPClass")
 		TSubclassOf<AExpItem> LostExpClass;
-	UPROPERTY(VisibleInstanceOnly, Category = "Item")
-		APickupItem* OverlappingItem;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Controller")
 		ABasicPlayerController* PlayerController;
 
+		IInteractionInterface* OverlappingActor;
 };

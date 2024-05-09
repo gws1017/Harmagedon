@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Actor/Item/Item.h"
+#include "Interface/InteractionInterface.h"
 #include "PickupItem.generated.h"
 
 class USphereComponent;
@@ -10,7 +11,7 @@ class UNiagaraComponent;
 class APlayerCharacter;
 
 UCLASS()
-class PROJECTH_API APickupItem : public AItem
+class PROJECTH_API APickupItem : public AItem, public IInteractionInterface
 {
 	GENERATED_BODY()
 	

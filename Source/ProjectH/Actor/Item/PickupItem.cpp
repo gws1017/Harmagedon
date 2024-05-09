@@ -27,7 +27,7 @@ void APickupItem::OverlapSphereBeginOverlap(UPrimitiveComponent* OverlappedCompo
 	if (OverlapPlayer)
 	{
 		PlayerInstance = OverlapPlayer;
-		PlayerInstance->SetOverlappingItem(this);
+		PlayerInstance->SetOverlappingActor(this);
 		//UI띄울거면 여기에
 	}
 }
@@ -39,7 +39,7 @@ void APickupItem::OverlapSphereEndOverlap(UPrimitiveComponent* OverlappedCompone
 	if (OverlapPlayer)
 	{
 		CheckNull(PlayerInstance);
-		PlayerInstance->SetOverlappingItem(nullptr);
+		PlayerInstance->SetOverlappingActor(nullptr);
 		PlayerInstance = nullptr;
 	}
 }

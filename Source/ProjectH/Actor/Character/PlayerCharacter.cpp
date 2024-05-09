@@ -7,6 +7,8 @@
 #include "Actor/Item/ExpItem.h"
 #include "UI/Slot.h"
 
+#include "Interface/InteractionInterface.h"
+
 #include "System/MySaveGame.h"
 #include "System/MyGameInstance.h"
 
@@ -649,8 +651,8 @@ void APlayerCharacter::EquipWeapon()
 
 void APlayerCharacter::Interaction()
 {
-	CheckNull(OverlappingItem);
-	OverlappingItem->OnInteraction();
+	CheckNull(OverlappingActor);
+	OverlappingActor->OnInteraction();
 }
 
 void APlayerCharacter::DetectTarget()
