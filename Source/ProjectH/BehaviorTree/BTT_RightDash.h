@@ -14,4 +14,8 @@ class PROJECTH_API UBTT_RightDash : public UBTTaskNode
 {
 	GENERATED_BODY()
 	
+public:
+	UBTT_RightDash();
+
+	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 };

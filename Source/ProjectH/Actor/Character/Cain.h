@@ -21,43 +21,26 @@ class PROJECTH_API ACain : public AEnemy, public ICainPatternInterface
 public:
 	ACain();
 
-	EMoveState GetMoveState() const { return MoveState; }
-
 protected:
 	virtual void BeginPlay() override;
 
 // AI 인터페이스
 protected:
-	virtual void SetAIBattleCryDelegate(const FBattleCryFinished& InOnAttackFinished) override;
-	FBattleCryFinished OnBattleCryFinished;
-	virtual void BattleCryByAI() override;
-
-	virtual void SetAIStraightDelegate(const FBattleCryFinished& InOnAttackFinished) override;
-	FBattleCryFinished OnStraightFinished;
-	virtual void StraightByAI() override;
-
+	virtual void SetMontageFinDelegate(const FCainMontageFinished& InOnAttackFinished) override;
+	virtual void PlayMontageByAI(EMontages AnimMon) override;
 
 	virtual float GetAIDetectRoomRange() override;
-	virtual float GetAIFarDetectRange() override;
-	virtual float GetAINearDetectRange() override;
-	virtual bool IsRanged(float radius) override;
 	virtual bool IsHealthUnderHalf() override;
-	virtual void SetDashProperty() override;
+
+	FCainMontageFinished OnMontageFinished;
 
 protected:
-	void BattleCryEnd(class UAnimMontage* TargetMontage, bool IsProperlyEnded);
-	void StraightEnd(class UAnimMontage* TargetMontage, bool IsProperlyEnded);
+	void MontageEnd(class UAnimMontage* TargetMontage, bool IsProperlyEnded);
+
+
 
 protected:
-	// 배틀 크라이 몽타주 추가
+	// 몽타주 추가
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
-	TObjectPtr<class UAnimMontage> BattleCryMontage;
-
-	// 스트레이트 몽타주 추가
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
-	TObjectPtr<class UAnimMontage> StraightMontage;
-
-	// 이동 상태
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = State)
-	EMoveState MoveState;
+	TArray<class UAnimMontage*> BTMontages;
 };

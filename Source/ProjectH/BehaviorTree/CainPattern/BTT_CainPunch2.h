@@ -14,4 +14,8 @@ class PROJECTH_API UBTT_CainPunch2 : public UBTTaskNode
 {
 	GENERATED_BODY()
 	
+public:
+	UBTT_CainPunch2();
+
+	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 };

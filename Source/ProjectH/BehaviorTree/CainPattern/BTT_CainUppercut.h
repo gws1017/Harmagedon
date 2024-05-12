@@ -14,4 +14,8 @@ class PROJECTH_API UBTT_CainUppercut : public UBTTaskNode
 {
 	GENERATED_BODY()
 	
+public:
+	UBTT_CainUppercut();
+
+	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 };

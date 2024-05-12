@@ -26,6 +26,14 @@ void UBTS_CainDetect::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMem
 		return;
 	}
 
+	// 폰 위치와 폰이 속한 월드 가져오기
+	FVector Center = ControllingPawn->GetActorLocation();
+	UWorld* World = ControllingPawn->GetWorld();
+	if (nullptr == World)
+	{
+		return;
+	}
+
 	// 폰을 AI폰으로 변환
 	ICainPatternInterface* AIPawn = Cast<ICainPatternInterface>(ControllingPawn);
 	if (nullptr == AIPawn)
@@ -37,23 +45,6 @@ void UBTS_CainDetect::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMem
 	float DetectRadius = AIPawn->GetAIDetectRoomRange();
 
 	TArray<FOverlapResult> OverlapResults;
-	bool bResult = DetectTarget(OverlapResults, ControllingPawn, DetectRadius);
-	SetKey(OverlapResults, OwnerComp, BBKEY_ROOMTARGET, bResult, ControllingPawn, DetectRadius);
-
-
-}
-
-
-bool UBTS_CainDetect::DetectTarget(TArray<FOverlapResult>& OverlapResults, APawn* ControllingPawn, float DetectRadius)
-{
-	// 폰 위치와 폰이 속한 월드 가져오기
-	FVector Center = ControllingPawn->GetActorLocation();
-	UWorld* World = ControllingPawn->GetWorld();
-	if (nullptr == World)
-	{
-		return false;
-	}
-
 	// 모든 폰 감지하기
 	FCollisionQueryParams CollisionQueryParam(SCENE_QUERY_STAT(Detect), false, ControllingPawn);
 	bool bResult = World->OverlapMultiByChannel(
@@ -65,21 +56,7 @@ bool UBTS_CainDetect::DetectTarget(TArray<FOverlapResult>& OverlapResults, APawn
 		CollisionQueryParam
 	);
 
-	return bResult;
-}
-
-bool UBTS_CainDetect::SetKey(const TArray<FOverlapResult>& OverlapResults, UBehaviorTreeComponent& OwnerComp, const FName& text, 
-	bool DetectResult, APawn* ControllingPawn, float DetectRadius)
-{
-	// 폰 위치와 폰이 속한 월드 가져오기
-	FVector Center = ControllingPawn->GetActorLocation();
-	UWorld* World = ControllingPawn->GetWorld();
-	if (nullptr == World)
-	{
-		return false;
-	}
-
-	if (DetectResult)
+	if (bResult)
 	{
 		for (auto const& OverlapResult : OverlapResults)
 		{
@@ -88,24 +65,25 @@ bool UBTS_CainDetect::SetKey(const TArray<FOverlapResult>& OverlapResults, UBeha
 			if (Pawn && Pawn->GetController()->IsPlayerController())
 			{
 				// 블랙보드의 타겟값 저장 후 녹색으로 표시
-				OwnerComp.GetBlackboardComponent()->SetValueAsObject(text, Pawn);
+				OwnerComp.GetBlackboardComponent()->SetValueAsObject(BBKEY_ROOMTARGET, Pawn);
 
+				// 거리
 				float Distance = FVector::Distance(ControllingPawn->GetTargetLocation(), Pawn->GetTargetLocation());
-
 				OwnerComp.GetBlackboardComponent()->SetValueAsFloat(BBKEY_DISTANCE, Distance);
+				//CLog::Print(Distance);
 
+
+				// 감지 영역 표시
 				DrawDebugSphere(World, Center, DetectRadius, 16, FColor::Green, false, 0.2f);
 
 				// 플레이어와의 위치를 선과 점으로 표시
 				DrawDebugPoint(World, Pawn->GetActorLocation(), 10.0f, FColor::Green, false, 0.2f);
 				DrawDebugLine(World, ControllingPawn->GetActorLocation(), Pawn->GetActorLocation(), FColor::Green, false, 0.27f);
-				return true;
+				return;
 			}
 		}
 	}
 
-	// 못찾으면 블랙보드의 타겟값 nullptr로 저장 후 붉은색으로 표시
-	OwnerComp.GetBlackboardComponent()->SetValueAsObject(text, nullptr);
+	OwnerComp.GetBlackboardComponent()->SetValueAsObject(BBKEY_ROOMTARGET, nullptr);
 	DrawDebugSphere(World, Center, DetectRadius, 16, FColor::Red, false, 0.2f);
-	return true;
 }

@@ -30,19 +30,18 @@ EBTNodeResult::Type UBTT_CainDash::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 	}
 
 	// 델리게이트에 함수 등록
-	FBattleCryFinished OnAttackFinished;
-	OnAttackFinished.BindLambda(
+	FCainMontageFinished OnFinished;
+	OnFinished.BindLambda(
 		[&]()
 		{
 			// InProgress에서 이 태스크를 성공으로 마무리 짓고 다음 노드로 이동
 			FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 		}
 	);
-	AIPawn->SetAIBattleCryDelegate(OnAttackFinished);
+	AIPawn->SetMontageFinDelegate(OnFinished);
 
 	// 공격
-	AIPawn->BattleCryByAI();
-	OwnerComp.GetBlackboardComponent()->SetValueAsBool(BBKEY_ISBATTLECRYUSED, true);
+	AIPawn->PlayMontageByAI(EMontages::DASH);
 
 	return EBTNodeResult::InProgress;
 }

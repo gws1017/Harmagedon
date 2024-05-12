@@ -22,7 +22,6 @@ ACain::ACain()
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 
 	GetCapsuleComponent()->SetCollisionProfileName(CPROFILE_HCAPSULE);
-	//GetMesh()->SetCollisionProfileName(CPROFILE_HPHSICSACTOR);
 }
 
 void ACain::BeginPlay()
@@ -30,90 +29,39 @@ void ACain::BeginPlay()
 	Super::BeginPlay();
 }
 
-void ACain::SetAIBattleCryDelegate(const FBattleCryFinished& InOnBattleCryFinished)
+void ACain::SetMontageFinDelegate(const FCainMontageFinished& InFinished)
 {
-	OnBattleCryFinished = InOnBattleCryFinished;
-}
-void ACain::BattleCryByAI()
-{
-	// 이동 불가 설정
-	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
-
-	// 지정한 속도로 콤보 몽타주 재생
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	AnimInstance->Montage_Play(BattleCryMontage, 1.0f);
-
-	// 몽타주가 끝나면 콤보 종료 함수 호출 예약
-	FOnMontageEnded EndDelegate;
-	EndDelegate.BindUObject(this, &ACain::BattleCryEnd);
-	AnimInstance->Montage_SetEndDelegate(EndDelegate, BattleCryMontage);
-}
-void ACain::BattleCryEnd(UAnimMontage* TargetMontage, bool IsProperlyEnded)
-{
-	// 콤보 전 상태로 초기화
-	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
-
-	OnBattleCryFinished.ExecuteIfBound();
+	OnMontageFinished = InFinished;
 }
 
-
-void ACain::SetAIStraightDelegate(const FBattleCryFinished& InOnBattleCryFinished)
-{
-	OnBattleCryFinished = InOnBattleCryFinished;
-}
-void ACain::StraightByAI()
+void ACain::PlayMontageByAI(EMontages InAnimMon)
 {
 	// 이동 불가 설정
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 
 	// 지정한 속도로 콤보 몽타주 재생
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	AnimInstance->Montage_Play(StraightMontage, 1.0f);
+	AnimInstance->Montage_Play(BTMontages[static_cast<uint8>(InAnimMon)], 1.0f);
 
 	// 몽타주가 끝나면 콤보 종료 함수 호출 예약
 	FOnMontageEnded EndDelegate;
-	EndDelegate.BindUObject(this, &ACain::StraightEnd);
-	AnimInstance->Montage_SetEndDelegate(EndDelegate, StraightMontage);
+	EndDelegate.BindUObject(this, &ACain::MontageEnd);
+	AnimInstance->Montage_SetEndDelegate(EndDelegate, BTMontages[static_cast<uint8>(InAnimMon)]);
 }
-void ACain::StraightEnd(UAnimMontage* TargetMontage, bool IsProperlyEnded)
+void ACain::MontageEnd(UAnimMontage* TargetMontage, bool IsProperlyEnded)
 {
 	// 콤보 전 상태로 초기화
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
-
-	OnStraightFinished.ExecuteIfBound();
+	OnMontageFinished.ExecuteIfBound();
 }
-
-
 
 float ACain::GetAIDetectRoomRange()
 {
 	return 2000.0f;
 }
 
-
-float ACain::GetAIFarDetectRange()
-{
-	return 1000.0f;
-}
-
-float ACain::GetAINearDetectRange()
-{
-	return 500.0f;
-}
-
-bool ACain::IsRanged(float radius)
-{
-	return AEnemy::IsRanged(radius);
-}
-
 bool ACain::IsHealthUnderHalf()
 {
 	float healthRatio = GetCurrentHP() / GetMaxHP();
-
 	return healthRatio <= 0.5;
-}
-
-void ACain::SetDashProperty()
-{
-	MoveState = EMoveState::Dash;
 }

@@ -36,7 +36,7 @@ bool UBTD_CalculateProb::CalculateRawConditionValue(UBehaviorTreeComponent& Owne
 
 	OwnerComp.GetBlackboardComponent()->SetValueAsInt(BBKEY_ATTACKPROB, AttackProb);
 	OwnerComp.GetBlackboardComponent()->SetValueAsInt(BBKEY_SKILLPROB, SkillProb);
-	OwnerComp.GetBlackboardComponent()->SetValueAsInt(BBKEY_DISTANCE, DashProb);
+	OwnerComp.GetBlackboardComponent()->SetValueAsInt(BBKEY_DASHPROB, DashProb);
 
 
 	return true;

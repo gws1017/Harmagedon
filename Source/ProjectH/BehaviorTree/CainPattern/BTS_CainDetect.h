@@ -23,7 +23,4 @@ public:
 
 protected:
 	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
-	bool DetectTarget(TArray<FOverlapResult>& OverlapResults, class APawn* ControllingPawn, float DetectRadius);
-	bool SetKey(const TArray<FOverlapResult>& OverlapResults, UBehaviorTreeComponent& OwnerComp, const FName& text, 
-		bool DetectResult, class APawn* ControllingPawn, float DetectRadius);
 };

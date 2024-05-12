@@ -6,8 +6,7 @@
 #include "UObject/Interface.h"
 #include "CainPatternInterface.generated.h"
 
-DECLARE_DELEGATE(FBattleCryFinished);
-DECLARE_DELEGATE(FStraightFinished);
+DECLARE_DELEGATE(FCainMontageFinished);
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
@@ -17,11 +16,25 @@ class UCainPatternInterface : public UInterface
 };
 
 UENUM(BlueprintType)
-enum class EMoveState : uint8
+enum class EMontages : uint8
 {
-	Dash = 0,
-	Run,
-	Walk
+	BATTLECRY = 0,
+	PUNCH1,
+	HOOK1,
+	GRAB,
+	THROWAWAY,
+	SMASHHEAD,
+	THROWROCK,
+	STRONGKICK,
+	DASH,
+	BACKDASH,
+	LEFTDASH,
+	RIGHTDASH,
+	PUNCH2,
+	UPPERCUT,
+	HOOK2,
+	THROWDOWN,
+	STOMP2,
 };
 
  /**************************************************************************************************
@@ -36,17 +49,9 @@ class PROJECTH_API ICainPatternInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	virtual void SetAIBattleCryDelegate(const FBattleCryFinished& InOnAttackFinished) = 0;
-	virtual void SetAIStraightDelegate(const FBattleCryFinished& InOnAttackFinished) = 0;
-
-	virtual void BattleCryByAI() = 0;
-	virtual void StraightByAI() = 0;
-
+	virtual void SetMontageFinDelegate(const FCainMontageFinished& InOnAttackFinished) = 0;
+	virtual void PlayMontageByAI(EMontages AnimMon) = 0;
 
 	virtual float GetAIDetectRoomRange() = 0;
-	virtual float GetAIFarDetectRange() = 0;
-	virtual float GetAINearDetectRange() = 0;
-	virtual bool IsRanged(float radius) = 0;
 	virtual bool IsHealthUnderHalf() = 0;
-	virtual void SetDashProperty() = 0;
 };
