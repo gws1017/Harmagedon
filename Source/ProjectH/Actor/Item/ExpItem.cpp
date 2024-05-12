@@ -1,5 +1,6 @@
 #include "Actor/Item/ExpItem.h"
 #include "Actor/Character/PlayerCharacter.h"
+#include "System/Sound/SoundManager.h"
 
 #include "Components/SphereComponent.h"
 
@@ -15,7 +16,8 @@ void AExpItem::OnInteraction()
 {
 	PlayerInstance->IncrementExp(Exp);
 	Exp = 0;
-	
+	ASoundManager::GetSoundManager()->PlaySFXAtLocation(PlayerInstance, ESFXType::ESFXType_Restore, GetActorLocation());
+
 	APickupItem::OnInteraction();
 }
 

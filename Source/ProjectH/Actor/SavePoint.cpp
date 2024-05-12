@@ -1,6 +1,7 @@
 #include "Actor/SavePoint.h"
 #include "Actor/EnemySpawner.h"
 #include "Actor/Character/PlayerCharacter.h"
+#include "System/Sound/SoundManager.h"
 #include "Global.h"
 
 #include "Components/BoxComponent.h"
@@ -51,6 +52,9 @@ void ASavePoint::OverlapBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, 
 void ASavePoint::OnInteraction()
 {
 	APlayerCharacter* player = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+
+	ASoundManager::GetSoundManager()->PlaySFXAtLocation(this, ESFXType::ESFXType_Save, GetActorLocation());
+
 	player->SetHP(player->GetMaxHP());
 	player->SetStartPoint(player->GetActorLocation());
 	TArray<AEnemySpawner*> SpawnerArray;

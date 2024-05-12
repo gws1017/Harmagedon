@@ -25,6 +25,9 @@ enum class ESFXType : uint8
 	ESFXType_Guard UMETA(DisplayName = "Guard"),
 	ESFXType_ParrySwing UMETA(DisplayName = "ParrySwing"),
 	ESFXType_ParrySucc UMETA(DisplayName = "ParrySucc"),
+	ESFXType_Save UMETA(DisplayName = "Save"),
+	ESFXType_HealPotion UMETA(DisplayName = "HealPotion"),
+	ESFXType_Restore UMETA(DisplayName = "Restore"),
 	ESFXType_IronToMeat UMETA(DisplayName = "IronToMeat"),
 	ESFXType_IronToMeat2 UMETA(DisplayName = "IronToMeat2"),
 	ESFXType_DefaultMax UMETA(DisplayName = "Max")
