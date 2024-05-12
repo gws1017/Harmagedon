@@ -4,6 +4,7 @@
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardData.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "EnemyController.h"
 
 AEnemyController::AEnemyController()
 {
@@ -21,5 +22,14 @@ void AEnemyController::OnPossess(APawn* InPawn)
 	if (UseBlackboard(BlackboardData, comp))
 	{
 		RunBehaviorTree(BehaviorTree);
+	}
+}
+
+void AEnemyController::StopBT()
+{
+	UBehaviorTreeComponent* BehaviorTreeComponent = Cast<UBehaviorTreeComponent>(BrainComponent);
+	if (!!BehaviorTreeComponent)
+	{
+		BehaviorTreeComponent->StopTree(EBTStopMode::Safe);
 	}
 }

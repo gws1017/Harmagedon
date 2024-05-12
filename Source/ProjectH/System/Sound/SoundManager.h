@@ -22,6 +22,11 @@ enum class ESFXType : uint8
 {
 	ESFXType_None UMETA(DisplayName = "None"),
 	ESFXType_FootStep UMETA(DisplayName = "FootStep"),
+	ESFXType_Guard UMETA(DisplayName = "Guard"),
+	ESFXType_ParrySwing UMETA(DisplayName = "ParrySwing"),
+	ESFXType_ParrySucc UMETA(DisplayName = "ParrySucc"),
+	ESFXType_IronToMeat UMETA(DisplayName = "IronToMeat"),
+	ESFXType_IronToMeat2 UMETA(DisplayName = "IronToMeat2"),
 	ESFXType_DefaultMax UMETA(DisplayName = "Max")
 };
 

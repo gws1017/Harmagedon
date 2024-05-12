@@ -1,7 +1,11 @@
 #include "Actor/Character/Enemy.h"
 #include "Actor/Character/PlayerCharacter.h"
 #include "Actor/Controller/EnemyController.h"
+
+#include "System/Sound/SoundManager.h"
+
 #include "Global.h"
+
 
 #include "Animation/AnimMontage.h"
 #include "Components/CapsuleComponent.h"
@@ -67,11 +71,13 @@ float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AC
 	DamageAmount = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	if (DamageAmount <= 0.f)
 		return DamageAmount;
-
+	auto Player = Cast<APlayerCharacter>(DamageCauser);
 	if (HP - DamageAmount <= 0.f) //체력이 0이될때 적용후 Die함수 호출
 	{
 		HP = FMath::Clamp(HP - DamageAmount, 0.0f, MaxHP);
-		CombatTarget->IncrementExp(Exp);
+
+		//플레이어를 인식하지 못한경우에서 죽으면 오류가 발생하니 캐스팅 이용해야함
+		Player->IncrementExp(Exp);
 		Die();
 	}
 	else //일반적인 데미지 계산
@@ -124,10 +130,12 @@ void AEnemy::Attack()
 
 void AEnemy::Hit(const FVector& ParticleSpawnLocation)
 {
-	//AudioComponent->Play();
+	ASoundManager::GetSoundManager()->PlaySFXAtLocation(this, ESFXType::ESFXType_IronToMeat, GetActorLocation());
+
 	if (HitParticle)
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitParticle, ParticleSpawnLocation, FRotator(0.f), false);
 	PlayAnimMontage(HitMontage);
+
 }
 
 void AEnemy::Stun()
@@ -160,6 +168,8 @@ void AEnemy::Die()
 
 	StopAnimMontage();
 	PlayAnimMontage(DeathMontage);
+
+	EnemyController->StopBT();
 
 	AgroSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	ActionSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);

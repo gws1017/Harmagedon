@@ -29,6 +29,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void UseBehaviorTree() { bUseBehaviorTree = true; }
 
+	void StopBT();
+
 protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI")

@@ -263,10 +263,10 @@ private:
 	void SwapTargetRight();
 	void SwapTargetLeft();
 
-	void LeftAttack();
-	void RightAttack();
-	void OffRightAttack();
-	void RightSpecialAttack();
+	void LeftClick();
+	void RightClick();
+	void OffRightClick();
+	void RightSpecialClick();
 
 	//다른 액터와 마주보고있는지 검사하는 함수
 	bool CheckFace(AActor* OtherActor);

@@ -11,6 +11,7 @@
 
 #include "System/MySaveGame.h"
 #include "System/MyGameInstance.h"
+#include "System/Sound/SoundManager.h"
 
 #include "Data/CharacterAbilityTables.h"
 
@@ -130,13 +131,13 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInput->BindAction(RollAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Roll);
 
 		//우측 무기 공격
-		EnhancedInput->BindAction(AttackAction, ETriggerEvent::Triggered, this, &APlayerCharacter::LeftAttack);
+		EnhancedInput->BindAction(AttackAction, ETriggerEvent::Triggered, this, &APlayerCharacter::LeftClick);
 		
 		//좌측 무기 공격
-		EnhancedInput->BindAction(RightClickAction, ETriggerEvent::Triggered, this, &APlayerCharacter::RightAttack);
-		EnhancedInput->BindAction(RightClickAction, ETriggerEvent::Completed, this, &APlayerCharacter::OffRightAttack);
+		EnhancedInput->BindAction(RightClickAction, ETriggerEvent::Triggered, this, &APlayerCharacter::RightClick);
+		EnhancedInput->BindAction(RightClickAction, ETriggerEvent::Completed, this, &APlayerCharacter::OffRightClick);
 		//좌측 무기 특수 능력
-		EnhancedInput->BindAction(RightClickSpecialAction, ETriggerEvent::Triggered, this, &APlayerCharacter::RightSpecialAttack);
+		EnhancedInput->BindAction(RightClickSpecialAction, ETriggerEvent::Triggered, this, &APlayerCharacter::RightSpecialClick);
 
 		//무기 장착
 		EnhancedInput->BindAction(EquipAction, ETriggerEvent::Triggered, this, &APlayerCharacter::EquipWeapon);
@@ -162,7 +163,6 @@ float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	// 무적상태
 	if (bIFrame)
 		DamageAmount = 0;
-
 	CheckGuard(DamageAmount, DamageCauser);
 	CheckParry(DamageAmount, DamageCauser);
 
@@ -284,7 +284,7 @@ void APlayerCharacter::ResetAttack()
 	bIsAttacking = false;
 }
 
-void APlayerCharacter::LeftAttack()
+void APlayerCharacter::LeftClick()
 {
 	CheckFalse(CanAttack(EEquipType::ET_RightWeapon));
 	CheckNullMsg(RightWeapon, "Right Weapon is Nullptr");
@@ -300,13 +300,13 @@ void APlayerCharacter::LeftAttack()
 		
 }
 
-void APlayerCharacter::RightAttack()
+void APlayerCharacter::RightClick()
 {
 	CheckNullMsg(LeftWeapon, "Left Weapon  is Nullptr");
 	LeftWeapon->Block();
 }
 
-void APlayerCharacter::OffRightAttack()
+void APlayerCharacter::OffRightClick()
 {
 	bBlocking = false;
 	StaminaRegenRate = 2.f;
@@ -319,7 +319,7 @@ void APlayerCharacter::OnGuard()
 	StaminaRegenRate *= 0.4f;
 }
 
-void APlayerCharacter::RightSpecialAttack()
+void APlayerCharacter::RightSpecialClick()
 {
 	CheckNull(LeftWeapon)
 	LeftWeapon->SpecialAttack();
@@ -393,8 +393,7 @@ void APlayerCharacter::DeathEnd()
 void APlayerCharacter::Hit(const FVector& ParticleSpawnLocation)
 {
 	CheckFalse(CanHit());
-	//if (AudioComponent->Sound)
-	//	AudioComponent->Play();
+	ASoundManager::GetSoundManager()->PlaySFXAtLocation(this, ESFXType::ESFXType_IronToMeat, GetActorLocation());
 
 	ResetAttack();
 	SetMovementState(EMovementState::EMS_Hit);
@@ -798,6 +797,7 @@ bool APlayerCharacter::CheckGuard(float& DamageAmount, AActor* DamageCauser)
 		ret = true;
 		DamageAmount = DamageAmount * (1.0f - LeftWeapon->GetPhysicalDefense());
 		DecrementStamina(Stat.MaxStamina * BlockStaminaRate);
+		ASoundManager::GetSoundManager()->PlaySFXAtLocation(this, ESFXType::ESFXType_Guard, GetActorLocation());
 	}//가드 실패
 	else if (bBlockFail)
 	{
@@ -825,6 +825,8 @@ bool APlayerCharacter::CheckParry(float& DamageAmount, AActor* DamageCauser)
 		}
 		bParrySucc = true;
 
+		ASoundManager::GetSoundManager()->PlaySFXAtLocation(this, ESFXType::ESFXType_ParrySucc, GetActorLocation());
+		
 		auto enemy = Cast<AEnemy>(DamageCauser);
 		enemy->SetActionState(EMonsterAction::EMA_Stun);
 		enemy->Stun();
@@ -902,7 +904,7 @@ bool APlayerCharacter::CanHit()
 
 bool APlayerCharacter::CanBlock()
 {
-	CheckTrueResult(bBlocking,false);
+	//CheckTrueResult(bBlocking,false);
 	if (Stat.Stamina < Stat.MaxStamina * BlockMinStamina)
 	{
 		if (!bBlockFail)
@@ -914,7 +916,7 @@ bool APlayerCharacter::CanBlock()
 				}, 1.f, false);
 		}
 		bBlockFail = true;
-		OffRightAttack();
+		OffRightClick();
 		//받는데미지 1초간 증가
 		return false;
 	}

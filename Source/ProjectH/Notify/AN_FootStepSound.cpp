@@ -18,9 +18,11 @@ void UAN_FootStepSound::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBa
 	ACharacter* Character = Cast<ACharacter>(MeshComp->GetOwner());
 	CheckNull(Character);
 
-	FVector Start = Character->GetActorLocation();//GetMesh()->GetSocketLocation(BoneName);
+	FVector Start = Character->GetMesh()->GetSocketLocation(BoneName);
 	FVector End = Start;
 	End.Z -= TraceDistance;
+
+	//CLog::Print(BoneName.ToString() + " " +  End.ToString());
 
 	TArray<AActor*> IgnoreActors;
 	IgnoreActors.Add(Character);

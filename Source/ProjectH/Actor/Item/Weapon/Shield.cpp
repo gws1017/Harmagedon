@@ -2,6 +2,11 @@
 #include "Actor/Character/PlayerCharacter.h"
 #include "Global.h"
 
+AShield::AShield()
+{
+	SpecialAttackStaminaCost = 10.f;
+}
+
 void AShield::BoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	//방패도 타격이 가능하다
