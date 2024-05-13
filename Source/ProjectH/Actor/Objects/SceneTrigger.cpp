@@ -1,4 +1,4 @@
-#include "Actor/SceneTrigger.h"
+#include "Actor/Objects/SceneTrigger.h"
 #include "Actor/Character/PlayerCharacter.h"
 #include "Actor/Controller/BasicPlayerController.h"
 #include "Actor/Character/Enemy.h"

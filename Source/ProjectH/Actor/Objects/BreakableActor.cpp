@@ -1,4 +1,4 @@
-#include "Actor/BreakableActor.h"
+#include "Actor/Objects/BreakableActor.h"
 #include "Global.h"
 
 #include "GeometryCollection/GeometryCollectionComponent.h"
