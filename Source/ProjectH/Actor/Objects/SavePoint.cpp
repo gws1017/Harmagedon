@@ -1,5 +1,5 @@
-#include "Actor/SavePoint.h"
-#include "Actor/EnemySpawner.h"
+#include "Actor/Objects/SavePoint.h"
+#include "Actor/Objects/EnemySpawner.h"
 #include "Actor/Character/PlayerCharacter.h"
 #include "System/Sound/SoundManager.h"
 #include "Global.h"
