@@ -65,3 +65,8 @@ bool ACain::IsHealthUnderHalf()
 	float healthRatio = GetCurrentHP() / GetMaxHP();
 	return healthRatio <= 0.5;
 }
+
+float ACain::GetAITurnSpeed()
+{
+	return 2.0f;
+}

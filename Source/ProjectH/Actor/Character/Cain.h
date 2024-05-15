@@ -31,6 +31,7 @@ protected:
 
 	virtual float GetAIDetectRoomRange() override;
 	virtual bool IsHealthUnderHalf() override;
+	virtual float GetAITurnSpeed() override;
 
 	FCainMontageFinished OnMontageFinished;
 

@@ -54,4 +54,5 @@ public:
 
 	virtual float GetAIDetectRoomRange() = 0;
 	virtual bool IsHealthUnderHalf() = 0;
+	virtual float GetAITurnSpeed() = 0;
 };

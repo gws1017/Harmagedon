@@ -65,7 +65,7 @@ APlayerCharacter::APlayerCharacter()
 	GetCharacterMovement()->MaxWalkSpeed = 300.f;
 	GetCharacterMovement()->SetWalkableFloorAngle(70.f);
 
-	//GetCapsuleComponent()->SetCollisionProfileName(CPROFILE_HCAPSULE);
+	GetCapsuleComponent()->SetCollisionProfileName(CPROFILE_HCAPSULE);
 
 	SpringArm->bDoCollisionTest = false;
 	SpringArm->bUsePawnControlRotation = true;
