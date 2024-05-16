@@ -694,7 +694,6 @@ void APlayerCharacter::LockTarget()
 	FVector TargetLocation = LockedTarget->GetActorLocation();
 	TargetLocation.Z -= TargetZOffset;
 
-	float InertpSpeed = 5.f;
 	FRotator TargetRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TargetLocation);
 	FRotator LerpRotation = UKismetMathLibrary::RInterpTo_Constant(GetControlRotation(), TargetRotation,
 		UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), LockInterpSpeed);
