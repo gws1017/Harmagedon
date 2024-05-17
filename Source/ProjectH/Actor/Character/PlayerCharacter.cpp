@@ -47,6 +47,7 @@ APlayerCharacter::APlayerCharacter()
 	RollStamina(33.f),
 	ParryStamina(10.f),
 	FaceAngle(150.f),
+	WalkSpeed(400.f), RunSpeed(600.f),
 	StartPoint(0.f,0.f,0.f)
 {
 	//Tick함수 안쓰면 일단 꺼놓기
@@ -64,7 +65,7 @@ APlayerCharacter::APlayerCharacter()
 
 	bUseControllerRotationYaw = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
-	GetCharacterMovement()->MaxWalkSpeed = 300.f;
+	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 	GetCharacterMovement()->SetWalkableFloorAngle(70.f);
 
 	SpringArm->bDoCollisionTest = false;
@@ -309,6 +310,7 @@ void APlayerCharacter::RightClick()
 void APlayerCharacter::OffRightClick()
 {
 	bBlocking = false;
+	bBlockFail = false;
 	StaminaRegenRate = 2.f;
 }
 
@@ -588,13 +590,13 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 void APlayerCharacter::OnRunning()
 {
 	SetMovementState(EMovementState::EMS_Run);
-	GetCharacterMovement()->MaxWalkSpeed = 400;
+	GetCharacterMovement()->MaxWalkSpeed = RunSpeed;
 }
 
 void APlayerCharacter::OffRunning()
 {
 	SetMovementNormal();
-	GetCharacterMovement()->MaxWalkSpeed = 200;
+	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 }
 
 void APlayerCharacter::UseItem()
@@ -692,7 +694,6 @@ void APlayerCharacter::LockTarget()
 	FVector TargetLocation = LockedTarget->GetActorLocation();
 	TargetLocation.Z -= TargetZOffset;
 
-	float InertpSpeed = 5.f;
 	FRotator TargetRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TargetLocation);
 	FRotator LerpRotation = UKismetMathLibrary::RInterpTo_Constant(GetControlRotation(), TargetRotation,
 		UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), LockInterpSpeed);
@@ -779,8 +780,8 @@ bool APlayerCharacter::CheckFace(AActor* OtherActor)
 {
 	//Yaw각도 차이는 서로 같은방향을 바라보면 0에 가까워지고(같은 각도니까), 
 	//반대로 마주본다면 각도차이는 커질 것이다.
-	float AngleZ = GetActorRotation().Yaw - OtherActor->GetActorRotation().Yaw;
-	return AngleZ > FaceAngle || AngleZ - FaceAngle;
+	float AngleZ = FMath::Abs(GetActorRotation().Yaw - OtherActor->GetActorRotation().Yaw);
+	return AngleZ >= FaceAngle;
 }
 
 bool APlayerCharacter::CheckGuard(float& DamageAmount, AActor* DamageCauser)
@@ -833,7 +834,7 @@ bool APlayerCharacter::CheckParry(float& DamageAmount, AActor* DamageCauser)
 
 		CLog::Print("Parry Succ");
 	}
-	else if (bParryFail) //패리 실패시 패널티 부여
+	else if (bCanParry && bParryFail) //패리 실패시 패널티 부여
 	{
 		CLog::Print("Parry Fail");
 		DamageAmount = DamageAmount * (1.0f - LeftWeapon->GetPhysicalDefense());

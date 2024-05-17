@@ -12,10 +12,12 @@ APhysicsTrigger::APhysicsTrigger()
 	UHelpers::CreateComponent<UBoxComponent>(this, &TriggerBox, "TriggerBox");
 	UHelpers::CreateComponent<UStaticMeshComponent>(this, &Mesh, "PhysicsMesh", TriggerBox);
 
+	TriggerBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	TriggerBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+
 	Mesh->SetSimulatePhysics(false);
 	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Mesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
-	Mesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
 }
 
 void APhysicsTrigger::BeginPlay()
@@ -31,7 +33,7 @@ void APhysicsTrigger::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCom
 	APlayerCharacter* player = Cast<APlayerCharacter>(OtherActor);
 
 	CheckNull(player);
-
+	CLog::Print(OtherComp->GetOwner()->GetName());
 	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	Mesh->SetSimulatePhysics(true);
 

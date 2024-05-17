@@ -6,7 +6,7 @@
 
 AGuardianMeele::AGuardianMeele()
 {
-	MaxHP = 15;
+	MaxHP = 220;
 	HP = MaxHP;
 	Exp = 20;
 
