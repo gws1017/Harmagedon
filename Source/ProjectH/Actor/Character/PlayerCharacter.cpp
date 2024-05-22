@@ -870,6 +870,8 @@ bool APlayerCharacter::CanAttack(EEquipType Type)
 	//if (PlayerController)CheckFalseResult(PlayerController->GetGameMode(), false);
 	CheckFalseResult(GetWeapon(Type)->GetEquipped(), false);
 	CheckTrueResult(GetWeapon(Type)->GetEquipping(), false);
+	CheckTrueResult(bBlocking, false);
+
 	switch (MovementState)
 	{
 	case EMovementState::EMS_Dead:

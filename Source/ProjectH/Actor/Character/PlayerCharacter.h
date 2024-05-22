@@ -288,7 +288,7 @@ private:
 		UCameraComponent* Camera;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Component")
 		USphereComponent* TargetingSphere;
-	UPROPERTY(VisibleDefaultsOnly, Category = "Component")
+	UPROPERTY(VisibleDefaultsOnly,BlueprintReadOnly, Category = "Component", meta = (AllowPrivateAccess = "true"))
 		USceneCaptureComponent2D* SceneCapture;
 	UPROPERTY(VisibleAnywhere, Category = "Component")
 		UInventoryComponent* InventoryComponent;
