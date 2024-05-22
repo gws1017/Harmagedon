@@ -8,7 +8,7 @@ AGuardianMeele::AGuardianMeele()
 {
 	MaxHP = 220;
 	HP = MaxHP;
-	Exp = 20;
+	Exp = 120;
 
 	DetectRadius = 500.f;
 	ActionRadius = 300.f;
