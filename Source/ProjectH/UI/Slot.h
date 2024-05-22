@@ -53,7 +53,7 @@ public:
 		virtual void OnHoverSlot();
 
 	UFUNCTION(BlueprintCallable,BlueprintImplementableEvent)
-	void InitializeSlot();
+	void InitializeSlotInfo();
 
 	UFUNCTION(BlueprintCallable)
 		void AddClickFunction(UObject* InObject, const FName InFunctionName);
