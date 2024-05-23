@@ -22,7 +22,7 @@ void USlot::SlotUpdateFromData(const FInventoryItem Data)
 	ItemInfo = Data.ItemInfo;
 	Count = Data.Count;
 	bEquipped = Data.bEquipped;
-	InitializeSlot();
+	InitializeSlotInfo();
 }
 
 void USlot::SlotUpdateFromSlot(const USlot* Data)
@@ -30,7 +30,7 @@ void USlot::SlotUpdateFromSlot(const USlot* Data)
 	ItemInfo = Data->ItemInfo;
 	Count = Data->Count;
 	bEquipped = Data->bEquipped;
-	InitializeSlot();
+	InitializeSlotInfo();
 }
 
 void USlot::OnClickSlot()
