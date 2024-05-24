@@ -39,7 +39,7 @@ APlayerCharacter::APlayerCharacter()
 	NumberOfAttacks(2),
 	WeaponEquipped(EWeaponEquipped::EWE_Fist),
 	MovementState(EMovementState::EMS_Normal),
-	Stat{ 1,5,5,5,5,5,5 },
+	Stat{ 1,5,4,2,1,2,2 },
 	BlockMinStamina(0.1f),
 	BlockStaminaRate(0.35f),
 	GuardStaminaDeclineRate(0.4f),
