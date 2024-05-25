@@ -7,8 +7,16 @@
 #include "UI/InventoryUI.h"
 #include "Global.h"
 
+#include "UI/BossHUDWidget.h"
+
 ABasicPlayerController::ABasicPlayerController()
 {
+	// HUD 블루프린트 가져오기
+	static ConstructorHelpers::FClassFinder<UBossHUDWidget> PdHUDWidgetRef(TEXT("/Game/UI/Blueprint/WBP_BossHUD.WBP_BossHUD_C"));
+	if (PdHUDWidgetRef.Class)
+	{
+		BossHUDWidgetClass = PdHUDWidgetRef.Class;
+	}
 }
 
 void ABasicPlayerController::BeginPlay()
@@ -17,6 +25,12 @@ void ABasicPlayerController::BeginPlay()
 
 	InitializeUIInstance();
 	
+	// 위젯 생성하고 화면에 띄움
+	BossHUDWidget = CreateWidget<UBossHUDWidget>(this, BossHUDWidgetClass);
+	if (BossHUDWidget)
+	{
+		BossHUDWidget->AddToViewport();
+	}
 }
 
 void ABasicPlayerController::InitializeUIInstance()

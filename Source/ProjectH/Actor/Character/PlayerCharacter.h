@@ -407,5 +407,4 @@ private:
 		APickupItem* OverlappingItem;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Controller")
 		ABasicPlayerController* PlayerController;
-
 };

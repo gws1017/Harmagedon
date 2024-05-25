@@ -83,4 +83,12 @@ protected:
 		UUserWidget* CurrentWidget;
 
 	bool bGameInputMode;
+
+// HUD
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HUD)
+	TSubclassOf<class UBossHUDWidget> BossHUDWidgetClass;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HUD)
+	TObjectPtr<class UBossHUDWidget> BossHUDWidget;
 };
