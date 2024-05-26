@@ -51,6 +51,43 @@ public:
 		int32 MaxStackSize;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ToolTip = "겹침 여부"))
 		bool bIsStackable;
+
+};
+
+USTRUCT(BlueprintType)
+struct FItemStatData
+{
+	GENERATED_BODY()
+
+public:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ToolTip = "물리 공격력"))
+		float PhysicalDamage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ToolTip = "빛 공격력"))
+		float LightDamage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ToolTip = "어둠 공격력"))
+		float DarkDamage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ToolTip = "치명 공격력"))
+		float CriticalDamage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ToolTip = "강인도"))
+		float Poise;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ToolTip = "물리 커트율"))
+		float PhyscialDeffenseRate;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ToolTip = "어둠 커트율"))
+		float DarkDeffenseRate;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ToolTip = "빛 커트율"))
+		float LightDeffenseRate;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ToolTip = "필요 근력"))
+		float RequiuredStrength;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ToolTip = "필요 체력"))
+		float RequiureVitality;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ToolTip = "필요 신앙"))
+		float RequiuredFaith;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ToolTip = "필요 지성"))
+		float RequiuredIntelligence;
 };
 
 USTRUCT(BlueprintType)
@@ -77,6 +114,7 @@ public:
 		ItemCode(-1),
 		TextData(),
 		NumericData(),
+		StatData(),
 		AssetData()
 	{
 
@@ -101,6 +139,8 @@ public:
 		FItemTextData TextData;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemData")
 		FItemNumericData NumericData;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemData")
+		FItemStatData StatData;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemData")
 		FItemAssetData AssetData;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemData")
