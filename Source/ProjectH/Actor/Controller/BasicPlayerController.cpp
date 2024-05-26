@@ -24,13 +24,6 @@ void ABasicPlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	InitializeUIInstance();
-	
-	// 위젯 생성하고 화면에 띄움
-	BossHUDWidget = CreateWidget<UBossHUDWidget>(this, BossHUDWidgetClass);
-	if (BossHUDWidget)
-	{
-		BossHUDWidget->AddToViewport();
-	}
 }
 
 void ABasicPlayerController::InitializeUIInstance()
@@ -69,6 +62,14 @@ void ABasicPlayerController::InitializeUIInstance()
 	{
 		if (InventoryUIInstance == nullptr)
 			InventoryUIInstance = CreateWidget<UInventoryUI>(GetWorld(), InventoryUIClass);
+	}
+
+	// 위젯 생성하고 화면에 띄움
+	BossHUDWidget = CreateWidget<UBossHUDWidget>(GetWorld(), BossHUDWidgetClass);
+	if (BossHUDWidget)
+	{
+		BossHUDWidget->AddToViewport();
+		BossHUDWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
 }
 
@@ -137,4 +138,20 @@ void ABasicPlayerController::ToggleEquipMenu()
 void ABasicPlayerController::ToggleInventoryMenu()
 {
 	ToggleUI(InventoryUIInstance);
+}
+
+
+ /*************************************************************************************************
+ * 보스방 입장 트리거에 플레이어가 들어왔을 때 컨트롤러를 가져와 이 함수를 호출
+ * 보스 HUD를 화면에 표시
+ * 
+ * @author	조현식
+ * @date	2024-05-26
+ * @param	액터
+ * @return	
+ **************************************************************************************************/
+void ABasicPlayerController::ShowBossHUD(AActor* EnemyPawn)
+{
+	BossHUDWidget->InitBar(EnemyPawn);
+	BossHUDWidget->SetVisibility(ESlateVisibility::Visible);
 }

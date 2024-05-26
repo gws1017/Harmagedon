@@ -21,6 +21,9 @@ public:
 	//void UpdateStat(const FPdCharacterStat& BaseStat, const FPdCharacterStat& ModifierStat);
 	void UpdateHpBar(float NewCurrentHp);
 
+	UFUNCTION()
+	void InitBar(AActor* EnemyPawn);
+
 protected:
 	virtual void NativeConstruct() override;
 

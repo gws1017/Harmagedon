@@ -12,6 +12,7 @@
 #include "UI/BossHpBarWidget.h"
 #include "UI/BossHUDWidget.h"
 #include "UI/BossWidgetComponent.h"
+#include "Actor/Controller/BasicPlayerController.h"
 
 ACain::ACain()
 {

@@ -36,8 +36,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void ToggleInventoryMenu();
 
-private:
+	UFUNCTION()
+	void ShowBossHUD(AActor* EnemyPawn);
 
+private:
 	void InitializeUIInstance();
 
 	UFUNCTION(BlueprintCallable)
