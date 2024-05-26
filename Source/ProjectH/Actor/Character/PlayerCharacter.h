@@ -167,7 +167,8 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 		 FPlayerStatus GetPlayerStat() const { return Stat; }
-	FORCEINLINE bool IsInvincible() { return bIFrame; }
+	UFUNCTION(BlueprintCallable)
+		FORCEINLINE bool IsInvincible() { return bIFrame; }
 	FORCEINLINE bool IsBlocking() { return bBlocking; }
 	FORCEINLINE bool GetParrySucc() { return bParrySucc; }
 	FORCEINLINE bool GetParryFail() { return bParryFail; }
@@ -191,13 +192,17 @@ public:
 	FORCEINLINE void SetWeaponEquipped(const EWeaponEquipped EquippedType) { WeaponEquipped = EquippedType; }
 	FORCEINLINE void SetBlockStaminaRate(const float value) { BlockStaminaRate = value; }
 	FORCEINLINE void SetBlockStaminaRegenRate() { StaminaRegenRate *= GuardStaminaDeclineRate; }
-	FORCEINLINE void SetInvincible(const bool value) { bIFrame = value; }
+	UFUNCTION(BlueprintCallable)
+		FORCEINLINE void SetInvincible(const bool value) { bIFrame = value; }
 	FORCEINLINE void SetParrySucc(const bool value) { bParrySucc = value; }
 	FORCEINLINE void SetParryFail(const bool value) { bParryFail = value; }
 	FORCEINLINE void SetCanParryed(const bool value) { bCanParry = value; }
 	FORCEINLINE void SetBlock(const bool value) { bBlocking = value; }
 	FORCEINLINE void SetHP(const float value) { Stat.HP = value; }
 	FORCEINLINE void SetStartPoint(const FVector Loc) { StartPoint = Loc; }
+	UFUNCTION(BlueprintCallable)
+		FORCEINLINE void SetStr(const float value) { Stat.Strength = value; }
+
 	void SetWeapon(EEquipType Type, AWeapon* Instance);
 	
 public:
@@ -231,7 +236,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void LoadGameData();
 
-	void InitStatusInfo();
+	UFUNCTION(BlueprintCallable)
+		void InitStatusInfo();
 
 	void SetCapture(AActor* InActor, const bool bIncludeFromChildActors);
 	void RemoveCapture(AActor* InActor, const bool bIncludeFromChildActors);
