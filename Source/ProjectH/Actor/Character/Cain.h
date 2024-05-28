@@ -29,7 +29,7 @@ class PROJECTH_API ACain
 public:
 	ACain();
 
-	FORCEINLINE class USphereComponent* GetTrigger() { return Trigger; }
+	FORCEINLINE class USphereComponent* GetTrigger() { return RightHandTrigger; }
 
 	void SetupCharacterWidget(class UBossHpBarWidget* InUserWidget);
 	void SetupHUDWidget(class UBossHUDWidget* InHUDWidget);
@@ -68,20 +68,31 @@ protected:
 	TObjectPtr<class UWidgetComponent> HpBar;
 
 protected:
-	UPROPERTY(VisibleAnywhere, Category = sphere)
-	TObjectPtr<class USphereComponent> Trigger;
+	UPROPERTY(VisibleAnywhere, Category = trigger)
+	TObjectPtr<class USphereComponent> RightHandTrigger;
 
-	// ¸ùÅ¸ÁÖ Ãß°¡
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
-	TArray<class UAnimMontage*> BTMontages;
+	UPROPERTY(VisibleAnywhere, Category = trigger)
+	TObjectPtr<class USphereComponent> LeftHandTrigger;
 
-	uint32 CurrentStatus;
+	UPROPERTY(VisibleAnywhere, Category = trigger)
+	TObjectPtr<class USphereComponent> RightFootTrigger;
+
+	UPROPERTY(VisibleAnywhere, Category = trigger)
+	TObjectPtr<class USphereComponent> LeftFootTrigger;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Animation)
+	TArray<class UCainPatternInfo*> PatternInfoes;
+
+
+	uint16 CurrentStatus;
+	int32 AttackCount;
+
+
+
+
 
 	UFUNCTION()
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepHitResult);
 
 	bool AttackCheckStart = false;
-
-	//float MaxHp = 2462.0;
-	//float CurrentHp = 2462.0;
 };
