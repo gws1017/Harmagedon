@@ -41,7 +41,7 @@ EBTNodeResult::Type UBTT_LeftDash::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 	AIPawn->SetMontageFinDelegate(OnFinished);
 
 	// АјАн
-	AIPawn->PlayMontageByAI(EMontages::LEFTDASH);
+	AIPawn->PlayMontageByAI(EPattern::LEFTDASH);
 
 	return EBTNodeResult::InProgress;
 }

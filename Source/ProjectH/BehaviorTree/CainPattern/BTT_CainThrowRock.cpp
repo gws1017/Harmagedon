@@ -41,7 +41,7 @@ EBTNodeResult::Type UBTT_CainThrowRock::ExecuteTask(UBehaviorTreeComponent& Owne
 	AIPawn->SetMontageFinDelegate(OnFinished);
 
 	// АјАн
-	AIPawn->PlayMontageByAI(EMontages::THROWROCK);
+	AIPawn->PlayMontageByAI(EPattern::THROWROCK);
 
 	return EBTNodeResult::InProgress;
 }

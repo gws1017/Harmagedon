@@ -41,7 +41,7 @@ EBTNodeResult::Type UBTT_CainGrab::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 	AIPawn->SetMontageFinDelegate(OnFinished);
 
 	// АјАн
-	AIPawn->PlayMontageByAI(EMontages::GRAB);
+	AIPawn->PlayMontageByAI(EPattern::GRAB);
 
 	return EBTNodeResult::InProgress;
 }

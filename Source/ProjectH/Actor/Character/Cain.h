@@ -45,7 +45,7 @@ protected:
 // AI 인터페이스
 protected:
 	virtual void SetMontageFinDelegate(const FCainMontageFinished& InOnAttackFinished) override;
-	virtual void PlayMontageByAI(EMontages AnimMon) override;
+	virtual void PlayMontageByAI(EPattern AnimMon) override;
 
 	virtual float GetAIDetectRoomRange() override;
 	virtual bool IsHealthUnderHalf() override;
@@ -58,6 +58,7 @@ protected:
 // 노티파이 인터페이스
 protected:
 	virtual void AttackHitCheck();
+	virtual void AttackHitCheck2();
 
 protected:
 	void MontageEnd(class UAnimMontage* TargetMontage, bool IsProperlyEnded);
@@ -84,10 +85,21 @@ protected:
 	TArray<class UCainPatternInfo*> PatternInfoes;
 
 
-	uint16 CurrentStatus;
+	uint8 CurrentStatus;
 	int32 AttackCount;
+	int32 TakeDamageCount = 0;
+	bool AllowNextPattern = false;
 
+	enum {RIGHTHAND = 0, LEFTHAND, RIGHTFOOT, LEFTFOOT, ROCK, SPLASH};
 
+	TArray<FString> AttackMeans = {
+		TEXT("RightHand"),
+		TEXT("LeftHand"),
+		TEXT("RightFoot"),
+		TEXT("LeftFoot"),
+		TEXT("Rock"),
+		TEXT("Splash")
+	};
 
 
 

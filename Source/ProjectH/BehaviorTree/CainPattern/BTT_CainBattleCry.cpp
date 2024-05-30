@@ -40,7 +40,7 @@ EBTNodeResult::Type UBTT_CainBattleCry::ExecuteTask(UBehaviorTreeComponent& Owne
 	);
 	AIPawn->SetMontageFinDelegate(OnFinished);
 
-	AIPawn->PlayMontageByAI(EMontages::BATTLECRY);
+	AIPawn->PlayMontageByAI(EPattern::BATTLECRY);
 	OwnerComp.GetBlackboardComponent()->SetValueAsBool(BBKEY_ISBATTLECRYUSED, true);
 
 	return EBTNodeResult::InProgress;

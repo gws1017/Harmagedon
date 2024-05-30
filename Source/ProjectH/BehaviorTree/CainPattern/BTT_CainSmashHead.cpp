@@ -41,7 +41,7 @@ EBTNodeResult::Type UBTT_CainSmashHead::ExecuteTask(UBehaviorTreeComponent& Owne
 	AIPawn->SetMontageFinDelegate(OnFinished);
 
 	// АјАн
-	AIPawn->PlayMontageByAI(EMontages::SMASHHEAD);
+	AIPawn->PlayMontageByAI(EPattern::SMASHHEAD);
 
 	return EBTNodeResult::InProgress;
 }

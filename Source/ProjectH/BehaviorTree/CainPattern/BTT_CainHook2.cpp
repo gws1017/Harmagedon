@@ -41,7 +41,7 @@ EBTNodeResult::Type UBTT_CainHook2::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 	AIPawn->SetMontageFinDelegate(OnFinished);
 
 	// АјАн
-	AIPawn->PlayMontageByAI(EMontages::HOOK2);
+	AIPawn->PlayMontageByAI(EPattern::HOOK2);
 
 	return EBTNodeResult::InProgress;
 }

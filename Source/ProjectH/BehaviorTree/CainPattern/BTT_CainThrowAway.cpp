@@ -41,7 +41,7 @@ EBTNodeResult::Type UBTT_CainThrowAway::ExecuteTask(UBehaviorTreeComponent& Owne
 	AIPawn->SetMontageFinDelegate(OnFinished);
 
 	// АјАн
-	AIPawn->PlayMontageByAI(EMontages::THROWAWAY);
+	AIPawn->PlayMontageByAI(EPattern::THROWAWAY);
 
 	return EBTNodeResult::InProgress;
 }

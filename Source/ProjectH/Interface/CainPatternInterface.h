@@ -8,33 +8,36 @@
 
 DECLARE_DELEGATE(FCainMontageFinished);
 
+UENUM(BlueprintType)
+enum class EPattern : uint8
+{
+	STRONGKICK = 0,
+	SMASHHEAD,
+	THROWROCK,
+	STOMP1,
+	HOOK1,
+	PUNCH1,
+	GRAB,
+	THROWAWAY,
+	BATTLECRY,
+	UPPERCUT,
+	PUNCH2,
+	HOOK2,
+	THROWDOWN,
+	STOMP2,
+	DASH,
+	BACKDASH,
+	LEFTDASH,
+	RIGHTDASH,
+	//LEFTSTRAFEWALK,
+	//RIGHTSTRAFEWALK
+};
+
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
 class UCainPatternInterface : public UInterface
 {
 	GENERATED_BODY()
-};
-
-UENUM(BlueprintType)
-enum class EMontages : uint8
-{
-	BATTLECRY = 0,
-	PUNCH1,
-	HOOK1,
-	GRAB,
-	THROWAWAY,
-	SMASHHEAD,
-	THROWROCK,
-	STRONGKICK,
-	DASH,
-	BACKDASH,
-	LEFTDASH,
-	RIGHTDASH,
-	PUNCH2,
-	UPPERCUT,
-	HOOK2,
-	THROWDOWN,
-	STOMP2,
 };
 
  /**************************************************************************************************
@@ -50,7 +53,7 @@ class PROJECTH_API ICainPatternInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	virtual void SetMontageFinDelegate(const FCainMontageFinished& InOnAttackFinished) = 0;
-	virtual void PlayMontageByAI(EMontages AnimMon) = 0;
+	virtual void PlayMontageByAI(EPattern AnimMon) = 0;
 
 	virtual float GetAIDetectRoomRange() = 0;
 	virtual bool IsHealthUnderHalf() = 0;
