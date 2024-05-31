@@ -229,12 +229,12 @@ float APlayerCharacter::GetWeaponDamage(const EEquipType Type) const
 	if (Type == EEquipType::ET_RightWeapon)
 	{
 		CheckNullResult(RightWeapon, Damage);
-		Damage = RightWeapon->GetDamage();
+		Damage = RightWeapon->GetPhysicalDamage();
 	}
 	else if (Type == EEquipType::ET_LeftWeapon)
 	{
 		CheckNullResult(LeftWeapon, Damage);
-		Damage = LeftWeapon->GetDamage();
+		Damage = LeftWeapon->GetPhysicalDamage();
 	}
 	else CLog::Log("EquipType Error, Only Use Right, Left");
 	return Damage;

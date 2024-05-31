@@ -124,6 +124,45 @@ void AWeapon::Equip(EEquipType Type)
 	Super::Equip(Type);
 
 	SetInstigator(OwnerCharacter->GetController()); //무기 변경 시 컨틀롤러 재등록 고려
+
+	if (DrawMontage)
+	{
+		auto AnimInstance = OwnerCharacter->GetMesh()->GetAnimInstance();
+		FString SectionName;
+
+		if (Type == EEquipType::ET_LeftWeapon)
+			SectionName = "Left";
+		if (Type == EEquipType::ET_RightWeapon)
+			SectionName = "Right";
+
+		AnimInstance->Montage_Play(DrawMontage);
+		AnimInstance->Montage_JumpToSection(FName(SectionName));
+	}
+	else
+	{
+		CLog::Log("DrawMontage is Not Set!");
+	}
+
+	
+}
+
+void AWeapon::UnEquip(EEquipType Type)
+{
+	Super::UnEquip(Type);
+
+	if (SheathMontage)
+	{
+		auto AnimInstance = OwnerCharacter->GetMesh()->GetAnimInstance();
+		FString SectionName;
+
+		if (Type == EEquipType::ET_LeftWeapon)
+			SectionName = "Left";
+		if (Type == EEquipType::ET_RightWeapon)
+			SectionName = "Right";
+
+		AnimInstance->Montage_Play(SheathMontage);
+		AnimInstance->Montage_JumpToSection(FName(SectionName));
+	}
 }
 
 

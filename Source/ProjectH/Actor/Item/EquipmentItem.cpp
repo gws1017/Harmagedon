@@ -36,23 +36,6 @@ void AEquipmentItem::Equip(EEquipType Type)
 	SetSocketName(Type);
 	bEquipping = true;
 
-	if (DrawMontage)
-	{
-		auto AnimInstance = OwnerCharacter->GetMesh()->GetAnimInstance();
-		FString SectionName;
-
-		if (Type == EEquipType::ET_LeftWeapon)
-			SectionName = "Left";
-		if (Type == EEquipType::ET_RightWeapon)
-			SectionName = "Right";
-
-		AnimInstance->Montage_Play(DrawMontage);
-		AnimInstance->Montage_JumpToSection(FName(SectionName));
-	}
-	else
-	{
-		CLog::Log("DrawMontage is Not Set!");
-	}
 }
 
 void AEquipmentItem::UnEquip(EEquipType Type)
@@ -62,19 +45,6 @@ void AEquipmentItem::UnEquip(EEquipType Type)
 
 	bEquipping = true;
 
-	if (SheathMontage)
-	{
-		auto AnimInstance = OwnerCharacter->GetMesh()->GetAnimInstance();
-		FString SectionName;
-
-		if (Type == EEquipType::ET_LeftWeapon)
-			SectionName = "Left";
-		if (Type == EEquipType::ET_RightWeapon)
-			SectionName = "Right";
-
-		AnimInstance->Montage_Play(SheathMontage);
-		AnimInstance->Montage_JumpToSection(FName(SectionName));
-	}
 	EquipType = EEquipType::ET_None;
 }
 

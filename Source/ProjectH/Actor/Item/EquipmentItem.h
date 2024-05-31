@@ -21,7 +21,23 @@ protected:
 
 public:
 	//Getter
-	FORCEINLINE float GetPhysicalDefense() { return ItemData->StatData.PhyscialDeffenseRate * 0.01f; }
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE float GetPhysicalDefenseRate() { return ItemData->StatData.PhyscialDeffenseRate * 0.01f; }
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE float GetLightDefenseRate() { return ItemData->StatData.LightDeffenseRate * 0.01f; }
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE float GetDarkDefenseRate() { return ItemData->StatData.DarkDeffenseRate * 0.01f; }
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE float GetRequireStr() { return ItemData->StatData.RequiuredStrength; }
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE float GetRequireVit() { return ItemData->StatData.RequiureVitality; }
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE float GetRequireInt() { return ItemData->StatData.RequiuredIntelligence; }
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE float GetRequireFaith() { return ItemData->StatData.RequiuredFaith; }
+
+
 	FORCEINLINE bool GetEquipped() { return bEquipped; }
 	FORCEINLINE bool GetEquipping() { return bEquipping; }
 
@@ -44,10 +60,7 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Component", meta = (AllowPriavteAccess = "true"))
 		UStaticMeshComponent* Mesh;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Montage")
-		UAnimMontage* DrawMontage;
-	UPROPERTY(EditDefaultsOnly, Category = "Montage")
-		UAnimMontage* SheathMontage;
+
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
 		bool bEquipped;

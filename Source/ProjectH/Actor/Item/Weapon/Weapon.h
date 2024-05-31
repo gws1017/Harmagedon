@@ -37,7 +37,10 @@ public:
 public:
 
 	//Getter
-	FORCEINLINE float GetDamage() { return ItemData->StatData.PhysicalDamage; }
+	FORCEINLINE float GetPhysicalDamage() { return ItemData->StatData.PhysicalDamage; }
+	FORCEINLINE float GetLightDamage() { return ItemData->StatData.LightDamage; }
+	FORCEINLINE float GetDarkDamage() { return ItemData->StatData.DarkDamage; }
+
 	FORCEINLINE float GetStaminaCost() { return StaminaCost; }
 
 	FORCEINLINE class UBoxComponent* GetWeaponCollision() { return WeaponCollision; }
@@ -54,6 +57,7 @@ public:
 		void CreateField(const FVector& FieldLocation);
 
 	virtual void Equip(EEquipType Type) override;
+	virtual void UnEquip(EEquipType Type) override;
 
 	virtual void Begin_Collision();
 	virtual void End_Collision();
@@ -83,6 +87,10 @@ protected:
 		UBoxComponent* WeaponCollision;
 
 	//무기 애니메이션
+	UPROPERTY(EditDefaultsOnly, Category = "Montage")
+		UAnimMontage* DrawMontage;
+	UPROPERTY(EditDefaultsOnly, Category = "Montage")
+		UAnimMontage* SheathMontage;
 	UPROPERTY(EditDefaultsOnly, Category = "Montage")
 		UAnimMontage* AttackMontage;
 	UPROPERTY(EditDefaultsOnly, Category = "Montage")
