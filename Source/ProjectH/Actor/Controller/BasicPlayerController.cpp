@@ -7,8 +7,16 @@
 #include "UI/InventoryUI.h"
 #include "Global.h"
 
+#include "UI/BossHUDWidget.h"
+
 ABasicPlayerController::ABasicPlayerController()
 {
+	// HUD 블루프린트 가져오기
+	static ConstructorHelpers::FClassFinder<UBossHUDWidget> PdHUDWidgetRef(TEXT("/Game/UI/Blueprint/WBP_BossHUD.WBP_BossHUD_C"));
+	if (PdHUDWidgetRef.Class)
+	{
+		BossHUDWidgetClass = PdHUDWidgetRef.Class;
+	}
 }
 
 void ABasicPlayerController::BeginPlay()
@@ -16,7 +24,6 @@ void ABasicPlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	InitializeUIInstance();
-	
 }
 
 void ABasicPlayerController::InitializeUIInstance()
@@ -55,6 +62,14 @@ void ABasicPlayerController::InitializeUIInstance()
 	{
 		if (InventoryUIInstance == nullptr)
 			InventoryUIInstance = CreateWidget<UInventoryUI>(GetWorld(), InventoryUIClass);
+	}
+
+	// 위젯 생성하고 화면에 띄움
+	BossHUDWidget = CreateWidget<UBossHUDWidget>(GetWorld(), BossHUDWidgetClass);
+	if (BossHUDWidget)
+	{
+		BossHUDWidget->AddToViewport();
+		BossHUDWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
 }
 
@@ -123,4 +138,20 @@ void ABasicPlayerController::ToggleEquipMenu()
 void ABasicPlayerController::ToggleInventoryMenu()
 {
 	ToggleUI(InventoryUIInstance);
+}
+
+
+ /*************************************************************************************************
+ * 보스방 입장 트리거에 플레이어가 들어왔을 때 컨트롤러를 가져와 이 함수를 호출
+ * 보스 HUD를 화면에 표시
+ * 
+ * @author	조현식
+ * @date	2024-05-26
+ * @param	액터
+ * @return	
+ **************************************************************************************************/
+void ABasicPlayerController::ShowBossHUD(AActor* EnemyPawn)
+{
+	BossHUDWidget->InitBar(EnemyPawn);
+	BossHUDWidget->SetVisibility(ESlateVisibility::Visible);
 }

@@ -33,6 +33,8 @@
 #include "EnhancedInputComponent.h"
 #include "InputActionValue.h"
 #include "PlayerCharacter.h"
+#include "Data/HCollision.h"
+#include "Cain.h"
 
 APlayerCharacter::APlayerCharacter()
 	:AttackCount(0),
@@ -67,6 +69,8 @@ APlayerCharacter::APlayerCharacter()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 	GetCharacterMovement()->SetWalkableFloorAngle(70.f);
+
+	GetCapsuleComponent()->SetCollisionProfileName(CPROFILE_HCAPSULE);
 
 	SpringArm->bDoCollisionTest = false;
 	SpringArm->bUsePawnControlRotation = true;
@@ -126,8 +130,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInput->BindAction(RunAction, ETriggerEvent::Triggered, this, &APlayerCharacter::OnRunning);
 		EnhancedInput->BindAction(RunAction, ETriggerEvent::Completed, this, &APlayerCharacter::OffRunning);
 
-		//아이템 사용
-		EnhancedInput->BindAction(UseItemAction, ETriggerEvent::Triggered, this, &APlayerCharacter::UseItem);
+
 		//구르기
 		EnhancedInput->BindAction(RollAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Roll);
 
@@ -323,7 +326,6 @@ void APlayerCharacter::OnGuard()
 
 void APlayerCharacter::RightSpecialClick()
 {
-	CheckNull(LeftWeapon)
 	LeftWeapon->SpecialAttack();
 }
 
@@ -597,17 +599,6 @@ void APlayerCharacter::OffRunning()
 {
 	SetMovementNormal();
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
-}
-
-void APlayerCharacter::UseItem()
-{
-	//현재 장착중인 아이템을 가져오기
-	//아이템 사용함수 호출하기
-	//현재는  임시로 포션사용하는 애니메이션 바로재생 
-	// 지금은 포션밖에 없지만 아이템별 사용하는 애니메이션다를 것이므로 
-	// 아이템에 몽타주를 저장해야함 화염병은 투척, 포션은 마시기
-	CheckNull(DrinkMontage);
-	PlayAnimMontage(DrinkMontage);
 }
 
 void APlayerCharacter::SmoothRoll()
