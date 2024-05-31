@@ -1,11 +1,8 @@
 #include "Actor/Item/Weapon/Weapon.h"
 #include "Actor/Character/PlayerCharacter.h"
-#include "Data/ItemData.h"
 #include "Global.h"
 
-#include "Engine/World.h"
 #include "GameFramework/Character.h"
-#include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/AudioComponent.h"
 
@@ -18,11 +15,6 @@ AWeapon::AWeapon()
 	:Damage(5), StaminaCost(10),
 	RadialFalloffMagnitude(1000000.f), RadialVectorMagnitude(15000000.f)
 {
-	PrimaryActorTick.bCanEverTick = false;
-
-	UHelpers::CreateComponent<USceneComponent>(this, &Scene, "Scene");
-
-	UHelpers::CreateComponent<UStaticMeshComponent>(this, &Mesh, "StaticMesh", Scene);
 	UHelpers::CreateComponent<UBoxComponent>(this, &WeaponCollision, "ComatCollision", Scene);
 	UHelpers::CreateComponent<UFieldSystemComponent>(this, &FieldSystemComponent, "FieldSystemComponent", GetRootComponent());
 
@@ -45,12 +37,13 @@ void AWeapon::BeginPlay()
 	WeaponCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_PhysicsBody, ECollisionResponse::ECR_Overlap);
 	WeaponCollision->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::BoxBeginOverlap);
 
-	OwnerCharacter = Cast<ACharacter>(GetOwner());
 	CheckNull(OwnerCharacter);
 	//이 무기를 가진 캐릭터의 컨트롤러를 등록함
 	SetInstigator(OwnerCharacter->GetController());
 
 	AttachToComponent(OwnerCharacter->GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), SheathSocket);
+
+	Damage = ItemData->StatData.PhysicalDamage;
 
 }
 
@@ -128,86 +121,11 @@ void AWeapon::CreateField(const FVector& FieldLocation)
 
 void AWeapon::Equip(EEquipType Type)
 {
-	CheckTrue(bEquipped);//이미 착용중이면 함수 종료
-	CheckTrue(bEquipping);//무기 꺼내는중이여도 종료
-	if (OwnerCharacter == nullptr)
-	{
-		CLog::Log("Weapon Owner is Nullptr!");
-		return;
-	}
-	EquipType = Type;
-	SetSocketName(Type);
-	bEquipping = true;
+	Super::Equip(Type);
 
-	if (DrawMontage)
-	{
-		auto AnimInstance = OwnerCharacter->GetMesh()->GetAnimInstance();
-		FString SectionName;
-
-		if (Type == EEquipType::ET_LeftWeapon)
-			SectionName = "Left";
-		if (Type == EEquipType::ET_RightWeapon)
-			SectionName = "Right";
-
-		AnimInstance->Montage_Play(DrawMontage);
-		AnimInstance->Montage_JumpToSection(FName(SectionName));
-	}
-	else
-	{
-		CLog::Log("DrawMontage is Not Set!");
-	}
 	SetInstigator(OwnerCharacter->GetController()); //무기 변경 시 컨틀롤러 재등록 고려
-
 }
 
-void AWeapon::UnEquip(EEquipType Type)
-{
-	CheckFalse(bEquipped);
-	CheckTrue(bEquipping);//무기 넣는중이여도 종료
-
-	bEquipping = true;
-
-	if (SheathMontage)
-	{
-		auto AnimInstance = OwnerCharacter->GetMesh()->GetAnimInstance();
-		FString SectionName;
-
-		if (Type == EEquipType::ET_LeftWeapon)
-			SectionName = "Left";
-		if (Type == EEquipType::ET_RightWeapon)
-			SectionName = "Right";
-
-		AnimInstance->Montage_Play(SheathMontage);
-		AnimInstance->Montage_JumpToSection(FName(SectionName));
-	}
-	EquipType = EEquipType::ET_None;
-
-}
-
-void AWeapon::Begin_Equip()
-{
-	bEquipped = true;
-	AttachToComponent(OwnerCharacter->GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), EquipSocket);
-}
-
-void AWeapon::End_Equip()
-{
-	bEquipping = false;
-
-}
-
-void AWeapon::Begin_UnEquip()
-{
-	bEquipped = false;
-
-}
-
-void AWeapon::End_UnEquip()
-{
-	bEquipping = false;
-	Destroy();
-	//AttachToComponent(OwnerCharacter->GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), SheathSocket);
-}
 
 void AWeapon::Begin_Collision()
 {

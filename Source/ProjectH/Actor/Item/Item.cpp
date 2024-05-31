@@ -1,8 +1,13 @@
 #include "Actor/Item/Item.h"
 #include "UI/Slot.h"
+
+#include "Data/ItemData.h"
+
+#include "System/MyGameInstance.h"
 #include "Global.h"
 
 AItem::AItem()
+	:ItemCode(1)
 {
 	PrimaryActorTick.bCanEverTick = false;
 }
@@ -10,6 +15,11 @@ AItem::AItem()
 void AItem::BeginPlay()
 {
 	Super::BeginPlay();
+	if (ItemCode >= 1)
+	{
+		auto GameInstance = GetGameInstance<UMyGameInstance>();
+		ItemData = GameInstance->GetItemData(ItemCode);
+	}
 	
 }
 
