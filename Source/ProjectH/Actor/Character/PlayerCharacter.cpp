@@ -76,6 +76,8 @@ APlayerCharacter::APlayerCharacter()
 	UHelpers::CreateComponent<UStaticMeshComponent>(this, &ShoulderArmorComponents[0], "LeftShoulderArmor", GetMesh());
 	UHelpers::CreateComponent<UStaticMeshComponent>(this, &ShoulderArmorComponents[1], "RightShoulderArmor", GetMesh());
 
+	
+
 	bUseControllerRotationYaw = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
@@ -91,16 +93,40 @@ void APlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	PlayerController = Cast<ABasicPlayerController>(GetController());
+
+	//인벤토리 아이템 추가
 	InventoryComponent->AddItem(1,false);
 	InventoryComponent->AddItem(10,false);
+	InventoryComponent->AddItem(20,false);
 	InventoryComponent->AddItem(30,false);
+	InventoryComponent->AddItem(40,false);
+	InventoryComponent->AddItem(50,false);
+	InventoryComponent->AddItem(60,false);
+
+	//소켓 설정
+	HeadArmorComponent->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), TEXT("HeadSocket"));
+	ShoulderArmorComponents[0]->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), TEXT("ShoulderLSocket"));
+	ShoulderArmorComponents[1]->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), TEXT("ShoulderRSocket"));
+	HandArmorComponents[0]->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), TEXT("HandLSocket"));
+	HandArmorComponents[1]->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), TEXT("HandRSocket"));
 
 	TargetingSphere->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::TargetingBeginOverlap);
 	TargetingSphere->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::TargetingEndOverlap);
 
 	//LoadGameData();
 	InitStatusInfo();
+
+	//인벤토리 방어구 캡처
 	SceneCapture->ShowOnlyComponent(GetMesh());
+	SceneCapture->ShowOnlyComponent(ChestArmorComponent);
+	SceneCapture->ShowOnlyComponent(PantsArmorComponent);
+	SceneCapture->ShowOnlyComponent(ShoesArmorComponent);
+	SceneCapture->ShowOnlyComponent(HeadArmorComponent);
+	SceneCapture->ShowOnlyComponent(ShoulderArmorComponents[0]);
+	SceneCapture->ShowOnlyComponent(ShoulderArmorComponents[1]);
+	SceneCapture->ShowOnlyComponent(HandArmorComponents[0]);
+	SceneCapture->ShowOnlyComponent(HandArmorComponents[1]);
+
 	CheckNull(PlayerController);
 	if (UEnhancedInputLocalPlayerSubsystem* SubSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 	{
