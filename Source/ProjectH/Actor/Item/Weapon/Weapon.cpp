@@ -15,6 +15,7 @@ AWeapon::AWeapon()
 	:Damage(5), StaminaCost(10),
 	RadialFalloffMagnitude(1000000.f), RadialVectorMagnitude(15000000.f)
 {
+	UHelpers::CreateComponent<UStaticMeshComponent>(this, &Mesh, "StaticMesh", Scene);
 	UHelpers::CreateComponent<UBoxComponent>(this, &WeaponCollision, "ComatCollision", Scene);
 	UHelpers::CreateComponent<UFieldSystemComponent>(this, &FieldSystemComponent, "FieldSystemComponent", GetRootComponent());
 
@@ -37,11 +38,11 @@ void AWeapon::BeginPlay()
 	WeaponCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_PhysicsBody, ECollisionResponse::ECR_Overlap);
 	WeaponCollision->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::BoxBeginOverlap);
 
-	CheckNull(OwnerCharacter);
+	CheckNull(GetOwnerCharacter());
 	//이 무기를 가진 캐릭터의 컨트롤러를 등록함
-	SetInstigator(OwnerCharacter->GetController());
+	SetInstigator(GetOwnerCharacter()->GetController());
 
-	AttachToComponent(OwnerCharacter->GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), SheathSocket);
+	AttachToComponent(GetOwnerCharacter()->GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), SheathSocket);
 
 	Damage = ItemData->StatData.PhysicalDamage;
 
@@ -57,10 +58,10 @@ bool AWeapon::IsSameTagWithTarget(AActor* other, const FName& tag)
 void AWeapon::PlayAttackMontage()
 {
 	CheckNull(AttackMontage);
-	auto Player = Cast<APlayerCharacter>(OwnerCharacter);
+	auto Player = Cast<APlayerCharacter>(GetOwnerCharacter());
 	if (!Player)
 	{
-		OwnerCharacter->PlayAnimMontage(AttackMontage);
+		GetOwnerCharacter()->PlayAnimMontage(AttackMontage);
 	}
 	else
 	{
@@ -123,11 +124,11 @@ void AWeapon::Equip(EEquipType Type)
 {
 	Super::Equip(Type);
 
-	SetInstigator(OwnerCharacter->GetController()); //무기 변경 시 컨틀롤러 재등록 고려
+	SetInstigator(GetOwnerCharacter()->GetController()); //무기 변경 시 컨틀롤러 재등록 고려
 
 	if (DrawMontage)
 	{
-		auto AnimInstance = OwnerCharacter->GetMesh()->GetAnimInstance();
+		auto AnimInstance = GetOwnerCharacter()->GetMesh()->GetAnimInstance();
 		FString SectionName;
 
 		if (Type == EEquipType::ET_LeftWeapon)
@@ -152,7 +153,7 @@ void AWeapon::UnEquip(EEquipType Type)
 
 	if (SheathMontage)
 	{
-		auto AnimInstance = OwnerCharacter->GetMesh()->GetAnimInstance();
+		auto AnimInstance = GetOwnerCharacter()->GetMesh()->GetAnimInstance();
 		FString SectionName;
 
 		if (Type == EEquipType::ET_LeftWeapon)

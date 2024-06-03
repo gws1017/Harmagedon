@@ -3,7 +3,6 @@
 #include "Global.h"
 
 #include "GameFramework/Character.h"
-#include "Components/StaticMeshComponent.h"
 
 #include "Animation/AnimMontage.h"
 
@@ -12,14 +11,21 @@ AEquipmentItem::AEquipmentItem()
 	PrimaryActorTick.bCanEverTick = false;
 
 	UHelpers::CreateComponent<USceneComponent>(this, &Scene, "Scene");
-	UHelpers::CreateComponent<UStaticMeshComponent>(this, &Mesh, "StaticMesh", Scene);
+	OwnerCharacter = Cast<ACharacter>(GetOwner());
+
 }
 
 void AEquipmentItem::BeginPlay()
 {
 	Super::BeginPlay();
 
-	OwnerCharacter = Cast<ACharacter>(GetOwner());
+}
+
+ACharacter* AEquipmentItem::GetOwnerCharacter()
+{
+	if (OwnerCharacter == nullptr)
+		OwnerCharacter = Cast<ACharacter>(GetOwner());
+	return OwnerCharacter; 
 }
 
 void AEquipmentItem::Equip(EEquipType Type)
@@ -51,6 +57,7 @@ void AEquipmentItem::UnEquip(EEquipType Type)
 void AEquipmentItem::Begin_Equip()
 {
 	bEquipped = true;
+	CheckNull(OwnerCharacter);
 	AttachToComponent(OwnerCharacter->GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), EquipSocket);
 }
 

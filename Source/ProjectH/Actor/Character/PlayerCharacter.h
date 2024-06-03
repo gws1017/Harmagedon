@@ -7,6 +7,10 @@
 #include "PlayerCharacter.generated.h"
 
 //헤더는 전방선언 할 것
+
+class USkeletalMesh;
+class UStaticMesh;
+
 class USpringArmComponent;
 class USphereComponent;
 class UCameraComponent;
@@ -220,6 +224,7 @@ public:
 
 	void Equip(const EEquipType Type);
 	void UnEquip(const EEquipType Type);
+	void EquipArmor(const EEquipType Type, USkeletalMesh* SkeletalMesh, const TArray<UStaticMesh*> StaticMeshes);
 
 	void IncrementExp(float Amount);
 	void LevelUp(const FPlayerStatus& data);
@@ -228,7 +233,6 @@ public:
 
 	bool CanBlock();
 
-	//추후 인터페이스 분리
 	virtual void Hit(const FVector& ParticleSpawnLocation);
 
 	UFUNCTION(BlueprintCallable)
@@ -298,6 +302,20 @@ private:
 		USceneCaptureComponent2D* SceneCapture;
 	UPROPERTY(VisibleAnywhere, Category = "Component")
 		UInventoryComponent* InventoryComponent;
+
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly, Category = "Armor | Chest", meta = (AllowPrivateAccess = "true"))
+		USkeletalMeshComponent* ChestArmorComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Armor | Pants", meta = (AllowPrivateAccess = "true"))
+		USkeletalMeshComponent* PantsArmorComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Armor | Shoes", meta = (AllowPrivateAccess = "true"))
+		USkeletalMeshComponent* ShoesArmorComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Armor | Head", meta = (AllowPrivateAccess = "true"))
+		UStaticMeshComponent* HeadArmorComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Armor | Hands", meta = (AllowPrivateAccess = "true"))
+		TArray<UStaticMeshComponent*> HandArmorComponents;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Armor | Chest", meta = (AllowPrivateAccess = "true"))
+		TArray<UStaticMeshComponent*> ShoulderArmorComponents;
+
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 		UInputMappingContext* IMCPlayer;

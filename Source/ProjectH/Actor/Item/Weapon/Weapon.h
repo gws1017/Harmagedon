@@ -82,6 +82,8 @@ protected:
 
 protected:
 
+	UPROPERTY(VisibleDefaultsOnly, Category = "Component", meta = (AllowPriavteAccess = "true"))
+		UStaticMeshComponent* Mesh;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Component")
 		UBoxComponent* WeaponCollision;

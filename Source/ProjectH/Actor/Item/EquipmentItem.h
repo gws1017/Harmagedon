@@ -6,7 +6,6 @@
 
 class ACharacter;
 class USceneComponent;
-class UStaticMeshComponent;
 
 UCLASS()
 class PROJECTH_API AEquipmentItem : public AItem
@@ -41,6 +40,9 @@ public:
 	FORCEINLINE bool GetEquipped() { return bEquipped; }
 	FORCEINLINE bool GetEquipping() { return bEquipping; }
 
+	UFUNCTION(BlueprintCallable)
+		ACharacter* GetOwnerCharacter();
+
 public:
 
 	virtual void Equip(EEquipType Type) override;
@@ -57,8 +59,7 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Component")
 		USceneComponent* Scene;
 
-	UPROPERTY(VisibleDefaultsOnly, Category = "Component", meta = (AllowPriavteAccess = "true"))
-		UStaticMeshComponent* Mesh;
+
 
 
 
@@ -66,6 +67,7 @@ protected:
 		bool bEquipped;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
 		bool bEquipping;
+private:
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
 		ACharacter* OwnerCharacter;

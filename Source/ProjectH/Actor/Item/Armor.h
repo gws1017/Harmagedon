@@ -4,7 +4,8 @@
 #include "Actor/Item/EquipmentItem.h"
 #include "Armor.generated.h"
 
-
+class USkeletalMesh;
+class UStaticMesh;
 
 UCLASS()
 class PROJECTH_API AArmor : public AEquipmentItem
@@ -21,9 +22,13 @@ public:
 
 	//Getter
 
-	//
+	virtual void Equip(EEquipType Type);
+	//virtual void UnEquip(EEquipType Type);
 
 protected:
 
-
+	UPROPERTY(EditDefaultsOnly, Category = "Component", meta = (AllowPriavteAccess = "true"))
+		USkeletalMesh* SkeletalMesh;
+	UPROPERTY(EditDefaultsOnly, Category = "Component", meta = (AllowPriavteAccess = "true"))
+		TArray<UStaticMesh*> StaticMeshes;
 };

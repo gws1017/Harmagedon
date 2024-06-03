@@ -31,20 +31,20 @@ void AShield::Parry()
 {
 	CLog::Print(GetName() + "Special Attack is Parry");
 	CheckNull(SpecialAttackMontage);
-	auto Player = Cast<APlayerCharacter>(OwnerCharacter);
+	auto Player = Cast<APlayerCharacter>(GetOwnerCharacter());
 	if (Player)
 	{
 		if (Player->GetStamina()< SpecialAttackStaminaCost) return;
 		Player->DecrementStamina(SpecialAttackStaminaCost);
 	}
 
-	OwnerCharacter->PlayAnimMontage(SpecialAttackMontage);
+	GetOwnerCharacter()->PlayAnimMontage(SpecialAttackMontage);
 
 }
 
 void AShield::Guard()
 {
-	auto Player = Cast<APlayerCharacter>(OwnerCharacter);
+	auto Player = Cast<APlayerCharacter>(GetOwnerCharacter());
 	if (Player)
 	{
 		CheckFalse(Player->CanBlock());
