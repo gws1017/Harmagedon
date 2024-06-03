@@ -23,4 +23,6 @@ class PROJECTH_API ICainAnimNotifyInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	virtual void AttackHitCheck() = 0;
+	virtual void AttackHitCheck2() = 0;
+	virtual void AttackHitCheckEnd() = 0;
 };

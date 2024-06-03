@@ -32,20 +32,20 @@ ACain::ACain()
 	GetCapsuleComponent()->SetCollisionProfileName(CPROFILE_HCAPSULE);
 
 	RightHandTrigger = CreateDefaultSubobject<USphereComponent>(TEXT("RightHandTrigger"));
-	RightHandTrigger->SetSphereRadius(30.0f);
+	RightHandTrigger->SetSphereRadius(20.0f);
 	RightHandTrigger->SetupAttachment(GetMesh(), TEXT("SwordRSocket"));
 
 	LeftHandTrigger = CreateDefaultSubobject<USphereComponent>(TEXT("LeftHandTrigger"));
-	LeftHandTrigger->SetSphereRadius(30.0f);
+	LeftHandTrigger->SetSphereRadius(20.0f);
 	LeftHandTrigger->SetupAttachment(GetMesh(), TEXT("SwordLSocket"));
 
 	RightFootTrigger = CreateDefaultSubobject<USphereComponent>(TEXT("RightFootTrigger"));
-	RightFootTrigger->SetSphereRadius(30.0f);
+	RightFootTrigger->SetSphereRadius(20.0f);
 	RightFootTrigger->SetupAttachment(GetMesh(), TEXT("RightFootSocket"));
 
 	LeftFootTrigger = CreateDefaultSubobject<USphereComponent>(TEXT("LeftFootTrigger"));
-	LeftFootTrigger->SetSphereRadius(30.0f);
-	LeftFootTrigger->SetupAttachment(GetMesh(), TEXT("LeftFootTrigger"));
+	LeftFootTrigger->SetSphereRadius(20.0f);
+	LeftFootTrigger->SetupAttachment(GetMesh(), TEXT("LeftFootSocket"));
 
 
 
@@ -183,8 +183,8 @@ void ACain::PlayMontageByAI(EPattern InAnimMon)
 
 	// 지정한 속도로 콤보 몽타주 재생
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	CurrentStatus = static_cast<uint16>(InAnimMon);
-	AnimInstance->Montage_Play(PatternInfoes[static_cast<uint8>(InAnimMon)]->BTMontage, 1.0f);
+	CurrentStatus = static_cast<uint8>(InAnimMon);
+	AnimInstance->Montage_Play(PatternInfoes[CurrentStatus]->BTMontage, 1.0f);
 
 	// 몽타주가 끝나면 콤보 종료 함수 호출 예약
 	FOnMontageEnded EndDelegate;
@@ -202,6 +202,11 @@ void ACain::AttackHitCheck2()
 {
 	AttackCheckStart = true;
 	AttackCount = 1;
+}
+
+void ACain::AttackHitCheckEnd()
+{
+	AttackCheckStart = false;
 }
 
 void ACain::MontageEnd(UAnimMontage* TargetMontage, bool IsProperlyEnded)
@@ -244,36 +249,38 @@ void ACain::SetHp(float NewHp)
 
 void ACain::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepHitResult)
 {
+	ACain* CainActor = Cast<ACain>(OtherActor);
+	if (CainActor)
+		return;
+
+	FString const& CurrentAttackMean = PatternInfoes[CurrentStatus]->AttackMeans[AttackCount];
+	auto const& CurrentAttackDamage = PatternInfoes[CurrentStatus]->AttackDamages[AttackCount];
+
+
 	if (PatternInfoes[CurrentStatus]->AttackMeans.IsEmpty())
 		return;
 
-
-	if (PatternInfoes[CurrentStatus]->AttackMeans[AttackCount] == AttackMeans[RIGHTHAND]
+	if (CurrentAttackMean == AttackMeans[RIGHTHAND]
 		&& OverlappedComponent != RightHandTrigger)
 	{
 		return;
 	}
-	else if (PatternInfoes[CurrentStatus]->AttackMeans[AttackCount] == AttackMeans[LEFTHAND]
+	else if (CurrentAttackMean == AttackMeans[LEFTHAND]
 		&& OverlappedComponent != LeftHandTrigger)
 	{
 		return;
 	}
-	else if (PatternInfoes[CurrentStatus]->AttackMeans[AttackCount] == AttackMeans[RIGHTFOOT]
+	else if (CurrentAttackMean == AttackMeans[RIGHTFOOT]
 		&& OverlappedComponent != RightFootTrigger)
 	{
 		return;
 	}
-	else if (PatternInfoes[CurrentStatus]->AttackMeans[AttackCount] == AttackMeans[LEFTFOOT]
+	else if (CurrentAttackMean == AttackMeans[LEFTFOOT]
 		&& OverlappedComponent != LeftFootTrigger)
 	{
 		return;
 	}
-	//else if (PatternInfoes[CurrentStatus]->AttackMeans[AttackCount] == AttackMeans[ROCK]
-	//	&& OverlappedComponent != RockTrigger)
-	//{
-	//	return;
-	//}
-	//else if (PatternInfoes[CurrentStatus]->AttackMeans[AttackCount] == AttackMeans[SPLASH]
+	//else if (CurrentAttackMean == AttackMeans[SPLASH]
 	//	&& OverlappedComponent != SplashTrigger)
 	//{
 	//	return;
@@ -283,11 +290,26 @@ void ACain::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 
 	FDamageEvent DamageEvent;
 	APlayerCharacter* playerActor = Cast<APlayerCharacter>(OtherActor);
+
+	if (playerActor && CurrentStatus == static_cast<uint8>(EPattern::THROWAWAY))
+	{
+		playerActor->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		playerActor->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		playerActor->GetCapsuleComponent()->SetCollisionProfileName(CPROFILE_HCAPSULE);
+		playerActor->GetCharacterMovement()->SetMovementMode(MOVE_Falling);
+		playerActor->SetActorRotation(FRotator::ZeroRotator);
+		playerActor->LaunchCharacter(GetActorForwardVector() * 2000, true, true);
+
+		bAllowNextPattern = false;
+		//땅에 부딪쳤을 때 데미지
+	}
+
+
 	// 플레이어 캐릭터 감지
-	if (playerActor && AttackCheckStart)
+	if (playerActor->GetCapsuleComponent() == OtherComp && AttackCheckStart)
 	{
 		// 데미지 전달
-		playerActor->TakeDamage(PatternInfoes[CurrentStatus]->AttackDamages[AttackCount], DamageEvent, GetController(), this);
+		playerActor->TakeDamage(CurrentAttackDamage, DamageEvent, GetController(), this);
 		AttackCheckStart = false;
 
 		// 아래는 데미지 입은 후 처리
@@ -295,24 +317,23 @@ void ACain::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 
 		if (CurrentStatus == static_cast<uint8>(EPattern::STRONGKICK))
 		{
-			//캐릭터가 가드 상태였다면 스테미나를 40% 추가로 소모시키고, 가드 상태가 아니라면 멀리 넉백시킴 
-			
-			//FVector LookVector = playerActor->GetActorLocation() - GetActorLocation();
-			//if (LookVector.X < 0.0f)
-			//	LookVector.X *= -1.0f;
-			//if (LookVector.Y < 0.0f)
-			//	LookVector.Y *= -1.0f;
-			//LookVector.Z = 0.0f;
-
-			//LookVector.Normalize();
-
-			//playerActor->SetActorLocation(playerActor->GetActorLocation() - LookVector * 200.0f);
+			playerActor->LaunchCharacter(GetActorForwardVector() * 1000, false, false);
 		}
+
+		if (CurrentStatus == static_cast<uint8>(EPattern::GRAB))
+		{
+			playerActor->GetCharacterMovement()->DisableMovement();
+			playerActor->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			playerActor->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName(*AttackSocketNames[CurrentAttackMean]));
+			//prevRotator = playerActor->GetActorRotation();
+		}
+
+
 		if (CurrentStatus == static_cast<uint8>(EPattern::SMASHHEAD)
 			|| CurrentStatus == static_cast<uint8>(EPattern::STOMP1)
 			|| CurrentStatus == static_cast<uint8>(EPattern::STOMP2))
 		{
-			// BTT를 통해 피격 3번인지 판정
+			// BTD를 통해 피격 3번인지 판정
 			// 피격 카운트를 0으로 초기화
 			TakeDamageCount = 0;
 		}
@@ -321,19 +342,20 @@ void ACain::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 			|| CurrentStatus == static_cast<uint8>(EPattern::GRAB)
 			|| CurrentStatus == static_cast<uint8>(EPattern::THROWDOWN))
 		{
-			AllowNextPattern = true;
+			UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+			if (AnimInstance && AnimInstance->Montage_IsPlaying(PatternInfoes[CurrentStatus]->BTMontage))
+			{
+				AnimInstance->Montage_Stop(0.2f, PatternInfoes[CurrentStatus]->BTMontage);
+			}
+
+			bAllowNextPattern = true;
+			AttackCheckStart = true;
 		}
 		else if (CurrentStatus == static_cast<uint8>(EPattern::HOOK1)
 			|| CurrentStatus == static_cast<uint8>(EPattern::THROWAWAY)
 			|| CurrentStatus == static_cast<uint8>(EPattern::STOMP2))
 		{
-			AllowNextPattern = false;
-		}
-
-		if (CurrentStatus == static_cast<uint8>(EPattern::THROWAWAY)
-			|| CurrentStatus == static_cast<uint8>(EPattern::THROWDOWN))
-		{
-			// 플레이어 던져지는 상태 = true
+			bAllowNextPattern = false;
 		}
 	}
 }
@@ -352,4 +374,9 @@ bool ACain::IsHealthUnderHalf()
 float ACain::GetAITurnSpeed()
 {
 	return 2.0f;
+}
+
+bool ACain::AllowNextPattern()
+{
+	return bAllowNextPattern;
 }

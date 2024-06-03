@@ -50,6 +50,7 @@ protected:
 	virtual float GetAIDetectRoomRange() override;
 	virtual bool IsHealthUnderHalf() override;
 	virtual float GetAITurnSpeed() override;
+	virtual bool AllowNextPattern() override;
 
 	FCainMontageFinished OnMontageFinished;
 
@@ -57,8 +58,9 @@ protected:
 
 // 노티파이 인터페이스
 protected:
-	virtual void AttackHitCheck();
-	virtual void AttackHitCheck2();
+	virtual void AttackHitCheck() override;
+	virtual void AttackHitCheck2() override;
+	virtual void AttackHitCheckEnd() override;
 
 protected:
 	void MontageEnd(class UAnimMontage* TargetMontage, bool IsProperlyEnded);
@@ -88,7 +90,7 @@ protected:
 	uint8 CurrentStatus;
 	int32 AttackCount;
 	int32 TakeDamageCount = 0;
-	bool AllowNextPattern = false;
+	bool bAllowNextPattern = false;
 
 	enum {RIGHTHAND = 0, LEFTHAND, RIGHTFOOT, LEFTFOOT, ROCK, SPLASH};
 
@@ -99,6 +101,15 @@ protected:
 		TEXT("LeftFoot"),
 		TEXT("Rock"),
 		TEXT("Splash")
+	};
+
+	TMap<FString, FString> AttackSocketNames = {
+		{TEXT("RightHand"),TEXT("SwordRSocket")},
+		{TEXT("LeftHand"),TEXT("SwordLSocket")},
+		{TEXT("RightFoot"),TEXT("RightFootSocket")},
+		{TEXT("LeftFoot"),TEXT("LeftFootSocket")},
+	//TEXT("Rock"),
+	//TEXT("Splash")
 	};
 
 
