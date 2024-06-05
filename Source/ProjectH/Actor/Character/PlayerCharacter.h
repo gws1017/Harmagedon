@@ -180,6 +180,8 @@ public:
 	FORCEINLINE float GetMaxHP() const { return Stat.MaxHP; }
 	FORCEINLINE float GetStamina() const { return Stat.Stamina; }
 	FORCEINLINE float GetMaxStamina() const { return Stat.MaxStamina; }
+	FORCEINLINE float GetStaminaRate() const { return Stat.Stamina / Stat.MaxStamina * 100.f; }
+
 	FORCEINLINE	float GetStrDamage() { return Stat.PhyDamage; }
 	FORCEINLINE int32 GetPlayerLevel() { return Stat.Level; }
 
@@ -408,6 +410,8 @@ private:
 		float StaminaRegenRate;
 	UPROPERTY(EditAnywhere, Category = "Status")
 		float RollStamina;
+	UPROPERTY(EditAnywhere, Category = "Status")
+		float RunStamina;
 	UPROPERTY(EditAnywhere, Category = "Status")
 		float ParryStamina;
 	UPROPERTY(EditAnywhere, Category = "Status")

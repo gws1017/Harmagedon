@@ -45,6 +45,7 @@ APlayerCharacter::APlayerCharacter()
 	GuardStaminaDeclineRate(0.4f),
 	StaminaRegenRate(2.f),
 	RollStamina(33.f),
+	RunStamina(5.f),
 	ParryStamina(10.f),
 	FaceAngle(150.f),
 	WalkSpeed(400.f), RunSpeed(600.f),
@@ -328,7 +329,6 @@ void APlayerCharacter::ResetAttack()
 void APlayerCharacter::LeftClick()
 {
 	CheckFalse(CanAttack(EEquipType::ET_RightWeapon));
-	CheckNullMsg(RightWeapon, "Right Weapon is Nullptr");
 	if (bIsAttacking)
 	{
 		bSaveAttack = true;
@@ -343,7 +343,7 @@ void APlayerCharacter::LeftClick()
 
 void APlayerCharacter::RightClick()
 {
-	CheckNullMsg(LeftWeapon, "Left Weapon  is Nullptr");
+	CheckFalse(CanAttack(EEquipType::ET_LeftWeapon));
 	LeftWeapon->Block();
 }
 
@@ -363,7 +363,7 @@ void APlayerCharacter::OnGuard()
 
 void APlayerCharacter::RightSpecialClick()
 {
-	CheckNull(LeftWeapon)
+	CheckFalse(CanAttack(EEquipType::ET_LeftWeapon));
 	LeftWeapon->SpecialAttack();
 }
 
@@ -665,6 +665,7 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 
 void APlayerCharacter::OnRunning()
 {
+	CheckFalse(GetStaminaRate() > RunStamina);
 	SetMovementState(EMovementState::EMS_Run);
 	GetCharacterMovement()->MaxWalkSpeed = RunSpeed;
 }
@@ -923,6 +924,7 @@ bool APlayerCharacter::CanRoll()
 {
 	CheckTrueResult(bIsAttacking, false);
 	CheckNullResult(RollMontage,false);
+	CheckTrueResult(PlayerController->bShowMouseCursor, false);
 	switch (MovementState)
 	{
 	case EMovementState::EMS_Dead:
@@ -947,6 +949,7 @@ bool APlayerCharacter::CanAttack(EEquipType Type)
 	CheckFalseResult(GetWeapon(Type)->GetEquipped(), false);
 	CheckTrueResult(GetWeapon(Type)->GetEquipping(), false);
 	CheckTrueResult(bBlocking, false);
+	CheckTrueResult(PlayerController->bShowMouseCursor, false);
 
 	switch (MovementState)
 	{
@@ -984,6 +987,7 @@ bool APlayerCharacter::CanHit()
 bool APlayerCharacter::CanBlock()
 {
 	//CheckTrueResult(bBlocking,false);
+	CheckTrueResult(PlayerController->bShowMouseCursor, false);
 	if (Stat.Stamina < Stat.MaxStamina * BlockMinStamina)
 	{
 		if (!bBlockFail)
@@ -1013,7 +1017,7 @@ void APlayerCharacter::UpdateStamina(float DeltaStamina)
 	{
 		Stat.Stamina -= DeltaStamina;
 		Stat.Stamina = FMath::Clamp(Stat.Stamina, 0.f, Stat.MaxStamina);
-		if (Stat.Stamina <= 0)
+		if (GetStaminaRate() <= 0.f)
 		{
 			OffRunning();
 		}
