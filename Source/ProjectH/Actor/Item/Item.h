@@ -2,9 +2,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Data/ItemData.h"
 #include "Item.generated.h"
 
 enum class EEquipType : uint8;
+
 
 UCLASS()
 class PROJECTH_API AItem : public AActor
@@ -26,6 +28,12 @@ public:
 
 		return InWorld->SpawnActor<T>(BPClass, params);
 	}
+
+public:
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE FItemData GetItemData() { return *ItemData; }
+
 public:	
 
 	virtual void Equip(EEquipType Type) {};
@@ -39,6 +47,13 @@ protected:
 
 protected:
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemData")
+		int64 ItemCode;
 	UPROPERTY(EditDefaultsOnly, Category = "Socket")
 		FName EquipSocket = "";
+
+	UPROPERTY(VisibleAnywhere, Category = "Weapon")
+		EEquipType EquipType;
+
+	FItemData* ItemData;
 };

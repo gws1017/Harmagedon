@@ -29,7 +29,7 @@ void AGuardianMeele::BeginPlay()
 
 float AGuardianMeele::GetDamage(const EEquipType Type) const
 {
-	return WeaponInstance->GetDamage(); 
+	return WeaponInstance->GetPhysicalDamage(); 
 }
 
 void AGuardianMeele::Attack()

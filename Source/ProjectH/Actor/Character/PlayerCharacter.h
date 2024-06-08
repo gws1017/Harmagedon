@@ -7,6 +7,10 @@
 #include "PlayerCharacter.generated.h"
 
 //헤더는 전방선언 할 것
+
+class USkeletalMesh;
+class UStaticMesh;
+
 class USpringArmComponent;
 class USphereComponent;
 class UCameraComponent;
@@ -176,6 +180,8 @@ public:
 	FORCEINLINE float GetMaxHP() const { return Stat.MaxHP; }
 	FORCEINLINE float GetStamina() const { return Stat.Stamina; }
 	FORCEINLINE float GetMaxStamina() const { return Stat.MaxStamina; }
+	FORCEINLINE float GetStaminaRate() const { return Stat.Stamina / Stat.MaxStamina * 100.f; }
+
 	FORCEINLINE	float GetStrDamage() { return Stat.PhyDamage; }
 	FORCEINLINE int32 GetPlayerLevel() { return Stat.Level; }
 
@@ -220,6 +226,7 @@ public:
 
 	void Equip(const EEquipType Type);
 	void UnEquip(const EEquipType Type);
+	void EquipArmor(const EEquipType Type, USkeletalMesh* SkeletalMesh, const TArray<UStaticMesh*> StaticMeshes);
 
 	void IncrementExp(float Amount);
 	void LevelUp(const FPlayerStatus& data);
@@ -228,7 +235,6 @@ public:
 
 	bool CanBlock();
 
-	//추후 인터페이스 분리
 	virtual void Hit(const FVector& ParticleSpawnLocation);
 
 	UFUNCTION(BlueprintCallable)
@@ -296,6 +302,20 @@ private:
 		USceneCaptureComponent2D* SceneCapture;
 	UPROPERTY(VisibleAnywhere, Category = "Component")
 		UInventoryComponent* InventoryComponent;
+
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly, Category = "Armor | Chest", meta = (AllowPrivateAccess = "true"))
+		USkeletalMeshComponent* ChestArmorComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Armor | Pants", meta = (AllowPrivateAccess = "true"))
+		USkeletalMeshComponent* PantsArmorComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Armor | Shoes", meta = (AllowPrivateAccess = "true"))
+		USkeletalMeshComponent* ShoesArmorComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Armor | Head", meta = (AllowPrivateAccess = "true"))
+		UStaticMeshComponent* HeadArmorComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Armor | Hands", meta = (AllowPrivateAccess = "true"))
+		TArray<UStaticMeshComponent*> HandArmorComponents;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Armor | Chest", meta = (AllowPrivateAccess = "true"))
+		TArray<UStaticMeshComponent*> ShoulderArmorComponents;
+
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 		UInputMappingContext* IMCPlayer;
@@ -384,6 +404,8 @@ private:
 		float StaminaRegenRate;
 	UPROPERTY(EditAnywhere, Category = "Status")
 		float RollStamina;
+	UPROPERTY(EditAnywhere, Category = "Status")
+		float RunStamina;
 	UPROPERTY(EditAnywhere, Category = "Status")
 		float ParryStamina;
 	UPROPERTY(EditAnywhere, Category = "Status")

@@ -47,6 +47,7 @@ APlayerCharacter::APlayerCharacter()
 	GuardStaminaDeclineRate(0.4f),
 	StaminaRegenRate(2.f),
 	RollStamina(33.f),
+	RunStamina(5.f),
 	ParryStamina(10.f),
 	FaceAngle(150.f),
 	WalkSpeed(400.f), RunSpeed(600.f),
@@ -65,6 +66,21 @@ APlayerCharacter::APlayerCharacter()
 	UHelpers::CreateComponent<USphereComponent>(this, &TargetingSphere, "TargetingSphere", GetCapsuleComponent());
 	UHelpers::CreateActorComponent<UInventoryComponent>(this, &InventoryComponent, "Inventory");
 
+
+	HandArmorComponents.Init(nullptr, 2);
+	ShoulderArmorComponents.Init(nullptr, 2);
+
+	UHelpers::CreateComponent<USkeletalMeshComponent>(this, &ChestArmorComponent, "ChestArmor",GetMesh());
+	UHelpers::CreateComponent<USkeletalMeshComponent>(this, &PantsArmorComponent, "PantsArmor",GetMesh());
+	UHelpers::CreateComponent<USkeletalMeshComponent>(this, &ShoesArmorComponent, "ShoeArmor",GetMesh());
+	UHelpers::CreateComponent<UStaticMeshComponent>(this, &HeadArmorComponent, "HeadArmor",GetMesh());
+	UHelpers::CreateComponent<UStaticMeshComponent>(this, &HandArmorComponents[0], "LeftHandArmor", GetMesh());
+	UHelpers::CreateComponent<UStaticMeshComponent>(this, &HandArmorComponents[1], "RightHandArmor", GetMesh());
+	UHelpers::CreateComponent<UStaticMeshComponent>(this, &ShoulderArmorComponents[0], "LeftShoulderArmor", GetMesh());
+	UHelpers::CreateComponent<UStaticMeshComponent>(this, &ShoulderArmorComponents[1], "RightShoulderArmor", GetMesh());
+
+	
+
 	bUseControllerRotationYaw = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
@@ -82,15 +98,40 @@ void APlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	PlayerController = Cast<ABasicPlayerController>(GetController());
+
+	//인벤토리 아이템 추가
 	InventoryComponent->AddItem(1,false);
 	InventoryComponent->AddItem(10,false);
+	InventoryComponent->AddItem(20,false);
+	InventoryComponent->AddItem(30,false);
+	InventoryComponent->AddItem(40,false);
+	InventoryComponent->AddItem(50,false);
+	InventoryComponent->AddItem(60,false);
+
+	//소켓 설정
+	HeadArmorComponent->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), TEXT("HeadSocket"));
+	ShoulderArmorComponents[0]->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), TEXT("ShoulderLSocket"));
+	ShoulderArmorComponents[1]->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), TEXT("ShoulderRSocket"));
+	HandArmorComponents[0]->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), TEXT("HandLSocket"));
+	HandArmorComponents[1]->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), TEXT("HandRSocket"));
 
 	TargetingSphere->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::TargetingBeginOverlap);
 	TargetingSphere->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::TargetingEndOverlap);
 
 	//LoadGameData();
 	InitStatusInfo();
+
+	//인벤토리 방어구 캡처
 	SceneCapture->ShowOnlyComponent(GetMesh());
+	SceneCapture->ShowOnlyComponent(ChestArmorComponent);
+	SceneCapture->ShowOnlyComponent(PantsArmorComponent);
+	SceneCapture->ShowOnlyComponent(ShoesArmorComponent);
+	SceneCapture->ShowOnlyComponent(HeadArmorComponent);
+	SceneCapture->ShowOnlyComponent(ShoulderArmorComponents[0]);
+	SceneCapture->ShowOnlyComponent(ShoulderArmorComponents[1]);
+	SceneCapture->ShowOnlyComponent(HandArmorComponents[0]);
+	SceneCapture->ShowOnlyComponent(HandArmorComponents[1]);
+
 	CheckNull(PlayerController);
 	if (UEnhancedInputLocalPlayerSubsystem* SubSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 	{
@@ -232,12 +273,12 @@ float APlayerCharacter::GetWeaponDamage(const EEquipType Type) const
 	if (Type == EEquipType::ET_RightWeapon)
 	{
 		CheckNullResult(RightWeapon, Damage);
-		Damage = RightWeapon->GetDamage();
+		Damage = RightWeapon->GetPhysicalDamage();
 	}
 	else if (Type == EEquipType::ET_LeftWeapon)
 	{
 		CheckNullResult(LeftWeapon, Damage);
-		Damage = LeftWeapon->GetDamage();
+		Damage = LeftWeapon->GetPhysicalDamage();
 	}
 	else CLog::Log("EquipType Error, Only Use Right, Left");
 	return Damage;
@@ -291,7 +332,6 @@ void APlayerCharacter::ResetAttack()
 void APlayerCharacter::LeftClick()
 {
 	CheckFalse(CanAttack(EEquipType::ET_RightWeapon));
-	CheckNullMsg(RightWeapon, "Right Weapon is Nullptr");
 	if (bIsAttacking)
 	{
 		bSaveAttack = true;
@@ -306,7 +346,7 @@ void APlayerCharacter::LeftClick()
 
 void APlayerCharacter::RightClick()
 {
-	CheckNullMsg(LeftWeapon, "Left Weapon  is Nullptr");
+	CheckFalse(CanAttack(EEquipType::ET_LeftWeapon));
 	LeftWeapon->Block();
 }
 
@@ -326,6 +366,7 @@ void APlayerCharacter::OnGuard()
 
 void APlayerCharacter::RightSpecialClick()
 {
+	CheckFalse(CanAttack(EEquipType::ET_LeftWeapon));
 	LeftWeapon->SpecialAttack();
 }
 
@@ -488,8 +529,9 @@ void APlayerCharacter::RemoveCapture(AActor* InActor, const bool bIncludeFromChi
 	SceneCapture->RemoveShowOnlyActorComponents(InActor, bIncludeFromChildActors);
 }
 
-void APlayerCharacter::Equip(const EEquipType Type)
+void APlayerCharacter::Equip(const EEquipType Type/*, AEquipItem* EquipItem */)
 {
+	//플레이어가 가진 인스턴스를 장착하지말고 인스턴스를 넘겨받아서 장착하자
 	switch (Type)
 	{
 	case EEquipType::ET_LeftWeapon:
@@ -499,6 +541,7 @@ void APlayerCharacter::Equip(const EEquipType Type)
 		RightWeapon->Equip(Type);
 		break;
 	}
+	// EquipItem->Equip(Type);
 	//무기에서 장비종류를 얻어오자
 	WeaponEquipped = EWeaponEquipped::EWE_Sword;
 }
@@ -519,6 +562,40 @@ void APlayerCharacter::UnEquip(const EEquipType Type)
 		RightWeapon->UnEquip(Type);
 		break;
 	}*/
+}
+
+void APlayerCharacter::EquipArmor(const EEquipType Type, USkeletalMesh* SkeletalMesh, const TArray<UStaticMesh*> StaticMeshes)
+{
+	switch (Type)
+	{
+	case EEquipType::ET_Head:
+		CheckNull(StaticMeshes.Num() > 0);
+		HeadArmorComponent->SetStaticMesh(StaticMeshes[0]);
+		break;
+	case EEquipType::ET_Top:
+		CheckNull(SkeletalMesh);
+		CheckNull(StaticMeshes.Num() > 0);
+		ChestArmorComponent->SetSkeletalMesh(SkeletalMesh);
+		ChestArmorComponent->SetLeaderPoseComponent(GetMesh());
+		ShoulderArmorComponents[0]->SetStaticMesh(StaticMeshes[0]);
+		ShoulderArmorComponents[1]->SetStaticMesh(StaticMeshes[1]);
+		break;
+	case EEquipType::ET_Bottom:
+		CheckNull(SkeletalMesh);
+		PantsArmorComponent->SetSkeletalMesh(SkeletalMesh);
+		PantsArmorComponent->SetLeaderPoseComponent(GetMesh());
+		break;
+	case EEquipType::ET_Hand:
+		CheckNull(StaticMeshes.Num() > 0);
+		HandArmorComponents[0]->SetStaticMesh(StaticMeshes[0]);
+		HandArmorComponents[1]->SetStaticMesh(StaticMeshes[1]);
+		break;
+	case EEquipType::ET_Shoe:
+		CheckNull(SkeletalMesh);
+		ShoesArmorComponent->SetSkeletalMesh(SkeletalMesh);
+		ShoesArmorComponent->SetLeaderPoseComponent(GetMesh());
+		break;
+	}
 }
 
 void APlayerCharacter::IncrementExp(float Amount)
@@ -591,6 +668,7 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 
 void APlayerCharacter::OnRunning()
 {
+	CheckFalse(GetStaminaRate() > RunStamina);
 	SetMovementState(EMovementState::EMS_Run);
 	GetCharacterMovement()->MaxWalkSpeed = RunSpeed;
 }
@@ -787,7 +865,7 @@ bool APlayerCharacter::CheckGuard(float& DamageAmount, AActor* DamageCauser)
 		//왼쪽 무기에서 물리경감률을 얻어온다, 가드는 항상 왼쪽무기로
 		CheckNullResult(LeftWeapon, false);
 		ret = true;
-		DamageAmount = DamageAmount * (1.0f - LeftWeapon->GetPhysicalDefense());
+		DamageAmount = DamageAmount * (1.0f - LeftWeapon->GetPhysicalDefenseRate());
 		DecrementStamina(Stat.MaxStamina * BlockStaminaRate);
 		ASoundManager::GetSoundManager()->PlaySFXAtLocation(this, ESFXType::ESFXType_Guard, GetActorLocation());
 	}//가드 실패
@@ -812,7 +890,7 @@ bool APlayerCharacter::CheckParry(float& DamageAmount, AActor* DamageCauser)
 		if (DamageAmount > 0)//무적은아니지만 이후 4프레임에서 패링을 성공함
 		{
 			CheckNullResult(LeftWeapon,false);
-			DamageAmount = DamageAmount * (1.0f - LeftWeapon->GetPhysicalDefense());
+			DamageAmount = DamageAmount * (1.0f - LeftWeapon->GetPhysicalDefenseRate());
 			DecrementStamina(Stat.MaxStamina * 0.2f);
 		}
 		bParrySucc = true;
@@ -828,7 +906,7 @@ bool APlayerCharacter::CheckParry(float& DamageAmount, AActor* DamageCauser)
 	else if (bCanParry && bParryFail) //패리 실패시 패널티 부여
 	{
 		CLog::Print("Parry Fail");
-		DamageAmount = DamageAmount * (1.0f - LeftWeapon->GetPhysicalDefense());
+		DamageAmount = DamageAmount * (1.0f - LeftWeapon->GetPhysicalDefenseRate());
 		DecrementStamina(Stat.MaxStamina * 0.4f);
 	}
 	return bParrySucc;
@@ -838,6 +916,7 @@ bool APlayerCharacter::CanRoll()
 {
 	CheckTrueResult(bIsAttacking, false);
 	CheckNullResult(RollMontage,false);
+	CheckTrueResult(PlayerController->bShowMouseCursor, false);
 	switch (MovementState)
 	{
 	case EMovementState::EMS_Dead:
@@ -862,6 +941,7 @@ bool APlayerCharacter::CanAttack(EEquipType Type)
 	CheckFalseResult(GetWeapon(Type)->GetEquipped(), false);
 	CheckTrueResult(GetWeapon(Type)->GetEquipping(), false);
 	CheckTrueResult(bBlocking, false);
+	CheckTrueResult(PlayerController->bShowMouseCursor, false);
 
 	switch (MovementState)
 	{
@@ -899,6 +979,7 @@ bool APlayerCharacter::CanHit()
 bool APlayerCharacter::CanBlock()
 {
 	//CheckTrueResult(bBlocking,false);
+	CheckTrueResult(PlayerController->bShowMouseCursor, false);
 	if (Stat.Stamina < Stat.MaxStamina * BlockMinStamina)
 	{
 		if (!bBlockFail)
@@ -928,7 +1009,7 @@ void APlayerCharacter::UpdateStamina(float DeltaStamina)
 	{
 		Stat.Stamina -= DeltaStamina;
 		Stat.Stamina = FMath::Clamp(Stat.Stamina, 0.f, Stat.MaxStamina);
-		if (Stat.Stamina <= 0)
+		if (GetStaminaRate() <= 0.f)
 		{
 			OffRunning();
 		}

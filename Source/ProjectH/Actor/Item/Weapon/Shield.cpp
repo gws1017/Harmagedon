@@ -5,7 +5,6 @@
 AShield::AShield()
 {
 	SpecialAttackStaminaCost = 10.f;
-	PhysicalDefense = 1.0f;
 }
 
 void AShield::BoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -32,20 +31,20 @@ void AShield::Parry()
 {
 	CLog::Print(GetName() + "Special Attack is Parry");
 	CheckNull(SpecialAttackMontage);
-	auto Player = Cast<APlayerCharacter>(OwnerCharacter);
+	auto Player = Cast<APlayerCharacter>(GetOwnerCharacter());
 	if (Player)
 	{
 		if (Player->GetStamina()< SpecialAttackStaminaCost) return;
 		Player->DecrementStamina(SpecialAttackStaminaCost);
 	}
 
-	OwnerCharacter->PlayAnimMontage(SpecialAttackMontage);
+	GetOwnerCharacter()->PlayAnimMontage(SpecialAttackMontage);
 
 }
 
 void AShield::Guard()
 {
-	auto Player = Cast<APlayerCharacter>(OwnerCharacter);
+	auto Player = Cast<APlayerCharacter>(GetOwnerCharacter());
 	if (Player)
 	{
 		CheckFalse(Player->CanBlock());

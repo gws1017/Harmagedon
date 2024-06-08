@@ -2,6 +2,7 @@
 #include "System/MyGameInstance.h"
 #include "Actor/Item/Item.h"
 #include "Actor/Item/Weapon/Weapon.h"
+#include "Actor/Item/Armor.h"
 #include "Actor/Character/PlayerCharacter.h"
 #include "Global.h"
 
@@ -199,20 +200,26 @@ void UInventoryComponent::Equip(USlot* EquipSlot, AItem* ItemInstance)
 	auto Player = Cast<APlayerCharacter>(GetOwner());
 
 	AItem* Instance = GetCDOItem(EquipSlot->ItemInfo.AssetData.ItemClass);
+	Instance->SetOwner(Player);
+	AArmor* ArmorItem = Cast<AArmor>(Instance);
 	//무기나 장비일 경우 실제 액터를 생성한다
 	if (Type == EEquipType::ET_LeftWeapon || Type == EEquipType::ET_RightWeapon)
 	{
 		Instance = AItem::Spawn<AItem>(GetWorld(),
 			EquipSlot->ItemInfo.AssetData.ItemClass, Cast<ACharacter>(GetOwner()));
-		Player->SetWeapon(Type,Cast<AWeapon>(Instance));
+		Player->SetWeapon(Type, Cast<AWeapon>(Instance));
 		Player->SetCapture(Instance, true);
 		Player->ActiveWeapon = Cast<AWeapon>(Instance);
 	}
+	
 	if (!!ItemInstance)
 		ItemInstance = Instance;
 
 	EquipSlot->ItemInstance = Instance;
-	Player->Equip(EquipSlot->EquipType);
+	if (ArmorItem)
+		ArmorItem->Equip(Type);
+	else
+		Player->Equip(EquipSlot->EquipType);
 }
 
 void UInventoryComponent::UnEquip(USlot* EquipSlot)

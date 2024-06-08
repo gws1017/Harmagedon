@@ -19,6 +19,7 @@ void UAN_FootStepSound::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBa
 	CheckNull(Character);
 
 	FVector Start = Character->GetMesh()->GetSocketLocation(BoneName);
+	Start.Z += 50.f;
 	FVector End = Start;
 	End.Z -= TraceDistance;
 
@@ -28,6 +29,7 @@ void UAN_FootStepSound::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBa
 	IgnoreActors.Add(Character);
 
 	FHitResult HitResult;
+
 	bool result = UKismetSystemLibrary::LineTraceSingle(
 		Character->GetWorld(),
 		Start, End,

@@ -1,8 +1,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Actor/Item/Item.h"
+#include "Actor/Item/EquipmentItem.h"
 #include "Weapon.generated.h"
+
 
 class AController;
 class ACharacter;
@@ -17,7 +18,7 @@ class URadialVector;
 class UFieldSystemMetaDataFilter;
 
 UCLASS()
-class PROJECTH_API AWeapon : public AItem
+class PROJECTH_API AWeapon : public AEquipmentItem
 {
 	GENERATED_BODY()
 
@@ -36,12 +37,11 @@ public:
 public:
 
 	//Getter
-	FORCEINLINE bool GetEquipped() { return bEquipped; }
-	FORCEINLINE bool GetEquipping() { return bEquipping; }
+	FORCEINLINE float GetPhysicalDamage() { return ItemData->StatData.PhysicalDamage; }
+	FORCEINLINE float GetLightDamage() { return ItemData->StatData.LightDamage; }
+	FORCEINLINE float GetDarkDamage() { return ItemData->StatData.DarkDamage; }
 
-	FORCEINLINE float GetDamage() { return Damage; }
 	FORCEINLINE float GetStaminaCost() { return StaminaCost; }
-	FORCEINLINE float GetPhysicalDefense() { return PhysicalDefense; }
 
 	FORCEINLINE class UBoxComponent* GetWeaponCollision() { return WeaponCollision; }
 
@@ -58,12 +58,6 @@ public:
 
 	virtual void Equip(EEquipType Type) override;
 	virtual void UnEquip(EEquipType Type) override;
-
-	virtual void Begin_Equip();
-	virtual void End_Equip();
-
-	virtual void Begin_UnEquip();
-	virtual void End_UnEquip();
 
 	virtual void Begin_Collision();
 	virtual void End_Collision();
@@ -88,10 +82,6 @@ protected:
 
 protected:
 
-	//컴포넌트
-	UPROPERTY(VisibleDefaultsOnly, Category = "Component")
-		USceneComponent* Scene;
-
 	UPROPERTY(VisibleDefaultsOnly, Category = "Component", meta = (AllowPriavteAccess = "true"))
 		UStaticMeshComponent* Mesh;
 
@@ -112,8 +102,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Montage")
 		UAnimMontage* SpecialAttackMontage;
 
-	UPROPERTY(VisibleAnywhere, Category = "Weapon")
-		EEquipType EquipType;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Socket")
 		FName SheathSocket = "SheathSocket";
@@ -124,13 +112,6 @@ protected:
 		float StaminaCost;
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 		float SpecialAttackStaminaCost;
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
-		float PhysicalDefense;
-
-	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
-		bool bEquipped;
-	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
-		bool bEquipping;
 
 	//물리
 	UPROPERTY(VisibleDefaultsOnly, Category = "Field")
@@ -153,7 +134,5 @@ protected:
 		TSubclassOf<UDamageType> DamageTypeClass;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
 		AController* WeaponInstigator;
-	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
-		ACharacter* OwnerCharacter;
 
 };
