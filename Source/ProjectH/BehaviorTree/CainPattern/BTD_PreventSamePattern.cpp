@@ -1,17 +1,17 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "BehaviorTree/CainPattern/BTD_HealthIsHalf.h"
+#include "BehaviorTree/CainPattern/BTD_PreventSamePattern.h"
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Interface/CainPatternInterface.h"
+#include "Data/CainAIKey.h"
 
-UBTD_HealthIsHalf::UBTD_HealthIsHalf()
+UBTD_PreventSamePattern::UBTD_PreventSamePattern()
 {
-	NodeName = TEXT("HealthIsHalf");
 }
 
-bool UBTD_HealthIsHalf::CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const
+bool UBTD_PreventSamePattern::CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const
 {
 	bool bResult = Super::CalculateRawConditionValue(OwnerComp, NodeMemory);
 
@@ -29,14 +29,8 @@ bool UBTD_HealthIsHalf::CalculateRawConditionValue(UBehaviorTreeComponent& Owner
 		return false;
 	}
 
-	if (AIPawn->IsFirstPhase())
-	{
-		AIPawn->ChangeIntoSecondPhase();
-		return AIPawn->IsHealthUnderHalf();
-	}
-	else
-	{
-		// 그로기 상태
-		return AIPawn->GetStatus() == static_cast<int32>(EPattern::GROGGY);
-	}
+	int CurrentRandomNumber = OwnerComp.GetBlackboardComponent()->GetValueAsInt(BBKEY_RANDOMNUMBER);
+
+
+	return AIPawn->GetPrevRandomNumber() != CurrentRandomNumber;
 }

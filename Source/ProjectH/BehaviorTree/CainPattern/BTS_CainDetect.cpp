@@ -41,6 +41,8 @@ void UBTS_CainDetect::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMem
 		return;
 	}
 
+	OwnerComp.GetBlackboardComponent()->SetValueAsBool(BBKEY_ISFIRSTPHASE, AIPawn->IsFirstPhase());
+
 	// AI폰의 감지범위 반지름
 	float DetectRadius = AIPawn->GetAIDetectRoomRange();
 

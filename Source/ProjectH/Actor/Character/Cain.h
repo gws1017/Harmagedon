@@ -51,6 +51,12 @@ protected:
 	virtual bool IsHealthUnderHalf() override;
 	virtual float GetAITurnSpeed() override;
 	virtual bool AllowNextPattern() override;
+	virtual bool IsFirstPhase() override;
+	virtual int32 GetStatus() override;
+	virtual void ChangeIntoSecondPhase() override;
+	virtual int32 GetHitCount() override;
+	virtual void SetPrevRandomNumber(int32 number) override;
+	virtual int32 GetPrevRandomNumber() override;
 
 	FCainMontageFinished OnMontageFinished;
 
@@ -64,6 +70,8 @@ protected:
 
 protected:
 	void MontageEnd(class UAnimMontage* TargetMontage, bool IsProperlyEnded);
+
+	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 // UI À§Á¬
 protected:
@@ -88,8 +96,8 @@ protected:
 
 
 	uint8 CurrentStatus;
-	int32 AttackCount;
-	int32 TakeDamageCount = 0;
+	int32 AttackCountInPattern;
+	int32 HitCount = 0;
 	bool bAllowNextPattern = false;
 
 	enum {RIGHTHAND = 0, LEFTHAND, RIGHTFOOT, LEFTFOOT, ROCK, SPLASH};
@@ -118,4 +126,7 @@ protected:
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepHitResult);
 
 	bool AttackCheckStart = false;
+
+	bool bFirstPhase = true;
+	int32 PrevRandomNumber;
 };

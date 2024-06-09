@@ -85,7 +85,8 @@ ACain::ACain()
 		TEXT("/Script/Engine.AnimMontage'/Game/Actor/Characters/Enemy/Boss/Animation/AM_CainDash.AM_CainDash'"),
 		TEXT("/Script/Engine.AnimMontage'/Game/Actor/Characters/Enemy/Boss/Animation/AM_CainBackDash.AM_CainBackDash'"),
 		TEXT("/Script/Engine.AnimMontage'/Game/Actor/Characters/Enemy/Boss/Animation/AM_CainLeftDash.AM_CainLeftDash'"),
-		TEXT("/Script/Engine.AnimMontage'/Game/Actor/Characters/Enemy/Boss/Animation/AM_CainRightDash.AM_CainRightDash'")
+		TEXT("/Script/Engine.AnimMontage'/Game/Actor/Characters/Enemy/Boss/Animation/AM_CainRightDash.AM_CainRightDash'"),
+		TEXT("/Script/Engine.AnimMontage'/Game/Actor/Characters/Enemy/Boss/Animation/AM_CainGroggy.AM_CainGroggy'")
 	};
 
 	TArray<class UAnimMontage*> Patterns;
@@ -116,6 +117,7 @@ ACain::ACain()
 		{},
 		{},
 		{},
+		{},
 		{}
 	};
 
@@ -134,6 +136,7 @@ ACain::ACain()
 		{AttackMeans[LEFTHAND]},
 		{AttackMeans[RIGHTHAND]},
 		{AttackMeans[LEFTFOOT], AttackMeans[SPLASH]},
+		{},
 		{},
 		{},
 		{},
@@ -195,13 +198,13 @@ void ACain::PlayMontageByAI(EPattern InAnimMon)
 void ACain::AttackHitCheck()
 {
 	AttackCheckStart = true;
-	AttackCount = 0;
+	AttackCountInPattern = 0;
 }
 
 void ACain::AttackHitCheck2()
 {
 	AttackCheckStart = true;
-	AttackCount = 1;
+	AttackCountInPattern = 1;
 }
 
 void ACain::AttackHitCheckEnd()
@@ -214,6 +217,15 @@ void ACain::MontageEnd(UAnimMontage* TargetMontage, bool IsProperlyEnded)
 	// 콤보 전 상태로 초기화
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 	OnMontageFinished.ExecuteIfBound();
+}
+
+float ACain::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	float Damage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	++HitCount;
+
+	return Damage;
 }
 
 void ACain::SetupCharacterWidget(UBossHpBarWidget* InUserWidget)
@@ -253,8 +265,12 @@ void ACain::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 	if (CainActor)
 		return;
 
-	FString const& CurrentAttackMean = PatternInfoes[CurrentStatus]->AttackMeans[AttackCount];
-	auto const& CurrentAttackDamage = PatternInfoes[CurrentStatus]->AttackDamages[AttackCount];
+	TArray<FString> const& CurrentAttackMeans = PatternInfoes[CurrentStatus]->AttackMeans;
+	if (CurrentAttackMeans.IsEmpty())
+		return;
+
+	FString const& CurrentAttackMean = PatternInfoes[CurrentStatus]->AttackMeans[AttackCountInPattern];
+	auto const& CurrentAttackDamage = PatternInfoes[CurrentStatus]->AttackDamages[AttackCountInPattern];
 
 
 	if (PatternInfoes[CurrentStatus]->AttackMeans.IsEmpty())
@@ -313,8 +329,6 @@ void ACain::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 		AttackCheckStart = false;
 
 		// 아래는 데미지 입은 후 처리
-		++TakeDamageCount;
-
 		if (CurrentStatus == static_cast<uint8>(EPattern::STRONGKICK))
 		{
 			playerActor->LaunchCharacter(GetActorForwardVector() * 1000, false, false);
@@ -335,7 +349,7 @@ void ACain::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 		{
 			// BTD를 통해 피격 3번인지 판정
 			// 피격 카운트를 0으로 초기화
-			TakeDamageCount = 0;
+			HitCount = 0;
 		}
 
 		if (CurrentStatus == static_cast<uint8>(EPattern::PUNCH1)
@@ -379,4 +393,34 @@ float ACain::GetAITurnSpeed()
 bool ACain::AllowNextPattern()
 {
 	return bAllowNextPattern;
+}
+
+bool ACain::IsFirstPhase()
+{
+	return bFirstPhase;
+}
+
+int32 ACain::GetStatus()
+{
+	return CurrentStatus;
+}
+
+void ACain::ChangeIntoSecondPhase()
+{
+	bFirstPhase = false;
+}
+
+int32 ACain::GetHitCount()
+{
+	return HitCount;
+}
+
+void ACain::SetPrevRandomNumber(int32 number)
+{
+	PrevRandomNumber = number;
+}
+
+int32 ACain::GetPrevRandomNumber()
+{
+	return PrevRandomNumber;
 }

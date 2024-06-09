@@ -29,6 +29,7 @@ enum class EPattern : uint8
 	BACKDASH,
 	LEFTDASH,
 	RIGHTDASH,
+	GROGGY
 	//LEFTSTRAFEWALK,
 	//RIGHTSTRAFEWALK
 };
@@ -59,4 +60,10 @@ public:
 	virtual bool IsHealthUnderHalf() = 0;
 	virtual float GetAITurnSpeed() = 0;
 	virtual bool AllowNextPattern() = 0;
+	virtual bool IsFirstPhase() = 0;
+	virtual void ChangeIntoSecondPhase() = 0;
+	virtual int32 GetStatus() = 0;
+	virtual int32 GetHitCount() = 0;
+	virtual void SetPrevRandomNumber(int32 number) = 0;
+	virtual int32 GetPrevRandomNumber() = 0;
 };

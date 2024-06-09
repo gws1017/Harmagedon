@@ -1,17 +1,16 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "BehaviorTree/CainPattern/BTD_HealthIsHalf.h"
+#include "BehaviorTree/CainPattern/BTD_3Hit.h"
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Interface/CainPatternInterface.h"
 
-UBTD_HealthIsHalf::UBTD_HealthIsHalf()
+UBTD_3Hit::UBTD_3Hit()
 {
-	NodeName = TEXT("HealthIsHalf");
 }
 
-bool UBTD_HealthIsHalf::CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const
+bool UBTD_3Hit::CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const
 {
 	bool bResult = Super::CalculateRawConditionValue(OwnerComp, NodeMemory);
 
@@ -29,14 +28,5 @@ bool UBTD_HealthIsHalf::CalculateRawConditionValue(UBehaviorTreeComponent& Owner
 		return false;
 	}
 
-	if (AIPawn->IsFirstPhase())
-	{
-		AIPawn->ChangeIntoSecondPhase();
-		return AIPawn->IsHealthUnderHalf();
-	}
-	else
-	{
-		// 그로기 상태
-		return AIPawn->GetStatus() == static_cast<int32>(EPattern::GROGGY);
-	}
+	return AIPawn->GetHitCount() >= 3;
 }
