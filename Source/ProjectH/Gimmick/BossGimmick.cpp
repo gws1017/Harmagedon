@@ -3,8 +3,11 @@
 
 #include "Gimmick/BossGimmick.h"
 #include "Actor/Character/PlayerCharacter.h"
+#include "Actor/Controller/BasicPlayerController.h"
+#include "Actor/Character/Cain.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Utilities/UHelpers.h"
 
 // Sets default values
 ABossGimmick::ABossGimmick()
@@ -26,6 +29,14 @@ void ABossGimmick::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* O
     if (playerActor && playerActor->GetCapsuleComponent() == OtherComp)
     {
         bPlayerEnterRoom = true;
+
+        ABasicPlayerController* PlayerController = Cast<ABasicPlayerController>(playerActor->GetController());
+        if (PlayerController)
+        {
+            TArray<ACain*> cain;
+            UHelpers::FindActors(GetWorld(), cain);
+            PlayerController->ShowBossHUD(cain[0]);
+        }
     }
 }
 

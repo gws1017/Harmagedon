@@ -8,6 +8,7 @@
 #include "Global.h"
 
 #include "UI/BossHUDWidget.h"
+#include "Actor/Character/Cain.h"
 
 ABasicPlayerController::ABasicPlayerController()
 {
@@ -154,4 +155,11 @@ void ABasicPlayerController::ShowBossHUD(AActor* EnemyPawn)
 {
 	BossHUDWidget->InitBar(EnemyPawn);
 	BossHUDWidget->SetVisibility(ESlateVisibility::Visible);
+}
+
+void ABasicPlayerController::UpdateBossHUD(AActor* EnemyPawn)
+{
+	ACain* cain = Cast<ACain>(EnemyPawn); 
+	float currentHP = cain->GetCurrentHP();
+	BossHUDWidget->UpdateHpBar(currentHP);
 }

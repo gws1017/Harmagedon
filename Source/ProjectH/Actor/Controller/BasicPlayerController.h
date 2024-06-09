@@ -39,6 +39,9 @@ public:
 	UFUNCTION()
 	void ShowBossHUD(AActor* EnemyPawn);
 
+	UFUNCTION()
+	void UpdateBossHUD(AActor* EnemyPawn);
+
 private:
 	void InitializeUIInstance();
 
