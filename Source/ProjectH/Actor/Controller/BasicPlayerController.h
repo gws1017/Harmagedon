@@ -40,7 +40,7 @@ public:
 	void ShowBossHUD(AActor* EnemyPawn);
 
 	UFUNCTION()
-	void UpdateBossHUD(AActor* EnemyPawn);
+	class UBossHUDWidget* GetBossHUD();
 
 private:
 	void InitializeUIInstance();

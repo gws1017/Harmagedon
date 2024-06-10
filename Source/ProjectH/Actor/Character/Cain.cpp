@@ -225,6 +225,10 @@ float ACain::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, ACo
 
 	++HitCount;
 
+	APlayerCharacter* playerCharacter = Cast<APlayerCharacter>(DamageCauser);
+	ABasicPlayerController* playerController = Cast<ABasicPlayerController>(playerCharacter->GetController());
+	SetupHUDWidget(playerController->GetBossHUD());
+
 	return Damage;
 }
 
