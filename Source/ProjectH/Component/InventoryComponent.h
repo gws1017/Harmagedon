@@ -102,7 +102,7 @@ public:
 	
 	//실제 객체를 생성해서 탈부착하는 함수
 	UFUNCTION(BlueprintCallable)
-	void Equip(USlot* EquipSlot, AItem* ItemInstance = nullptr);
+	void Equip(USlot* SelectSlot, USlot* EquipSlot, AItem* ItemInstance = nullptr);
 	UFUNCTION(Blueprintcallable)
 		void UnEquip(USlot* EquipSlot);
 	

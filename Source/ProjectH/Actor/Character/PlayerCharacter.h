@@ -39,6 +39,7 @@ enum class EWeaponEquipped : uint8
 	EWE_None,
 	EWE_Fist UMETA(DisplayName = "Default"),
 	EWE_Sword UMETA(DisplayName = "Sword"),
+	EWE_Shield UMETA(DisplayName = "Shield"),
 	EWE_MAX UMETA(DisplayName = "DefaultMAX")
 };
 
@@ -210,7 +211,7 @@ public:
 		FORCEINLINE void SetStr(const float value) { Stat.Strength = value; }
 
 	void SetWeapon(EEquipType Type, AWeapon* Instance);
-	
+	void EmptyWeapon();
 public:
 
 	void End_Attack();
@@ -218,14 +219,13 @@ public:
 	void ResetAttack();
 	void PlayAttackMontage(const EEquipType Type);
 
-	void OnGuard();
-
 	bool Alive();
 	void Die();
 	virtual void DeathEnd();
 
 	void Equip(const EEquipType Type);
 	void UnEquip(const EEquipType Type);
+	void QuickUnEquip();
 	void EquipArmor(const EEquipType Type, USkeletalMesh* SkeletalMesh, const TArray<UStaticMesh*> StaticMeshes);
 
 	void IncrementExp(float Amount);
@@ -284,7 +284,7 @@ private:
 	bool CheckParry(float& DamageAmount, AActor* DamageCauser);
 
 	bool CanRoll();
-	bool CanAttack(EEquipType Type);
+	bool CanAction(EEquipType Type);
 	bool CanMove();
 	bool CanHit();
 
