@@ -165,6 +165,8 @@ void AWeapon::UnEquip(EEquipType Type)
 		AnimInstance->Montage_Play(SheathMontage);
 		AnimInstance->Montage_JumpToSection(FName(SectionName));
 	}
+	else
+		End_UnEquip();
 }
 
 

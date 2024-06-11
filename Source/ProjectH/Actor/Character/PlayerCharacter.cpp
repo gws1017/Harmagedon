@@ -294,6 +294,14 @@ void APlayerCharacter::SetWeapon(EEquipType Type, AWeapon* Instance)
 		CLog::Log("Only Set Left ,Right Weapon Type");
 }
 
+void APlayerCharacter::EmptyWeapon()
+{
+	if (ActiveWeapon == LeftWeapon) LeftWeapon = nullptr;
+	else if (ActiveWeapon == RightWeapon) RightWeapon = nullptr;
+	WeaponEquipped = EWeaponEquipped::EWE_None;
+	ActiveWeapon = nullptr;
+}
+
 void APlayerCharacter::End_Attack()
 {
 	bIsAttacking = false;
@@ -331,7 +339,7 @@ void APlayerCharacter::ResetAttack()
 
 void APlayerCharacter::LeftClick()
 {
-	CheckFalse(CanAttack(EEquipType::ET_RightWeapon));
+	CheckFalse(CanAction(EEquipType::ET_RightWeapon));
 	if (bIsAttacking)
 	{
 		bSaveAttack = true;
@@ -346,7 +354,7 @@ void APlayerCharacter::LeftClick()
 
 void APlayerCharacter::RightClick()
 {
-	CheckFalse(CanAttack(EEquipType::ET_LeftWeapon));
+	CheckFalse(CanAction(EEquipType::ET_LeftWeapon));
 	LeftWeapon->Block();
 }
 
@@ -357,16 +365,9 @@ void APlayerCharacter::OffRightClick()
 	StaminaRegenRate = 2.f;
 }
 
-void APlayerCharacter::OnGuard()
-{
-	CheckFalse(CanBlock());
-	bBlocking = true;
-	StaminaRegenRate *= 0.4f;
-}
-
 void APlayerCharacter::RightSpecialClick()
 {
-	CheckFalse(CanAttack(EEquipType::ET_LeftWeapon));
+	CheckFalse(CanAction(EEquipType::ET_LeftWeapon));
 	LeftWeapon->SpecialAttack();
 }
 
@@ -553,15 +554,14 @@ void APlayerCharacter::UnEquip(const EEquipType Type)
 		ActiveWeapon->UnEquip(Type);
 		WeaponEquipped = EWeaponEquipped::EWE_None;
 	}
-	/*switch (Type)
-	{
-	case EEquipType::ET_LeftWeapon:
-		LeftWeapon->UnEquip(Type);
-		break;
-	case EEquipType::ET_RightWeapon:
-		RightWeapon->UnEquip(Type);
-		break;
-	}*/
+}
+
+void APlayerCharacter::QuickUnEquip(AWeapon* Instance)
+{
+	if (ActiveWeapon == Instance)ActiveWeapon = nullptr;
+	if (LeftWeapon == Instance)LeftWeapon = nullptr;
+	if (RightWeapon == Instance)RightWeapon = nullptr;
+	Instance->End_UnEquip();
 }
 
 void APlayerCharacter::EquipArmor(const EEquipType Type, USkeletalMesh* SkeletalMesh, const TArray<UStaticMesh*> StaticMeshes)
@@ -934,7 +934,7 @@ bool APlayerCharacter::CanRoll()
 	return true;
 }
 
-bool APlayerCharacter::CanAttack(EEquipType Type)
+bool APlayerCharacter::CanAction(EEquipType Type)
 {
 	CheckNullResult(GetWeapon(Type), false);
 	//if (PlayerController)CheckFalseResult(PlayerController->GetGameMode(), false);

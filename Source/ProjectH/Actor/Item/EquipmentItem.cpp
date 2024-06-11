@@ -73,6 +73,9 @@ void AEquipmentItem::Begin_UnEquip()
 
 void AEquipmentItem::End_UnEquip()
 {
+	bEquipped = false;
 	bEquipping = false;
+	EquipType = EEquipType::ET_None;
+	Cast<APlayerCharacter>(GetOwnerCharacter())->EmptyWeapon();
 	Destroy();
 }
