@@ -105,7 +105,7 @@ public:
 	void Equip(USlot* SelectSlot, USlot* EquipSlot, AItem* ItemInstance = nullptr);
 	UFUNCTION(Blueprintcallable)
 		void UnEquip(USlot* EquipSlot);
-	
+	void QuickUnEquip(USlot* EquipSlot);
 	UFUNCTION(BlueprintCallable)
 		void Use(const int64 ItemCode);
 

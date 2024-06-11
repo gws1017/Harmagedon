@@ -47,6 +47,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void SlotUpdateFromSlot(const USlot* Data);
 
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+		void ClearSlot();
+
 	UFUNCTION(BlueprintCallable)
 	virtual void OnClickSlot();
 	UFUNCTION(BlueprintCallable)

@@ -195,7 +195,11 @@ void UInventoryComponent::Equip(USlot* SelectSlot, USlot* EquipSlot, AItem* Item
 	auto Player = Cast<APlayerCharacter>(GetOwner());
 	if (!!SelectSlot && SelectSlot->bEquipped == true)
 	{
-		Player->QuickUnEquip();
+		QuickUnEquip(SelectSlot);
+	}
+	if (!!EquipSlot && EquipSlot->bEquipped == true)
+	{
+		QuickUnEquip(EquipSlot);
 	}
 
 	SelectSlot->bEquipped = true;
@@ -248,6 +252,15 @@ void UInventoryComponent::UnEquip(USlot* EquipSlot)
 	Player->UnEquip(EquipSlot->EquipType);
 	EquipSlot->ItemInstance = nullptr;
 	
+}
+
+void UInventoryComponent::QuickUnEquip(USlot* EquipSlot)
+{
+	auto Player = Cast<APlayerCharacter>(GetOwner());
+	auto TargetSlot = GetItemData(EquipSlot->ItemInfo.ItemCode).Slot;
+	Player->QuickUnEquip(Cast<AWeapon>(TargetSlot->ItemInstance));
+	UnEquip(TargetSlot);
+	TargetSlot->ClearSlot();
 }
 
 void UInventoryComponent::Use(const int64 ItemCode)

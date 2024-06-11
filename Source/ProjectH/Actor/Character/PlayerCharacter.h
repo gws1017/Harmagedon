@@ -225,7 +225,7 @@ public:
 
 	void Equip(const EEquipType Type);
 	void UnEquip(const EEquipType Type);
-	void QuickUnEquip();
+	void QuickUnEquip(AWeapon* Instance);
 	void EquipArmor(const EEquipType Type, USkeletalMesh* SkeletalMesh, const TArray<UStaticMesh*> StaticMeshes);
 
 	void IncrementExp(float Amount);

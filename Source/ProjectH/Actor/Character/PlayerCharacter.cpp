@@ -556,13 +556,12 @@ void APlayerCharacter::UnEquip(const EEquipType Type)
 	}
 }
 
-void APlayerCharacter::QuickUnEquip()
+void APlayerCharacter::QuickUnEquip(AWeapon* Instance)
 {
-	if (ActiveWeapon)
-	{
-		ActiveWeapon->End_UnEquip();
-		WeaponEquipped = EWeaponEquipped::EWE_None;
-	}
+	if (ActiveWeapon == Instance)ActiveWeapon = nullptr;
+	if (LeftWeapon == Instance)LeftWeapon = nullptr;
+	if (RightWeapon == Instance)RightWeapon = nullptr;
+	Instance->End_UnEquip();
 }
 
 void APlayerCharacter::EquipArmor(const EEquipType Type, USkeletalMesh* SkeletalMesh, const TArray<UStaticMesh*> StaticMeshes)
