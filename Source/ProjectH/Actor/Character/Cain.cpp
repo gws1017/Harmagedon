@@ -310,8 +310,10 @@ void ACain::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 
 	FDamageEvent DamageEvent;
 	APlayerCharacter* playerActor = Cast<APlayerCharacter>(OtherActor);
+	if (!playerActor)
+		return;
 
-	if (playerActor && CurrentStatus == static_cast<uint8>(EPattern::THROWAWAY))
+	if (CurrentStatus == static_cast<uint8>(EPattern::THROWAWAY))
 	{
 		playerActor->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 		playerActor->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
