@@ -7,6 +7,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Data/CainAIKey.h"
 
+
 UBTT_CainThrowDown::UBTT_CainThrowDown()
 {
 }
@@ -42,6 +43,7 @@ EBTNodeResult::Type UBTT_CainThrowDown::ExecuteTask(UBehaviorTreeComponent& Owne
 
 	// АјАн
 	AIPawn->PlayMontageByAI(EPattern::THROWDOWN);
+
 
 	return EBTNodeResult::InProgress;
 }

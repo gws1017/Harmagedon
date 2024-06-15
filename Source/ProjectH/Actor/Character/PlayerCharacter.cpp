@@ -34,7 +34,7 @@
 #include "InputActionValue.h"
 #include "PlayerCharacter.h"
 #include "Data/HCollision.h"
-#include "Cain.h"
+//#include "Cain.h"
 
 APlayerCharacter::APlayerCharacter()
 	:AttackCount(0),

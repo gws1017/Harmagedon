@@ -329,19 +329,6 @@ void ACain::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 		playerActor->TakeDamage(CurrentAttackDamage, DamageEvent, GetController(), this);
 		AttackCheckStart = false;
 
-		if (CurrentStatus == static_cast<uint8>(EPattern::THROWAWAY))
-		{
-			playerActor->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-			playerActor->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-			playerActor->GetCapsuleComponent()->SetCollisionProfileName(CPROFILE_HCAPSULE);
-			playerActor->GetCharacterMovement()->SetMovementMode(MOVE_Falling);
-			playerActor->SetActorRotation(FRotator::ZeroRotator);
-			playerActor->LaunchCharacter(GetActorForwardVector() * 2000, true, true);
-
-			bAllowNextPattern = false;
-			//땅에 부딪쳤을 때 데미지
-		}
-
 		// 아래는 데미지 입은 후 처리
 		if (CurrentStatus == static_cast<uint8>(EPattern::STRONGKICK))
 		{
@@ -375,6 +362,8 @@ void ACain::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 			{
 				AnimInstance->Montage_Stop(0.2f, PatternInfoes[CurrentStatus]->BTMontage);
 			}
+
+			HoldingPlayer=playerActor;
 
 			bAllowNextPattern = true;
 			AttackCheckStart = true;
