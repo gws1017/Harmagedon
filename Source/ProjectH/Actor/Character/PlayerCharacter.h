@@ -266,7 +266,6 @@ private:
 	void Roll();
 	void EquipWeapon();
 	void Interaction();
-	void Immortality();
 
 	void DetectTarget();
 	void LockTarget();
@@ -346,8 +345,6 @@ private:
 		UInputAction* TargetLockAction;
 	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 		UInputAction* EscAction;
-	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
-		UInputAction* ImmortalAction;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Montage", meta = (AllowPrivateAccess = "true"))
 		UAnimMontage* DeathMontage;
@@ -448,7 +445,4 @@ private:
 		ABasicPlayerController* PlayerController;
 
 		IInteractionInterface* OverlappingActor;
-
-
-		bool IsImmortal;
 };

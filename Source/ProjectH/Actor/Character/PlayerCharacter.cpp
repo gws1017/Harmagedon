@@ -194,9 +194,6 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		//UI관련 입력 바인딩
 		EnhancedInput->BindAction(OpenEquipUIAction, ETriggerEvent::Triggered, GetPlayerController(), &ABasicPlayerController::ToggleEquipMenu);
 		//EnhancedInput->BindAction(EscAction, ETriggerEvent::Triggered, this, &APlayerCharacter::);
-
-		//무적키 (디버깅)
-		EnhancedInput->BindAction(ImmortalAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Immortality);
 	}
 	
 }
@@ -204,11 +201,6 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	if (IsImmortal)
-	{
-		return 0.0;
-	}
-
 	DamageAmount = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	if (DamageAmount <= 0.f)
 		return DamageAmount;
@@ -731,11 +723,6 @@ void APlayerCharacter::Interaction()
 {
 	CheckNull(OverlappingActor);
 	OverlappingActor->OnInteraction();
-}
-
-void APlayerCharacter::Immortality()
-{
-	IsImmortal = true;
 }
 
 void APlayerCharacter::DetectTarget()
