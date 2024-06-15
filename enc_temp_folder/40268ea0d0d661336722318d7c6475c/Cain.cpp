@@ -322,25 +322,26 @@ void ACain::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 	if (!playerActor)
 		return;
 
+	if (CurrentStatus == static_cast<uint8>(EPattern::THROWAWAY))
+	{
+		playerActor->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		playerActor->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		playerActor->GetCapsuleComponent()->SetCollisionProfileName(CPROFILE_HCAPSULE);
+		playerActor->GetCharacterMovement()->SetMovementMode(MOVE_Falling);
+		playerActor->SetActorRotation(FRotator::ZeroRotator);
+		playerActor->LaunchCharacter(GetActorForwardVector() * 2000, true, true);
+
+		bAllowNextPattern = false;
+		//땅에 부딪쳤을 때 데미지
+	}
+
+
 	// 플레이어 캐릭터 감지
 	if (playerActor->GetCapsuleComponent() == OtherComp && AttackCheckStart)
 	{
 		// 데미지 전달
 		playerActor->TakeDamage(CurrentAttackDamage, DamageEvent, GetController(), this);
 		AttackCheckStart = false;
-
-		if (CurrentStatus == static_cast<uint8>(EPattern::THROWAWAY))
-		{
-			playerActor->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-			playerActor->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-			playerActor->GetCapsuleComponent()->SetCollisionProfileName(CPROFILE_HCAPSULE);
-			playerActor->GetCharacterMovement()->SetMovementMode(MOVE_Falling);
-			playerActor->SetActorRotation(FRotator::ZeroRotator);
-			playerActor->LaunchCharacter(GetActorForwardVector() * 2000, true, true);
-
-			bAllowNextPattern = false;
-			//땅에 부딪쳤을 때 데미지
-		}
 
 		// 아래는 데미지 입은 후 처리
 		if (CurrentStatus == static_cast<uint8>(EPattern::STRONGKICK))

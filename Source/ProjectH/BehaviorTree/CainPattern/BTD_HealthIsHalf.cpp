@@ -29,10 +29,10 @@ bool UBTD_HealthIsHalf::CalculateRawConditionValue(UBehaviorTreeComponent& Owner
 		return false;
 	}
 
-	if (AIPawn->IsFirstPhase())
+	if (AIPawn->IsFirstPhase() && AIPawn->IsHealthUnderHalf())
 	{
 		AIPawn->ChangeIntoSecondPhase();
-		return AIPawn->IsHealthUnderHalf();
+		return true;
 	}
 	else
 	{
