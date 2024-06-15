@@ -167,6 +167,9 @@ void ACain::BeginPlay()
 void ACain::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
+
+	OnHpZero.AddUObject(this, &ACain::SetDead);
+
 	// 델리게이트에 함수 등록, 다른 델리게이트보다 뒤에 호출시키기
 	RightHandTrigger->OnComponentBeginOverlap.AddDynamic(this, &ACain::OnOverlapBegin);
 	LeftHandTrigger->OnComponentBeginOverlap.AddDynamic(this, &ACain::OnOverlapBegin);
@@ -221,7 +224,7 @@ void ACain::MontageEnd(UAnimMontage* TargetMontage, bool IsProperlyEnded)
 
 float ACain::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	float Damage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
 	++HitCount;
 
@@ -229,7 +232,13 @@ float ACain::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, ACo
 	ABasicPlayerController* playerController = Cast<ABasicPlayerController>(playerCharacter->GetController());
 	SetupHUDWidget(playerController->GetBossHUD());
 
-	return Damage;
+	if (HP <= KINDA_SMALL_NUMBER)
+	{
+		// hp = 0 알림을 구독한 모든 곳에 알리기
+		OnHpZero.Broadcast();
+	}
+
+	return ActualDamage;
 }
 
 void ACain::SetupCharacterWidget(UBossHpBarWidget* InUserWidget)
@@ -429,4 +438,42 @@ void ACain::SetPrevRandomNumber(int32 number)
 int32 ACain::GetPrevRandomNumber()
 {
 	return PrevRandomNumber;
+}
+
+void ACain::SetDead()
+{
+	// 이동 불가 설정
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+	PlayDeadAnimation();
+
+	// 충돌감지 끄기
+	SetActorEnableCollision(false);
+
+	// hp바 숨기기 (에디터에서 체크)
+	HpBar->SetHiddenInGame(true);
+
+	// AI컨트롤러라면 중지하기
+	ACainController* PdAIController = Cast<ACainController>(GetController());
+	if (PdAIController)
+	{
+		PdAIController->StopAI();
+	}
+
+	// DeadEventDelayTime이 지난 후 파괴
+	FTimerHandle DeadTimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(DeadTimerHandle, FTimerDelegate::CreateLambda(
+		[&]()
+		{
+			Destroy();
+		}
+	), DeadEventDelayTime, false);
+}
+
+void ACain::PlayDeadAnimation()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	// 기존 몽타주 중지
+	AnimInstance->StopAllMontages(0.0f);
+	// 사망 몽타주 재생
+	AnimInstance->Montage_Play(DeadMontage, 1.0f);
 }
