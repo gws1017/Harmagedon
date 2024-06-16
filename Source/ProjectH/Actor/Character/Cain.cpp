@@ -14,6 +14,7 @@
 #include "UI/BossWidgetComponent.h"
 #include "Actor/Controller/BasicPlayerController.h"
 #include "Component/CainPatternInfo.h"
+#include <vector>
 
 ACain::ACain()
 {
@@ -102,8 +103,8 @@ ACain::ACain()
 	TArray<TArray<float>> AttackDamages = {
 		{244.0f},
 		{282.0f},
-		{184.0f, 321.0f},
-		{100.0f, 280.0f},
+		{184.0f},
+		{100.0f},
 		{284.0f},
 		{221.0f},
 		{24.0f},
@@ -113,7 +114,7 @@ ACain::ACain()
 		{188.0f},
 		{212.0f},
 		{22.0f,284.0f},
-		{120.0f, 340.0f},
+		{120.0f},
 		{},
 		{},
 		{},
@@ -124,18 +125,18 @@ ACain::ACain()
 	TArray<TArray<FString>> AttackMeansByPattern = {
 		{AttackMeans[RIGHTFOOT]},
 		{AttackMeans[RIGHTHAND]},
-		{AttackMeans[RIGHTHAND], AttackMeans[ROCK]},
-		{AttackMeans[RIGHTFOOT], AttackMeans[SPLASH]},
+		{AttackMeans[RIGHTHAND]},
+		{AttackMeans[RIGHTFOOT]},
 		{AttackMeans[LEFTHAND]},
 		{AttackMeans[RIGHTHAND]},
 		{AttackMeans[RIGHTHAND]},
 		{AttackMeans[RIGHTHAND]},
-		{AttackMeans[SPLASH]},
+		{},
 		{AttackMeans[LEFTHAND]},
 		{AttackMeans[RIGHTHAND]},
 		{AttackMeans[LEFTHAND]},
 		{AttackMeans[RIGHTHAND]},
-		{AttackMeans[LEFTFOOT], AttackMeans[SPLASH]},
+		{AttackMeans[LEFTFOOT]},
 		{},
 		{},
 		{},
@@ -196,6 +197,13 @@ void ACain::PlayMontageByAI(EPattern InAnimMon)
 	FOnMontageEnded EndDelegate;
 	EndDelegate.BindUObject(this, &ACain::MontageEnd);
 	AnimInstance->Montage_SetEndDelegate(EndDelegate, PatternInfoes[static_cast<uint8>(InAnimMon)]->BTMontage);
+
+	if (CurrentStatus == static_cast<uint8>(EPattern::HOOK1)
+		|| CurrentStatus == static_cast<uint8>(EPattern::THROWAWAY)
+		|| CurrentStatus == static_cast<uint8>(EPattern::STOMP2))
+	{
+		bAllowNextPattern = false;
+	}
 }
 
 void ACain::AttackHitCheck()
@@ -335,12 +343,13 @@ void ACain::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 			playerActor->LaunchCharacter(GetActorForwardVector() * 1000, false, false);
 		}
 
-		if (CurrentStatus == static_cast<uint8>(EPattern::GRAB))
+		if (CurrentStatus == static_cast<uint8>(EPattern::GRAB)
+			|| CurrentStatus == static_cast<uint8>(EPattern::THROWDOWN))
 		{
 			playerActor->GetCharacterMovement()->DisableMovement();
 			playerActor->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			playerActor->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName(*AttackSocketNames[CurrentAttackMean]));
-			//prevRotator = playerActor->GetActorRotation();
+			HoldingPlayer = playerActor;
 		}
 
 
@@ -354,8 +363,7 @@ void ACain::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 		}
 
 		if (CurrentStatus == static_cast<uint8>(EPattern::PUNCH1)
-			|| CurrentStatus == static_cast<uint8>(EPattern::GRAB)
-			|| CurrentStatus == static_cast<uint8>(EPattern::THROWDOWN))
+			|| CurrentStatus == static_cast<uint8>(EPattern::GRAB))
 		{
 			UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 			if (AnimInstance && AnimInstance->Montage_IsPlaying(PatternInfoes[CurrentStatus]->BTMontage))
@@ -363,16 +371,8 @@ void ACain::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 				AnimInstance->Montage_Stop(0.2f, PatternInfoes[CurrentStatus]->BTMontage);
 			}
 
-			HoldingPlayer=playerActor;
-
 			bAllowNextPattern = true;
 			AttackCheckStart = true;
-		}
-		else if (CurrentStatus == static_cast<uint8>(EPattern::HOOK1)
-			|| CurrentStatus == static_cast<uint8>(EPattern::THROWAWAY)
-			|| CurrentStatus == static_cast<uint8>(EPattern::STOMP2))
-		{
-			bAllowNextPattern = false;
 		}
 	}
 }

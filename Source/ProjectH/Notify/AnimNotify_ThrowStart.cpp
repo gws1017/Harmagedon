@@ -25,6 +25,7 @@ void UAnimNotify_ThrowStart::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
 				holdingPlayer->SetActorRotation(FRotator::ZeroRotator);
 				holdingPlayer->LaunchCharacter(AttackPawn->GetActorForwardVector() * 2000, true, true);
 				AttackPawn->bAllowNextPattern = false;
+				AttackPawn->HoldingPlayer = nullptr;
 			}
 		}
 	}

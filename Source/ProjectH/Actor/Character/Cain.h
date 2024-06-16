@@ -120,8 +120,6 @@ protected:
 		TEXT("LeftHand"),
 		TEXT("RightFoot"),
 		TEXT("LeftFoot"),
-		TEXT("Rock"),
-		TEXT("Splash")
 	};
 
 	TMap<FString, FString> AttackSocketNames = {
@@ -129,8 +127,6 @@ protected:
 		{TEXT("LeftHand"),TEXT("SwordLSocket")},
 		{TEXT("RightFoot"),TEXT("RightFootSocket")},
 		{TEXT("LeftFoot"),TEXT("LeftFootSocket")},
-	//TEXT("Rock"),
-	//TEXT("Splash")
 	};
 
 
