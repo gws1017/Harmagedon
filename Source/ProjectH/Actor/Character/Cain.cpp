@@ -212,12 +212,6 @@ void ACain::AttackHitCheck()
 	AttackCountInPattern = 0;
 }
 
-void ACain::AttackHitCheck2()
-{
-	AttackCheckStart = true;
-	AttackCountInPattern = 1;
-}
-
 void ACain::AttackHitCheckEnd()
 {
 	AttackCheckStart = false;

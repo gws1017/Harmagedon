@@ -68,7 +68,6 @@ protected:
 // 노티파이 인터페이스
 protected:
 	virtual void AttackHitCheck() override;
-	virtual void AttackHitCheck2() override;
 	virtual void AttackHitCheckEnd() override;
 
 protected:

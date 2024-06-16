@@ -13,7 +13,7 @@ void UAnimNotify_CainAttackHitCheck2::Notify(USkeletalMeshComponent* MeshComp, U
 		ICainAnimNotifyInterface* AttackPawn = Cast<ICainAnimNotifyInterface>(MeshComp->GetOwner());
 		if (AttackPawn)
 		{
-			AttackPawn->AttackHitCheck2();
+			//AttackPawn->AttackHitCheck2();
 		}
 	}
 }
