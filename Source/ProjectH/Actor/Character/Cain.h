@@ -10,6 +10,7 @@
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnHpChangedDelegate, float /*CurrentHp*/);
 
+DECLARE_MULTICAST_DELEGATE(FOnHpZeroDelegate);
 
 
  /**************************************************************************************************
@@ -36,6 +37,8 @@ public:
 	void SetHp(float NewHp);
 
 	FOnHpChangedDelegate OnHpChanged;
+	TObjectPtr<class APlayerCharacter> HoldingPlayer;
+	bool bAllowNextPattern = false;
 
 protected:
 	virtual void BeginPlay() override;
@@ -78,6 +81,17 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Widget/*, Meta = (AllowPrivateAccess = "true")*/)
 	TObjectPtr<class UWidgetComponent> HpBar;
 
+// »ç¸Á
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Montage, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> DeadMontage;
+
+	virtual void SetDead();
+	void PlayDeadAnimation();
+
+	FOnHpZeroDelegate OnHpZero;
+	float DeadEventDelayTime = 3.0f;
+
 protected:
 	UPROPERTY(VisibleAnywhere, Category = trigger)
 	TObjectPtr<class USphereComponent> RightHandTrigger;
@@ -98,7 +112,6 @@ protected:
 	uint8 CurrentStatus;
 	int32 AttackCountInPattern;
 	int32 HitCount = 0;
-	bool bAllowNextPattern = false;
 
 	enum {RIGHTHAND = 0, LEFTHAND, RIGHTFOOT, LEFTFOOT, ROCK, SPLASH};
 
