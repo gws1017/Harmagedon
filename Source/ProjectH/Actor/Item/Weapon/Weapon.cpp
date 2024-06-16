@@ -1,5 +1,8 @@
 #include "Actor/Item/Weapon/Weapon.h"
 #include "Actor/Character/PlayerCharacter.h"
+
+#include "System/Sound/SoundManager.h"
+
 #include "Global.h"
 
 #include "GameFramework/Character.h"
@@ -10,6 +13,9 @@
 
 #include "Field/FieldSystemObjects.h"
 #include "Field/FieldSystemComponent.h"
+
+#include "NiagaraSystem.h"
+#include "NiagaraFunctionLibrary.h"
 
 AWeapon::AWeapon()
 	:Damage(5), StaminaCost(10),
@@ -69,7 +75,7 @@ void AWeapon::PlayAttackMontage()
 	}
 }
 
-void AWeapon::WeaponApplyDamage(AActor* OtherActor)
+void AWeapon::WeaponApplyDamage(AActor* OtherActor, const FHitResult& SweepResult)
 {
 	//자기자신 제외
 	IgnoreActors.AddUnique(Owner);
@@ -92,7 +98,8 @@ void AWeapon::WeaponApplyDamage(AActor* OtherActor)
 
 		IgnoreActors.AddUnique(OtherActor);
 
-		float DamageValue = UGameplayStatics::ApplyDamage(OtherActor, Damage + AdditionalDamage, WeaponInstigator, Owner, DamageTypeClass);
+		float DamageValue = UGameplayStatics::ApplyPointDamage(OtherActor, Damage + AdditionalDamage,Owner->GetActorForwardVector(), SweepResult, WeaponInstigator, Owner, DamageTypeClass);
+			//ApplyDamage(OtherActor, Damage + AdditionalDamage, WeaponInstigator, Owner, DamageTypeClass);
 		if(DamageValue > 0.f)
 			other->Hit(GetActorLocation());
 	}
@@ -198,4 +205,13 @@ void AWeapon::StrongAttack()
 void AWeapon::SpecialAttack_Implementation()
 {
 	CLog::Log(GetName() + "This is Special Attack");
+}
+
+void AWeapon::Hit(const FVector& ImpackPoint)
+{
+	ASoundManager::GetSoundManager()->PlaySFXAtLocation(this, ESFXType::ESFXType_Guard, ImpackPoint);
+	if (HitParticle)
+	{
+		UNiagaraComponent* NiagaraComp = UNiagaraFunctionLibrary::SpawnSystemAttached(HitParticle, Scene, NAME_None, ImpackPoint, FRotator(0.f), EAttachLocation::Type::KeepRelativeOffset, true);
+	}
 }

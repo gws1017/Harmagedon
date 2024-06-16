@@ -280,7 +280,7 @@ private:
 
 	//다른 액터와 마주보고있는지 검사하는 함수
 	bool CheckFace(AActor* OtherActor);
-	bool CheckGuard(float& DamageAmount, AActor* DamageCauser);
+	bool CheckGuard(float& DamageAmount, AActor* DamageCauser, const FHitResult&);
 	bool CheckParry(float& DamageAmount, AActor* DamageCauser);
 
 	bool CanRoll();

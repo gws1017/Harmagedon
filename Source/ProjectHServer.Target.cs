@@ -9,7 +9,7 @@ public class ProjectHServerTarget : TargetRules
 	{
 		Type = TargetType.Server;
 		DefaultBuildSettings = BuildSettingsVersion.V2;
-		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_1;
+		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_2;
 		ExtraModuleNames.Add("ProjectH");
 	}
 }

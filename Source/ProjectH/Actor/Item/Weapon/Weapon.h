@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Actor/Item/EquipmentItem.h"
+#include "Interface/HitInterface.h"
 #include "Weapon.generated.h"
 
 
@@ -16,9 +17,10 @@ class UFieldSystemComponent;
 class URadialFalloff;
 class URadialVector;
 class UFieldSystemMetaDataFilter;
+class UNiagaraSystem;
 
 UCLASS()
-class PROJECTH_API AWeapon : public AEquipmentItem
+class PROJECTH_API AWeapon : public AEquipmentItem, public IHitInterface
 {
 	GENERATED_BODY()
 
@@ -72,13 +74,15 @@ public:
 		void SpecialAttack();
 	virtual void SpecialAttack_Implementation();
 
+	virtual void Hit(const FVector& ImpackPoint) override;
+
 protected:
 
 	bool IsSameTagWithTarget(AActor* other, const FName& tag);
 
 	void PlayAttackMontage();
 
-	void WeaponApplyDamage(AActor* OtherActor);
+	void WeaponApplyDamage(AActor* OtherActor, const FHitResult& SweepResult);
 
 protected:
 
@@ -102,6 +106,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Montage")
 		UAnimMontage* SpecialAttackMontage;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Particle")
+		UNiagaraSystem* HitParticle;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Socket")
 		FName SheathSocket = "SheathSocket";

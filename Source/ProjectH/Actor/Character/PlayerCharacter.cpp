@@ -1,5 +1,6 @@
 #include "Actor/Character/PlayerCharacter.h"
 #include "Actor/Character/PlayerAnimInstance.h"
+#include "Actor/Character/Cain.h"
 #include "Actor/Controller/BasicPlayerController.h"
 #include "Actor/Character/Enemy.h"
 #include "Actor/Item/Weapon/Weapon.h"
@@ -34,7 +35,8 @@
 #include "InputActionValue.h"
 #include "PlayerCharacter.h"
 #include "Data/HCollision.h"
-#include "Cain.h"
+
+#include "Engine/DamageEvents.h"
 
 APlayerCharacter::APlayerCharacter()
 	:AttackCount(0),
@@ -208,7 +210,16 @@ float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	// 무적상태
 	if (bIFrame)
 		DamageAmount = 0;
-	CheckGuard(DamageAmount, DamageCauser);
+	FHitResult hitinfo;
+ 	if (DamageEvent.IsOfType(FPointDamageEvent::ClassID))
+	{
+		//CLog::Print(DamageEvent.IsOfType(FPointDamageEvent::ClassID));
+		const FPointDamageEvent* PointDamageEvent = static_cast<const FPointDamageEvent*>(&DamageEvent);
+		hitinfo = PointDamageEvent->HitInfo;
+		
+		CLog::Print(PointDamageEvent->HitInfo.BoneName.ToString());
+	}
+	CheckGuard(DamageAmount, DamageCauser,hitinfo);
 	CheckParry(DamageAmount, DamageCauser);
 
 	if (Stat.HP - DamageAmount <= 0.f)
@@ -853,7 +864,7 @@ bool APlayerCharacter::CheckFace(AActor* OtherActor)
 	return AngleZ >= FaceAngle;
 }
 
-bool APlayerCharacter::CheckGuard(float& DamageAmount, AActor* DamageCauser)
+bool APlayerCharacter::CheckGuard(float& DamageAmount, AActor* DamageCauser, const FHitResult& HitInfo)
 {
 	bool ret = false;
 
@@ -867,7 +878,8 @@ bool APlayerCharacter::CheckGuard(float& DamageAmount, AActor* DamageCauser)
 		ret = true;
 		DamageAmount = DamageAmount * (1.0f - LeftWeapon->GetPhysicalDefenseRate());
 		DecrementStamina(Stat.MaxStamina * BlockStaminaRate);
-		ASoundManager::GetSoundManager()->PlaySFXAtLocation(this, ESFXType::ESFXType_Guard, GetActorLocation());
+		//ASoundManager::GetSoundManager()->PlaySFXAtLocation(this, ESFXType::ESFXType_Guard, GetActorLocation());
+		LeftWeapon->Hit(HitInfo.ImpactPoint);
 	}//가드 실패
 	else if (bBlockFail)
 	{
