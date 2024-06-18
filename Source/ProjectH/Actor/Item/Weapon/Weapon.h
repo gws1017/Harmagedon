@@ -17,7 +17,7 @@ class UFieldSystemComponent;
 class URadialFalloff;
 class URadialVector;
 class UFieldSystemMetaDataFilter;
-class UNiagaraSystem;
+class UNiagaraComponent;
 
 UCLASS()
 class PROJECTH_API AWeapon : public AEquipmentItem, public IHitInterface
@@ -107,7 +107,7 @@ protected:
 		UAnimMontage* SpecialAttackMontage;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Particle")
-		UNiagaraSystem* HitParticle;
+		UNiagaraComponent* NSParticleComponent;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Socket")
 		FName SheathSocket = "SheathSocket";

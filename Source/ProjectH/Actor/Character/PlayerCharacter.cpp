@@ -210,14 +210,12 @@ float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	// 무적상태
 	if (bIFrame)
 		DamageAmount = 0;
+
 	FHitResult hitinfo;
  	if (DamageEvent.IsOfType(FPointDamageEvent::ClassID))
 	{
-		//CLog::Print(DamageEvent.IsOfType(FPointDamageEvent::ClassID));
 		const FPointDamageEvent* PointDamageEvent = static_cast<const FPointDamageEvent*>(&DamageEvent);
 		hitinfo = PointDamageEvent->HitInfo;
-		
-		CLog::Print(PointDamageEvent->HitInfo.BoneName.ToString());
 	}
 	CheckGuard(DamageAmount, DamageCauser,hitinfo);
 	CheckParry(DamageAmount, DamageCauser);
@@ -878,7 +876,6 @@ bool APlayerCharacter::CheckGuard(float& DamageAmount, AActor* DamageCauser, con
 		ret = true;
 		DamageAmount = DamageAmount * (1.0f - LeftWeapon->GetPhysicalDefenseRate());
 		DecrementStamina(Stat.MaxStamina * BlockStaminaRate);
-		//ASoundManager::GetSoundManager()->PlaySFXAtLocation(this, ESFXType::ESFXType_Guard, GetActorLocation());
 		LeftWeapon->Hit(HitInfo.ImpactPoint);
 	}//가드 실패
 	else if (bBlockFail)

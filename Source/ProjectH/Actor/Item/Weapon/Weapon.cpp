@@ -14,8 +14,7 @@
 #include "Field/FieldSystemObjects.h"
 #include "Field/FieldSystemComponent.h"
 
-#include "NiagaraSystem.h"
-#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
 
 AWeapon::AWeapon()
 	:Damage(5), StaminaCost(10),
@@ -24,10 +23,13 @@ AWeapon::AWeapon()
 	UHelpers::CreateComponent<UStaticMeshComponent>(this, &Mesh, "StaticMesh", Scene);
 	UHelpers::CreateComponent<UBoxComponent>(this, &WeaponCollision, "ComatCollision", Scene);
 	UHelpers::CreateComponent<UFieldSystemComponent>(this, &FieldSystemComponent, "FieldSystemComponent", GetRootComponent());
+	UHelpers::CreateComponent<UNiagaraComponent>(this, &NSParticleComponent, "NSComponent", Scene);
 
 	RadialFalloff = CreateDefaultSubobject<URadialFalloff>(TEXT("RadialFalloff"));
 	RadialVector = CreateDefaultSubobject<URadialVector>(TEXT("RadialVector"));
 	MetaData = CreateDefaultSubobject<UFieldSystemMetaDataFilter>(TEXT("MetaData"));
+
+	NSParticleComponent->SetAutoActivate(false);
 
 }
 
@@ -86,22 +88,30 @@ void AWeapon::WeaponApplyDamage(AActor* OtherActor, const FHitResult& SweepResul
 
 	//물리 충격을 가함
 	CreateField(GetActorLocation());
+	FVector Start = GetActorLocation();
+	FVector End = Start + GetOwner()->GetActorForwardVector() * 5.f;
+	TArray<FHitResult> HitResults;
+	UKismetSystemLibrary::SphereTraceMulti(GetWorld(), Start, End, 20.f,
+		UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Visibility), false, { this,GetOwner()}, EDrawDebugTrace::ForDuration, HitResults,
+		true);
 
 	if (!!OtherActor && !IgnoreActors.Contains(OtherActor))
 	{
-		IHitInterface* other = Cast<IHitInterface>(OtherActor);
-
-		CheckNull(other);
 		float AdditionalDamage = 0.f;
 		if (Owner->ActorHasTag("Player"))
 			AdditionalDamage = Cast<APlayerCharacter>(Owner)->GetStrDamage();
 
-		IgnoreActors.AddUnique(OtherActor);
-
-		float DamageValue = UGameplayStatics::ApplyPointDamage(OtherActor, Damage + AdditionalDamage,Owner->GetActorForwardVector(), SweepResult, WeaponInstigator, Owner, DamageTypeClass);
-			//ApplyDamage(OtherActor, Damage + AdditionalDamage, WeaponInstigator, Owner, DamageTypeClass);
-		if(DamageValue > 0.f)
-			other->Hit(GetActorLocation());
+		for (auto result : HitResults)
+		{
+			IHitInterface* other = Cast<IHitInterface>(result.GetActor());
+			if (other == nullptr || IgnoreActors.Contains(OtherActor)) continue;
+			IgnoreActors.AddUnique(result.GetActor());
+			result.ImpactPoint = GetActorLocation();
+			float DamageValue = UGameplayStatics::ApplyPointDamage(OtherActor, Damage + AdditionalDamage, Owner->GetActorForwardVector(), result, WeaponInstigator, Owner, DamageTypeClass);
+			if (DamageValue > 0.f)
+				other->Hit(GetActorLocation());
+		}
+		
 	}
 }
 
@@ -210,8 +220,9 @@ void AWeapon::SpecialAttack_Implementation()
 void AWeapon::Hit(const FVector& ImpackPoint)
 {
 	ASoundManager::GetSoundManager()->PlaySFXAtLocation(this, ESFXType::ESFXType_Guard, ImpackPoint);
-	if (HitParticle)
+
+	if (NSParticleComponent->GetAsset())
 	{
-		UNiagaraComponent* NiagaraComp = UNiagaraFunctionLibrary::SpawnSystemAttached(HitParticle, Scene, NAME_None, ImpackPoint, FRotator(0.f), EAttachLocation::Type::KeepRelativeOffset, true);
+		NSParticleComponent->Activate(true);
 	}
 }
