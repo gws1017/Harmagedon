@@ -21,7 +21,7 @@ public:
 public:
 
 	virtual void OnPossess(APawn* InPawn) override;
-	void RunAI();
+	virtual void RunAI();
 
 public:
 

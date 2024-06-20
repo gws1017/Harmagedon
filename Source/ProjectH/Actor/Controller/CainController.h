@@ -19,6 +19,7 @@ class PROJECTH_API ACainController : public AEnemyController
 	
 public:
 	ACainController();
+	virtual void RunAI() override;
 	void StopAI();
 
 protected:

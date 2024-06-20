@@ -1,6 +1,7 @@
 #pragma once
 
 #define BBKEY_ROOMTARGET TEXT("TargetInRoom")
+#define BBKEY_HOMEPOS TEXT("HomePos")
 #define BBKEY_DISTANCE TEXT("Distance")
 
 #define BBKEY_ATTACKPROB TEXT("RandomNumber")
