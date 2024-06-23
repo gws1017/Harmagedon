@@ -14,7 +14,7 @@
 #include "UI/BossWidgetComponent.h"
 #include "Actor/Controller/BasicPlayerController.h"
 #include "Component/CainPatternInfo.h"
-#include <vector>
+#include "Global.h"
 
 ACain::ACain()
 {

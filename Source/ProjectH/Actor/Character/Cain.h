@@ -12,6 +12,16 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FOnHpChangedDelegate, float /*CurrentHp*/);
 
 DECLARE_MULTICAST_DELEGATE(FOnHpZeroDelegate);
 
+class USphereComponent;
+class UCainPatternInfo;
+class USphereComponent;
+class UBossHpBarWidget;
+class UBossHUDWidget;
+class APlayerCharacter;
+class UAnimMontage;
+class UWidgetComponent;
+class UAnimMontage;
+
 
  /**************************************************************************************************
  * 보스 몬스터 (카인)
@@ -30,14 +40,14 @@ class PROJECTH_API ACain
 public:
 	ACain();
 
-	FORCEINLINE class USphereComponent* GetTrigger() { return RightHandTrigger; }
+	FORCEINLINE USphereComponent* GetTrigger() { return RightHandTrigger; }
 
-	void SetupCharacterWidget(class UBossHpBarWidget* InUserWidget);
-	void SetupHUDWidget(class UBossHUDWidget* InHUDWidget);
+	void SetupCharacterWidget(UBossHpBarWidget* InUserWidget);
+	void SetupHUDWidget(UBossHUDWidget* InHUDWidget);
 	void SetHp(float NewHp);
 
 	FOnHpChangedDelegate OnHpChanged;
-	TObjectPtr<class APlayerCharacter> HoldingPlayer;
+	TObjectPtr<APlayerCharacter> HoldingPlayer;
 	bool bAllowNextPattern = false;
 
 protected:
@@ -71,19 +81,19 @@ protected:
 	virtual void AttackHitCheckEnd() override;
 
 protected:
-	void MontageEnd(class UAnimMontage* TargetMontage, bool IsProperlyEnded);
+	void MontageEnd(UAnimMontage* TargetMontage, bool IsProperlyEnded);
 
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 // UI 위젯
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Widget/*, Meta = (AllowPrivateAccess = "true")*/)
-	TObjectPtr<class UWidgetComponent> HpBar;
+	TObjectPtr<UWidgetComponent> HpBar;
 
 // 사망
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Montage, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UAnimMontage> DeadMontage;
+	TObjectPtr<UAnimMontage> DeadMontage;
 
 	virtual void SetDead();
 	void PlayDeadAnimation();
@@ -93,19 +103,19 @@ protected:
 
 protected:
 	UPROPERTY(VisibleAnywhere, Category = trigger)
-	TObjectPtr<class USphereComponent> RightHandTrigger;
+	TObjectPtr<USphereComponent> RightHandTrigger;
 
 	UPROPERTY(VisibleAnywhere, Category = trigger)
-	TObjectPtr<class USphereComponent> LeftHandTrigger;
+	TObjectPtr<USphereComponent> LeftHandTrigger;
 
 	UPROPERTY(VisibleAnywhere, Category = trigger)
-	TObjectPtr<class USphereComponent> RightFootTrigger;
+	TObjectPtr<USphereComponent> RightFootTrigger;
 
 	UPROPERTY(VisibleAnywhere, Category = trigger)
-	TObjectPtr<class USphereComponent> LeftFootTrigger;
+	TObjectPtr<USphereComponent> LeftFootTrigger;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Animation)
-	TArray<class UCainPatternInfo*> PatternInfoes;
+	TArray<UCainPatternInfo*> PatternInfoes;
 
 
 	uint8 CurrentStatus;

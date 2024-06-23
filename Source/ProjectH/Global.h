@@ -3,6 +3,7 @@
 //C++ & STL
 #include <unordered_map>
 #include <map>
+#include <vector>
 
 //Unreal
 #include "Kismet/GameplayStatics.h"
