@@ -27,6 +27,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/SceneCaptureComponent2D.h"
+#include "Particles/ParticleSystem.h"
 #include "Animation/AnimMontage.h"
 
 //ют╥б
@@ -452,6 +453,10 @@ void APlayerCharacter::Hit(const FVector& ParticleSpawnLocation)
 
 	ResetAttack();
 	SetMovementState(EMovementState::EMS_Hit);
+
+	if (HitParticle)
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitParticle, ParticleSpawnLocation, FRotator(0.f), false);
+
 	PlayAnimMontage(HitMontage);
 }
 

@@ -76,6 +76,8 @@ void AEquipmentItem::End_UnEquip()
 	bEquipped = false;
 	bEquipping = false;
 	EquipType = EEquipType::ET_None;
-	Cast<APlayerCharacter>(GetOwnerCharacter())->EmptyWeapon();
+	auto Player = Cast<APlayerCharacter>(GetOwnerCharacter());
+	if(Player)
+		Player->EmptyWeapon();
 	Destroy();
 }

@@ -18,6 +18,7 @@ class UAnimMontage;
 class UInputMappingContext;
 class UInputAction;
 class USceneCaptureComponent2D;
+class UParticleSystem;
 
 class UInventoryComponent;
 
@@ -356,6 +357,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Montage", meta = (AllowPrivateAccess = "true"))
 		UAnimMontage* ParryMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Particle")
+		UParticleSystem* HitParticle;
 
 	UPROPERTY(VisibleAnywhere, Category = "Attack")
 		bool bIsAttacking = false;
