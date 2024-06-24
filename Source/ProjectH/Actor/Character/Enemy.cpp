@@ -134,7 +134,7 @@ void AEnemy::Hit(const FVector& ParticleSpawnLocation)
 
 	if (HitParticle)
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitParticle, ParticleSpawnLocation, FRotator(0.f), false);
-	PlayAnimMontage(HitMontage);
+	if (Alive())PlayAnimMontage(HitMontage);
 
 }
 

@@ -126,7 +126,11 @@ public:
 };
 
 UCLASS()
-class PROJECTH_API APlayerCharacter : public ACharacter, public IWeaponInterface, public IHitInterface
+class PROJECTH_API APlayerCharacter 
+	: 
+	public ACharacter, 
+	public IWeaponInterface, 
+	public IHitInterface
 {
 	GENERATED_BODY()
 
