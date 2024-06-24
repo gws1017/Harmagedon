@@ -15,6 +15,7 @@
 #include "System/Sound/SoundManager.h"
 
 #include "Data/CharacterAbilityTables.h"
+#include "Data/PlayerData.h"
 
 #include "Component/InventoryComponent.h"
 #include "Global.h"
@@ -45,15 +46,14 @@ APlayerCharacter::APlayerCharacter()
 	WeaponEquipped(EWeaponEquipped::EWE_Fist),
 	MovementState(EMovementState::EMS_Normal),
 	Stat{ 1,5,4,2,1,2,2 },
-	BlockMinStamina(0.1f),
-	BlockStaminaRate(0.35f),
-	GuardStaminaDeclineRate(0.4f),
-	StaminaRegenRate(2.f),
-	RollStamina(33.f),
-	RunStamina(5.f),
+	BlockMinStamina(PLAYER_BLOCK_MIN_STAMINA),
+	BlockStaminaRate(PLAYER_BLOCK_STAMINA_REGEN),
+	GuardStaminaDeclineRate(PLAYER_BLOCK_FAIL_DECLINE_RATE),
+	StaminaRegenRate(PLAYER_STAMINA_REGEN),
+	RollStamina(PLAYER_ROLL_STAIMINA),
+	RunStamina(PLAYER_RUN_STAMINA_RATE),
 	ParryStamina(10.f),
 	FaceAngle(150.f),
-	WalkSpeed(400.f), RunSpeed(600.f),
 	StartPoint(0.f,0.f,0.f)
 {
 	//Tick함수 안쓰면 일단 꺼놓기
@@ -86,7 +86,7 @@ APlayerCharacter::APlayerCharacter()
 
 	bUseControllerRotationYaw = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
-	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+	GetCharacterMovement()->MaxWalkSpeed = PLAYER_WALK_SPEED;
 	GetCharacterMovement()->SetWalkableFloorAngle(70.f);
 
 	GetCapsuleComponent()->SetCollisionProfileName(CPROFILE_HCAPSULE);
@@ -372,7 +372,7 @@ void APlayerCharacter::OffRightClick()
 {
 	bBlocking = false;
 	bBlockFail = false;
-	StaminaRegenRate = 2.f;
+	StaminaRegenRate = PLAYER_STAMINA_REGEN;
 }
 
 void APlayerCharacter::RightSpecialClick()
@@ -684,13 +684,13 @@ void APlayerCharacter::OnRunning()
 {
 	CheckFalse(GetStaminaRate() > RunStamina);
 	SetMovementState(EMovementState::EMS_Run);
-	GetCharacterMovement()->MaxWalkSpeed = RunSpeed;
+	GetCharacterMovement()->MaxWalkSpeed = PLAYER_RUN_SPEED;
 }
 
 void APlayerCharacter::OffRunning()
 {
 	SetMovementNormal();
-	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+	GetCharacterMovement()->MaxWalkSpeed = PLAYER_WALK_SPEED;
 }
 
 void APlayerCharacter::SmoothRoll()

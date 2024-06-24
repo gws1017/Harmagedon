@@ -419,10 +419,6 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Status")
 		float FaceAngle;
 	
-	UPROPERTY(EditAnywhere, Category = "Status")
-		float WalkSpeed;
-	UPROPERTY(EditAnywhere, Category = "Status")
-		float RunSpeed;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Status")
 		FRotator RollDestination;
