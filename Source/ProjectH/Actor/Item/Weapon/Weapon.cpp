@@ -204,7 +204,13 @@ void AWeapon::BasicAttack()
 
 void AWeapon::Block()
 {
-	//CLog::Log(GetName() + " Block");
+	auto Player = Cast<APlayerCharacter>(GetOwnerCharacter());
+	if (Player)
+	{
+		CheckFalse(Player->CanBlock());
+		Player->SetBlock(true);
+		Player->SetBlockStaminaRegenRate();
+	}
 }
 
 void AWeapon::StrongAttack()

@@ -28,5 +28,4 @@ public:
 		UFUNCTION(BlueprintCallable)
 		void Parry();
 
-		void Guard();
 };

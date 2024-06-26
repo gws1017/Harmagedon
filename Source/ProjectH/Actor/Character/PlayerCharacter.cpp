@@ -682,9 +682,14 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 
 void APlayerCharacter::OnRunning()
 {
-	CheckFalse(GetStaminaRate() > RunStamina);
-	SetMovementState(EMovementState::EMS_Run);
-	GetCharacterMovement()->MaxWalkSpeed = PLAYER_RUN_SPEED;
+	// 달리기로 스테미나 전부소모시 전부회복될때까지 , 달리기가 먹히지 않음 
+	if (GetStaminaRate() > RunStamina)
+	{
+		SetMovementState(EMovementState::EMS_Run);
+		GetCharacterMovement()->MaxWalkSpeed = PLAYER_RUN_SPEED;
+	}
+	else
+		OffRunning();
 }
 
 void APlayerCharacter::OffRunning()
