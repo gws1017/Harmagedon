@@ -53,6 +53,7 @@ enum class EMovementState : uint8
 	EMS_Hit UMETA(DisplayName = "Hit"),
 	EMS_Dead UMETA(DisplayName = "Dead"),
 	EMS_Roll UMETA(DisplayName = "Roll"),
+	EMS_Exhausted UMETA(DisplayName = "Exhausted"),
 	EMS_MAX UMETA(DisplayName = "DefaultMAX")
 };
 
@@ -292,6 +293,7 @@ private:
 	bool CanAction(EEquipType Type);
 	bool CanMove();
 	bool CanHit();
+	bool CanRun();
 
 	void UpdateStamina(float DeltaStamina);
 
