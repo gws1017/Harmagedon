@@ -4,6 +4,7 @@
 #include "GameFramework/Character.h"
 #include "Interface/WeaponInterface.h"
 #include "Interface/HitInterface.h"
+#include "Interface/ICharacter.h"
 #include "PlayerCharacter.generated.h"
 
 //헤더는 전방선언 할 것
@@ -131,7 +132,8 @@ class PROJECTH_API APlayerCharacter
 	: 
 	public ACharacter, 
 	public IWeaponInterface, 
-	public IHitInterface
+	public IHitInterface,
+	public IICharacter
 {
 	GENERATED_BODY()
 
