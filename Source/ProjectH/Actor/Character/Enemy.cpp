@@ -24,7 +24,7 @@ AEnemy::AEnemy()
 	UHelpers::CreateComponent<USphereComponent>(this, &ActionSphere, "ActionSphere", GetRootComponent());
 
 	AgroSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Ignore);
-
+	
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	AIControllerClass = nullptr;
 	Controller = nullptr;
@@ -56,6 +56,18 @@ void AEnemy::BeginPlay()
 	ActionSphere->InitSphereRadius(ActionRadius);
 	AgroSphere->SetRelativeLocation(FVector(DetectRadius, 0.f, 0.f));
 	ActionSphere->SetRelativeLocation(FVector(ActionRadius, 0.f, 0.f));
+
+	//Debug Setting
+	if (UKismetSystemLibrary::IsPackagedForDistribution())
+	{
+		AgroSphere->bHiddenInGame = true;
+		ActionSphere->bHiddenInGame = true;
+	}
+	else
+	{
+		AgroSphere->bHiddenInGame = false;
+		ActionSphere->bHiddenInGame = false;
+	}
 
 	SpawnLocation = GetActorLocation();
 }

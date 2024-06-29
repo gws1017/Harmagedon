@@ -82,8 +82,6 @@ APlayerCharacter::APlayerCharacter()
 	UHelpers::CreateComponent<UStaticMeshComponent>(this, &ShoulderArmorComponents[0], "LeftShoulderArmor", GetMesh());
 	UHelpers::CreateComponent<UStaticMeshComponent>(this, &ShoulderArmorComponents[1], "RightShoulderArmor", GetMesh());
 
-
-
 	bUseControllerRotationYaw = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->MaxWalkSpeed = PLAYER_WALK_SPEED;
@@ -93,6 +91,7 @@ APlayerCharacter::APlayerCharacter()
 
 	SpringArm->bDoCollisionTest = false;
 	SpringArm->bUsePawnControlRotation = true;
+	
 	Tags.Add("Player");
 }
 
@@ -120,6 +119,16 @@ void APlayerCharacter::BeginPlay()
 
 	TargetingSphere->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::TargetingBeginOverlap);
 	TargetingSphere->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::TargetingEndOverlap);
+
+	//Debug Setting
+	if (UKismetSystemLibrary::IsPackagedForDistribution()) //Package
+	{
+		TargetingSphere->bHiddenInGame = true;
+	}
+	else //Editor
+	{
+		TargetingSphere->bHiddenInGame = false;
+	}
 
 	//LoadGameData();
 	InitStatusInfo();
