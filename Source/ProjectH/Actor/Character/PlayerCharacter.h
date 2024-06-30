@@ -218,7 +218,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 		FORCEINLINE void SetStr(const float value) { Stat.Strength = value; }
 
-	void SetWeapon(EEquipType Type, AWeapon* Instance);
+	UFUNCTION(BlueprintCallable)
+		FORCEINLINE void MoveStartPoint() { SetActorLocation(StartPoint); }
+
+ 	void SetWeapon(EEquipType Type, AWeapon* Instance);
 	void EmptyWeapon();
 public:
 
@@ -238,6 +241,7 @@ public:
 
 	void IncrementExp(float Amount);
 	void LevelUp(const FPlayerStatus& data);
+	void StatusRestore();
 
 	void DecrementStamina(float Amount);
 

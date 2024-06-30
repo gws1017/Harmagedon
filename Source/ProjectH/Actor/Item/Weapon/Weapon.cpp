@@ -107,7 +107,7 @@ void AWeapon::WeaponApplyDamage(AActor* OtherActor, const FHitResult& SweepResul
 			if (other == nullptr || IgnoreActors.Contains(OtherActor)) continue;
 			IgnoreActors.AddUnique(result.GetActor());
 			result.ImpactPoint = GetActorLocation();
-			float DamageValue = UGameplayStatics::ApplyPointDamage(OtherActor, Damage + AdditionalDamage, Owner->GetActorForwardVector(), result, WeaponInstigator, Owner, DamageTypeClass);
+			float DamageValue = UGameplayStatics::ApplyPointDamage(OtherActor, Damage + AdditionalDamage, Owner->GetActorForwardVector(), result, WeaponInstigator, this, DamageTypeClass);
 			if (DamageValue > 0.f)
 				other->Hit(GetActorLocation());
 		}

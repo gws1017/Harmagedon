@@ -16,9 +16,10 @@ ASavePoint::ASavePoint()
 	UHelpers::CreateComponent<UStaticMeshComponent>(this, &BallMesh, "BallMesh", OverlapBox);
 	UHelpers::CreateComponent<UStaticMeshComponent>(this, &WaterMesh, "WaterMesh", OverlapBox);
 	UHelpers::CreateComponent<UNiagaraComponent>(this, &ItemEffect, "Effect", OverlapBox);
+
+	ItemEffect->SetAutoActivate(false);
 }
 
-// Called when the game starts or when spawned
 void ASavePoint::BeginPlay()
 {
 	Super::BeginPlay();
@@ -53,10 +54,16 @@ void ASavePoint::OnInteraction()
 {
 	APlayerCharacter* player = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 
+	//사운드 이펙트 활성화
 	ASoundManager::GetSoundManager()->PlaySFXAtLocation(this, ESFXType::ESFXType_Save, GetActorLocation());
+	if (ItemEffect->GetAsset())
+		ItemEffect->Activate(true);
 
-	player->SetHP(player->GetMaxHP());
+	//플레이어 정보 초기화
+	player->StatusRestore();
 	player->SetStartPoint(player->GetActorLocation());
+
+	//몹 리젠
 	TArray<AEnemySpawner*> SpawnerArray;
 	UHelpers::FindActors<AEnemySpawner>(GetWorld(), SpawnerArray);
 	for (auto spawner : SpawnerArray)

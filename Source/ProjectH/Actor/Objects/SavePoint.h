@@ -5,6 +5,10 @@
 #include "Interface/InteractionInterface.h"
 #include "SavePoint.generated.h"
 
+class UBoxComponent;
+class UStaticMeshComponent;
+class UNiagaraComponent;
+
 UCLASS()
 class PROJECTH_API ASavePoint : public AActor, public IInteractionInterface
 {
@@ -40,14 +44,14 @@ public:
 private:
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Component")
-		class UBoxComponent* OverlapBox;
+		UBoxComponent* OverlapBox;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Component")
-		class UStaticMeshComponent* Mesh;
+		UStaticMeshComponent* Mesh;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Component")
-		class UStaticMeshComponent* BallMesh;	
+		UStaticMeshComponent* BallMesh;	
 	UPROPERTY(VisibleDefaultsOnly, Category = "Component")
-		class UStaticMeshComponent*	WaterMesh;
+		UStaticMeshComponent*	WaterMesh;
 	UPROPERTY(EditDefaultsOnly)
-		class UNiagaraComponent* ItemEffect;
+		UNiagaraComponent* ItemEffect;
 };

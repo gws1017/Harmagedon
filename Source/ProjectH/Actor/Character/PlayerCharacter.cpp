@@ -130,7 +130,7 @@ void APlayerCharacter::BeginPlay()
 		TargetingSphere->bHiddenInGame = false;
 	}
 
-	//LoadGameData();
+	LoadGameData();
 	InitStatusInfo();
 
 	//인벤토리 방어구 캡처
@@ -227,13 +227,16 @@ float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 		const FPointDamageEvent* PointDamageEvent = static_cast<const FPointDamageEvent*>(&DamageEvent);
 		hitinfo = PointDamageEvent->HitInfo;
 	}
-	CheckGuard(DamageAmount, DamageCauser, hitinfo);
-	CheckParry(DamageAmount, DamageCauser);
+	AEnemy* enemy = nullptr;
+	enemy = Cast<AEnemy>(DamageCauser->GetOwner());
+	if(!enemy) enemy = Cast<AEnemy>(DamageCauser);
+
+	CheckGuard(DamageAmount, enemy, hitinfo);
+	CheckParry(DamageAmount, enemy);
 
 	if (Stat.HP - DamageAmount <= 0.f)
 	{
 		Stat.HP = FMath::Clamp(Stat.HP - DamageAmount, 0.0f, Stat.MaxHP);
-		AEnemy* enemy = Cast<AEnemy>(DamageCauser);
 		if (enemy)
 		{
 			enemy->InitTarget();
@@ -632,6 +635,13 @@ void APlayerCharacter::LevelUp(const FPlayerStatus& data)
 	SaveGameData();
 }
 
+void APlayerCharacter::StatusRestore()
+{
+	Stat.HP = Stat.MaxHP;
+	Stat.Stamina = Stat.MaxStamina;
+	Stat.Mana = Stat.MaxMana;
+}
+
 ABasicPlayerController* APlayerCharacter::GetPlayerController()
 {
 	if (!!PlayerController)
@@ -924,7 +934,6 @@ bool APlayerCharacter::CheckParry(float& DamageAmount, AActor* DamageCauser)
 		ASoundManager::GetSoundManager()->PlaySFXAtLocation(this, ESFXType::ESFXType_ParrySucc, GetActorLocation());
 
 		auto enemy = Cast<AEnemy>(DamageCauser);
-		enemy->SetActionState(EMonsterAction::EMA_Stun);
 		enemy->Stun();
 
 		CLog::Print("Parry Succ");
