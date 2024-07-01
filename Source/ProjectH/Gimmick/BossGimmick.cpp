@@ -1,13 +1,12 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Gimmick/BossGimmick.h"
 #include "Actor/Character/PlayerCharacter.h"
 #include "Actor/Controller/BasicPlayerController.h"
 #include "Actor/Character/Cain.h"
+#include "System/Sound/SoundManager.h"
+#include "Global.h"
+
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "Utilities/UHelpers.h"
 
 // Sets default values
 ABossGimmick::ABossGimmick()
@@ -36,6 +35,8 @@ void ABossGimmick::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* O
             TArray<ACain*> cain;
             UHelpers::FindActors(GetWorld(), cain);
             PlayerController->ShowBossHUD(cain[0]);
+            ASoundManager::GetSoundManager()->SetBGM(EBGMType::EBGMType_BossCain);
+            ASoundManager::GetSoundManager()->PlayBGM();
         }
     }
 }

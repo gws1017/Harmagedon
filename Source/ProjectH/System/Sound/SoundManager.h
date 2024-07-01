@@ -14,6 +14,7 @@ enum class EBGMType : uint8
 	EBGMType_None UMETA(DisplayName = "None"),
 	EBGMType_Lobby UMETA(DisplayName = "Lobby"),
 	EBGMType_InGame UMETA(DisplayName = "InGame"),
+	EBGMType_BossCain UMETA(DisplayName = "Boss Cain"),
 	ESFXType_DefaultMax UMETA(DisplayName = "Max")
 };
 
