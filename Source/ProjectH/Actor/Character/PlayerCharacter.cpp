@@ -241,6 +241,27 @@ float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	return DamageAmount;
 }
 
+void APlayerCharacter::Landed(const FHitResult& Hit)
+{
+	Super::Landed(Hit);
+
+	// 게임 플레이 내 카인 가져오기
+
+	if (IsThrownByBoss)
+	{
+		TArray<ACain*> cainArray;
+
+		UHelpers::FindActors(GetWorld(), cainArray);
+
+		if (!cainArray.IsEmpty() && cainArray[0])
+		{
+			TakeDamage(268, FDamageEvent(), cainArray[0]->GetController(), cainArray[0]);
+		}
+
+		IsThrownByBoss = false;
+	}
+}
+
 
 void APlayerCharacter::TargetingBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {

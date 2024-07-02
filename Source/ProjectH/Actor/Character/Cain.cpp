@@ -337,8 +337,7 @@ void ACain::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 			playerActor->LaunchCharacter(GetActorForwardVector() * 1000, false, false);
 		}
 
-		if (CurrentStatus == static_cast<uint8>(EPattern::GRAB)
-			|| CurrentStatus == static_cast<uint8>(EPattern::THROWDOWN))
+		if (CurrentStatus == static_cast<uint8>(EPattern::GRAB))
 		{
 			playerActor->GetCharacterMovement()->DisableMovement();
 			playerActor->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -357,7 +356,8 @@ void ACain::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 		}
 
 		if (CurrentStatus == static_cast<uint8>(EPattern::PUNCH1)
-			|| CurrentStatus == static_cast<uint8>(EPattern::GRAB))
+			|| CurrentStatus == static_cast<uint8>(EPattern::GRAB)
+			|| CurrentStatus == static_cast<uint8>(EPattern::PUNCH2))
 		{
 			UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 			if (AnimInstance && AnimInstance->Montage_IsPlaying(PatternInfoes[CurrentStatus]->BTMontage))

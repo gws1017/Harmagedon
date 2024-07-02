@@ -153,7 +153,9 @@ public:
 	UFUNCTION()
 		virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
+	virtual void Landed(const FHitResult& Hit) override;
 
+	void SetThrownByBoss(bool flag) { IsThrownByBoss = flag; }
 
 public:
 
@@ -449,4 +451,7 @@ private:
 		ABasicPlayerController* PlayerController;
 
 		IInteractionInterface* OverlappingActor;
+
+
+	bool IsThrownByBoss = false;
 };
