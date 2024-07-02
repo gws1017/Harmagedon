@@ -505,7 +505,7 @@ void APlayerCharacter::LoadGameData()
 		FSaveData Data = LoadGameInstance->SaveData;
 		Stat = Data.Status;
 		Stat.Stamina = Stat.MaxStamina;
-		SetActorLocation(Data.Location);
+		if(Data.Location.IsNearlyZero() == false) SetActorLocation(Data.Location);
 		SetActorRotation(Data.Rotation);
 		StartPoint = Data.StartPoint;
 		if (Data.LostExp != 0) {
