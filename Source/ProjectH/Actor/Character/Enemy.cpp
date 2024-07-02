@@ -6,17 +6,17 @@
 
 #include "Global.h"
 
-
 #include "Animation/AnimMontage.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
 #include "Particles/ParticleSystem.h"
-#include "Enemy.h"
+
+#include "Engine/DamageEvents.h"
+
 
 AEnemy::AEnemy()
 	: MaxHP(1), HP(1), Exp(1),
 	AttackRange(20.f)
-	, ActionState(EMonsterAction::EMA_Normal)
 {
 	PrimaryActorTick.bCanEverTick = false;
 
@@ -24,7 +24,7 @@ AEnemy::AEnemy()
 	UHelpers::CreateComponent<USphereComponent>(this, &ActionSphere, "ActionSphere", GetRootComponent());
 
 	AgroSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Ignore);
-
+	
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	AIControllerClass = nullptr;
 	Controller = nullptr;
@@ -57,6 +57,18 @@ void AEnemy::BeginPlay()
 	AgroSphere->SetRelativeLocation(FVector(DetectRadius, 0.f, 0.f));
 	ActionSphere->SetRelativeLocation(FVector(ActionRadius, 0.f, 0.f));
 
+	//Debug Setting
+	if (UKismetSystemLibrary::IsPackagedForDistribution())
+	{
+		AgroSphere->bHiddenInGame = true;
+		ActionSphere->bHiddenInGame = true;
+	}
+	else
+	{
+		AgroSphere->bHiddenInGame = false;
+		ActionSphere->bHiddenInGame = false;
+	}
+
 	SpawnLocation = GetActorLocation();
 }
 
@@ -71,9 +83,27 @@ float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AC
 	DamageAmount = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	if (DamageAmount <= 0.f)
 		return DamageAmount;
-	auto Player = Cast<APlayerCharacter>(DamageCauser);
+
+	const FPointDamageEvent* PointEvent = nullptr;
+	if (DamageEvent.IsOfType(FPointDamageEvent::ClassID))
+	{
+		PointEvent = StaticCast<const FPointDamageEvent*>(&DamageEvent);
+	}
+
+	APlayerCharacter* Player = nullptr;
+	Player = Cast<APlayerCharacter>(DamageCauser->GetOwner());
+	if(!Player) Player = Cast<APlayerCharacter>(DamageCauser);
+
 	if (HP - DamageAmount <= 0.f) //체력이 0이될때 적용후 Die함수 호출
 	{
+		FVector HitLocation;
+		if (!!PointEvent)
+			HitLocation = PointEvent->HitInfo.ImpactPoint;
+		else
+			HitLocation = DamageCauser->GetActorLocation();
+		// 죽더라도 Hit 효과는 재생해야함
+		PlayHitEffect(HitLocation);
+
 		HP = FMath::Clamp(HP - DamageAmount, 0.0f, MaxHP);
 
 		//플레이어를 인식하지 못한경우에서 죽으면 오류가 발생하니 캐스팅 이용해야함
@@ -118,7 +148,6 @@ void AEnemy::Attack()
 	CheckFalse(CombatTarget->Alive());
 	CheckFalse(bAlerted);
 	CheckTrue(bAttacking);
-	CheckTrue(ActionState == EMonsterAction::EMA_Stun);
 
 	bAttacking = true;
 
@@ -128,14 +157,20 @@ void AEnemy::Attack()
 	}
 }
 
-void AEnemy::Hit(const FVector& ParticleSpawnLocation)
+void AEnemy::PlayHitEffect(const FVector& ParticleSpawnLocation)
 {
-	ASoundManager::GetSoundManager()->PlaySFXAtLocation(this, ESFXType::ESFXType_IronToMeat, GetActorLocation());
-
 	if (HitParticle)
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitParticle, ParticleSpawnLocation, FRotator(0.f), false);
-	if (Alive())PlayAnimMontage(HitMontage);
+	ASoundManager::GetSoundManager()->PlaySFXAtLocation(this, ESFXType::ESFXType_IronToMeat, GetActorLocation());
+}
 
+void AEnemy::Hit(const FVector& ParticleSpawnLocation)
+{
+	CheckFalse(CanHit());
+
+	PlayHitEffect(ParticleSpawnLocation);
+	
+	PlayAnimMontage(HitMontage);
 }
 
 void AEnemy::Stun()
@@ -148,7 +183,6 @@ void AEnemy::Stun()
 		GetController()->StopMovement();
 		StopAnimMontage();
 	}
-	SetActionState(EMonsterAction::EMA_Stun);
 	PlayAnimMontage(StunMontage);
 	CLog::Print("Stun");
 }
@@ -233,4 +267,12 @@ bool AEnemy::IsRanged(float radius)
 	return false;
 }
 
+bool AEnemy::CanHit()
+{
+	bool ret = true;
+	
+	ret = Alive();
+
+	return ret;
+}
 

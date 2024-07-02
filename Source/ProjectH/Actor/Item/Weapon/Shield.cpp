@@ -23,8 +23,6 @@ void AShield::BasicAttack()
 void AShield::Block()
 {
 	Super::Block();
-
-	Guard();
 }
 
 void AShield::Parry()
@@ -40,15 +38,4 @@ void AShield::Parry()
 
 	GetOwnerCharacter()->PlayAnimMontage(SpecialAttackMontage);
 
-}
-
-void AShield::Guard()
-{
-	auto Player = Cast<APlayerCharacter>(GetOwnerCharacter());
-	if (Player)
-	{
-		CheckFalse(Player->CanBlock());
-		Player->SetBlock(true);
-		Player->SetBlockStaminaRegenRate();
-	}
 }

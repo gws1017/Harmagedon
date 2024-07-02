@@ -4,6 +4,7 @@
 #include "GameFramework/Character.h"
 #include "Interface/WeaponInterface.h"
 #include "Interface/HitInterface.h"
+#include "Interface/ICharacter.h"
 #include "PlayerCharacter.generated.h"
 
 //헤더는 전방선언 할 것
@@ -53,6 +54,7 @@ enum class EMovementState : uint8
 	EMS_Hit UMETA(DisplayName = "Hit"),
 	EMS_Dead UMETA(DisplayName = "Dead"),
 	EMS_Roll UMETA(DisplayName = "Roll"),
+	EMS_Exhausted UMETA(DisplayName = "Exhausted"),
 	EMS_MAX UMETA(DisplayName = "DefaultMAX")
 };
 
@@ -130,7 +132,8 @@ class PROJECTH_API APlayerCharacter
 	: 
 	public ACharacter, 
 	public IWeaponInterface, 
-	public IHitInterface
+	public IHitInterface,
+	public IICharacter
 {
 	GENERATED_BODY()
 
@@ -217,7 +220,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 		FORCEINLINE void SetStr(const float value) { Stat.Strength = value; }
 
-	void SetWeapon(EEquipType Type, AWeapon* Instance);
+	UFUNCTION(BlueprintCallable)
+		FORCEINLINE void MoveStartPoint() { SetActorLocation(StartPoint); }
+
+ 	void SetWeapon(EEquipType Type, AWeapon* Instance);
 	void EmptyWeapon();
 public:
 
@@ -237,6 +243,7 @@ public:
 
 	void IncrementExp(float Amount);
 	void LevelUp(const FPlayerStatus& data);
+	void StatusRestore();
 
 	void DecrementStamina(float Amount);
 
@@ -294,6 +301,7 @@ private:
 	bool CanAction(EEquipType Type);
 	bool CanMove();
 	bool CanHit();
+	bool CanRun();
 
 	void UpdateStamina(float DeltaStamina);
 

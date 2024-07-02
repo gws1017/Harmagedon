@@ -230,7 +230,10 @@ float ACain::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, ACo
 
 	++HitCount;
 
-	APlayerCharacter* playerCharacter = Cast<APlayerCharacter>(DamageCauser);
+	APlayerCharacter* playerCharacter = Cast<APlayerCharacter>(DamageCauser->GetOwner());
+	if(playerCharacter == nullptr)
+		playerCharacter = Cast<APlayerCharacter>(DamageCauser);
+
 	ABasicPlayerController* playerController = Cast<ABasicPlayerController>(playerCharacter->GetController());
 	SetupHUDWidget(playerController->GetBossHUD());
 
@@ -329,6 +332,7 @@ void ACain::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 	{
 		// 데미지 전달
 		playerActor->TakeDamage(CurrentAttackDamage, DamageEvent, GetController(), this);
+		playerActor->Hit(OverlappedComponent->GetComponentLocation());
 		AttackCheckStart = false;
 
 		// 아래는 데미지 입은 후 처리

@@ -16,17 +16,6 @@ class UDamageType;
 
 DECLARE_DELEGATE(FDercementEnemyCount);
 
-UENUM(BlueprintType)
-enum class EMonsterAction : uint8
-{
-	EMA_None,
-	EMA_Normal UMETA(DisplayName = "Normal"),
-	EMA_Alert UMETA(DisplayName = "Alert"),
-	EMA_AttackReady UMETA(DisplayName = "AttackReady"),
-	EMA_StandBy UMETA(DisplayName = "StandBy"),
-	EMA_Stun UMETA(DisplayName = "Stun"),
-	EMA_MAX UMETA(DisplayName = "DefaultMAX")
-};
 
 UCLASS()
 class PROJECTH_API AEnemy : public ACharacter, public IICharacter, public IHitInterface
@@ -62,7 +51,6 @@ public:
 public:
 
 	//Getter
-	FORCEINLINE EMonsterAction GetActionState() const { return ActionState; }
 	FORCEINLINE bool GetAlerted() { return bAlerted; }
 	FORCEINLINE bool IsAttacking() { return bAttacking; }
 	UFUNCTION(BlueprintPure)
@@ -83,7 +71,6 @@ public:
 	//Setter
 	//FORCEINLINE void SetSpawner(class AEnemySpawner* obj) { Spawner = obj; }
 	FORCEINLINE void SetAlerted(bool value) { bAlerted = value; }
-	FORCEINLINE void SetActionState(const EMonsterAction value) { ActionState = value; }
 
 	
 	
@@ -93,6 +80,7 @@ public:
 	virtual void End_Attack();
 	virtual void Attack();
 
+	void PlayHitEffect(const FVector& ParticleSpawnLocation);
 	virtual void Hit(const FVector& ParticleSpawnLocation);
 
 	virtual void Stun();
@@ -105,8 +93,6 @@ public:
 
 	void StopMove();
 
-	void AlertEnd();
-
 	UFUNCTION()
 		virtual bool IsHitActorAreaAttack(const FVector& start, const FVector& end,
 			float radius, TArray<AActor*>& HitActors);
@@ -114,6 +100,11 @@ public:
 		bool IsRanged(float radius );
 
 	FDercementEnemyCount DecrementEnemyFunc;
+
+protected:
+
+	virtual bool CanHit();
+
 
 protected:
 
@@ -136,7 +127,6 @@ protected:
 	//UPROPERTY(VisibleDefaultsOnly)
 		//class AEnemySpawner* Spawner;
 
-	
 	UPROPERTY(EditAnywhere, Category = "AI")
 		TSubclassOf<AEnemyController> EnemyControllerClass;
 	UPROPERTY(EditAnywhere, Category = "AI")
@@ -150,6 +140,8 @@ protected:
 		bool bAlerted;
 	UPROPERTY(EditAnywhere, Category = "AI")
 		bool bShowDebug = false;
+	UPROPERTY(VisibleAnywhere, Category = "AI")
+		bool bAttacking = false;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Montage")
 		UAnimMontage* StunMontage;
@@ -166,15 +158,9 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "AI")
 		APlayerCharacter* CombatTarget;
 
-	//몬스터의 행동패턴을 결정짓는 enum class
-	UPROPERTY(VisibleAnywhere, Category = "Behavior Tree")
-		EMonsterAction ActionState;
-
 	FTimerHandle AlertTimer;
 	float AlertDuration = 3.0f;
 	FTimerHandle DeathTimer;
 	float DeathDelay = 3.0f;
 
-	UPROPERTY(VisibleAnywhere, Category = "Behavior Tree")
-		bool bAttacking = false;
 };

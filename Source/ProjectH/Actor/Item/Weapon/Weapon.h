@@ -100,8 +100,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Montage")
 		UAnimMontage* AttackMontage;
 	UPROPERTY(EditDefaultsOnly, Category = "Montage")
-		UAnimMontage* BlockMontage;
-	UPROPERTY(EditDefaultsOnly, Category = "Montage")
 		UAnimMontage* StrongAttackMontage;
 	UPROPERTY(EditDefaultsOnly, Category = "Montage")
 		UAnimMontage* SpecialAttackMontage;

@@ -1,6 +1,9 @@
 #include "Actor/Character/NormalMonster.h"
 #include "Actor/Character/PlayerCharacter.h"
 #include "Actor/Controller/EnemyController.h"
+
+#include "System/Sound/SoundManager.h"
+
 #include "Global.h"
 
 #include "Components/ArrowComponent.h"
@@ -8,6 +11,7 @@
 
 ANormalMonster::ANormalMonster()
 	:MaxStamina(50.f), StaminaRgenRate(2.0f)
+	, ActionState(EMonsterAction::EMA_Normal)
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -117,6 +121,22 @@ bool ANormalMonster::CanAttack() const
 	CheckTrueResult(bAttacking, false);
 	CheckTrueResult(ActionState == EMonsterAction::EMA_Stun, false);
 	return result;
+}
+
+void ANormalMonster::Hit(const FVector& ParticleSpawnLocation)
+{
+	CheckFalse(CanHit());
+
+	PlayHitEffect(ParticleSpawnLocation);
+
+	if(EMonsterAction::EMA_Stun != ActionState)
+		PlayAnimMontage(HitMontage);
+}
+
+void ANormalMonster::Stun()
+{
+	Super::Stun();
+	SetActionState(EMonsterAction::EMA_Stun);
 }
 
 void ANormalMonster::SetChase(const float Speed)

@@ -27,4 +27,6 @@ public:
 	virtual void DeathEnd() = 0;
 
 	virtual bool Alive() = 0;
+
+	virtual void Die() = 0;
 };

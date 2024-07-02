@@ -54,7 +54,7 @@ APlayerCharacter::APlayerCharacter()
 	RunStamina(PLAYER_RUN_STAMINA_RATE),
 	ParryStamina(10.f),
 	FaceAngle(150.f),
-	StartPoint(0.f,0.f,0.f)
+	StartPoint(0.f, 0.f, 0.f)
 {
 	//Tick함수 안쓰면 일단 꺼놓기
 	PrimaryActorTick.bCanEverTick = true;
@@ -73,16 +73,14 @@ APlayerCharacter::APlayerCharacter()
 	HandArmorComponents.Init(nullptr, 2);
 	ShoulderArmorComponents.Init(nullptr, 2);
 
-	UHelpers::CreateComponent<USkeletalMeshComponent>(this, &ChestArmorComponent, "ChestArmor",GetMesh());
-	UHelpers::CreateComponent<USkeletalMeshComponent>(this, &PantsArmorComponent, "PantsArmor",GetMesh());
-	UHelpers::CreateComponent<USkeletalMeshComponent>(this, &ShoesArmorComponent, "ShoeArmor",GetMesh());
-	UHelpers::CreateComponent<UStaticMeshComponent>(this, &HeadArmorComponent, "HeadArmor",GetMesh());
+	UHelpers::CreateComponent<USkeletalMeshComponent>(this, &ChestArmorComponent, "ChestArmor", GetMesh());
+	UHelpers::CreateComponent<USkeletalMeshComponent>(this, &PantsArmorComponent, "PantsArmor", GetMesh());
+	UHelpers::CreateComponent<USkeletalMeshComponent>(this, &ShoesArmorComponent, "ShoeArmor", GetMesh());
+	UHelpers::CreateComponent<UStaticMeshComponent>(this, &HeadArmorComponent, "HeadArmor", GetMesh());
 	UHelpers::CreateComponent<UStaticMeshComponent>(this, &HandArmorComponents[0], "LeftHandArmor", GetMesh());
 	UHelpers::CreateComponent<UStaticMeshComponent>(this, &HandArmorComponents[1], "RightHandArmor", GetMesh());
 	UHelpers::CreateComponent<UStaticMeshComponent>(this, &ShoulderArmorComponents[0], "LeftShoulderArmor", GetMesh());
 	UHelpers::CreateComponent<UStaticMeshComponent>(this, &ShoulderArmorComponents[1], "RightShoulderArmor", GetMesh());
-
-	
 
 	bUseControllerRotationYaw = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
@@ -93,6 +91,7 @@ APlayerCharacter::APlayerCharacter()
 
 	SpringArm->bDoCollisionTest = false;
 	SpringArm->bUsePawnControlRotation = true;
+	
 	Tags.Add("Player");
 }
 
@@ -103,13 +102,13 @@ void APlayerCharacter::BeginPlay()
 	PlayerController = Cast<ABasicPlayerController>(GetController());
 
 	//인벤토리 아이템 추가
-	InventoryComponent->AddItem(1,false);
-	InventoryComponent->AddItem(10,false);
-	InventoryComponent->AddItem(20,false);
-	InventoryComponent->AddItem(30,false);
-	InventoryComponent->AddItem(40,false);
-	InventoryComponent->AddItem(50,false);
-	InventoryComponent->AddItem(60,false);
+	InventoryComponent->AddItem(1, false);
+	InventoryComponent->AddItem(10, false);
+	InventoryComponent->AddItem(20, false);
+	InventoryComponent->AddItem(30, false);
+	InventoryComponent->AddItem(40, false);
+	InventoryComponent->AddItem(50, false);
+	InventoryComponent->AddItem(60, false);
 
 	//소켓 설정
 	HeadArmorComponent->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), TEXT("HeadSocket"));
@@ -121,7 +120,17 @@ void APlayerCharacter::BeginPlay()
 	TargetingSphere->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::TargetingBeginOverlap);
 	TargetingSphere->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::TargetingEndOverlap);
 
-	//LoadGameData();
+	//Debug Setting
+	if (UKismetSystemLibrary::IsPackagedForDistribution()) //Package
+	{
+		TargetingSphere->bHiddenInGame = true;
+	}
+	else //Editor
+	{
+		TargetingSphere->bHiddenInGame = false;
+	}
+
+	LoadGameData();
 	InitStatusInfo();
 
 	//인벤토리 방어구 캡처
@@ -148,7 +157,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 	float DeltaStamina = StaminaRegenRate * DeltaTime;
 	UpdateStamina(DeltaStamina);
-	
+
 	SmoothRoll();
 
 	if (bTargetLock)
@@ -180,7 +189,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 		//우측 무기 공격
 		EnhancedInput->BindAction(AttackAction, ETriggerEvent::Triggered, this, &APlayerCharacter::LeftClick);
-		
+
 		//좌측 무기 공격
 		EnhancedInput->BindAction(RightClickAction, ETriggerEvent::Triggered, this, &APlayerCharacter::RightClick);
 		EnhancedInput->BindAction(RightClickAction, ETriggerEvent::Completed, this, &APlayerCharacter::OffRightClick);
@@ -198,7 +207,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInput->BindAction(OpenEquipUIAction, ETriggerEvent::Triggered, GetPlayerController(), &ABasicPlayerController::ToggleEquipMenu);
 		//EnhancedInput->BindAction(EscAction, ETriggerEvent::Triggered, this, &APlayerCharacter::);
 	}
-	
+
 }
 
 
@@ -213,18 +222,21 @@ float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 		DamageAmount = 0;
 
 	FHitResult hitinfo;
- 	if (DamageEvent.IsOfType(FPointDamageEvent::ClassID))
+	if (DamageEvent.IsOfType(FPointDamageEvent::ClassID))
 	{
 		const FPointDamageEvent* PointDamageEvent = static_cast<const FPointDamageEvent*>(&DamageEvent);
 		hitinfo = PointDamageEvent->HitInfo;
 	}
-	CheckGuard(DamageAmount, DamageCauser,hitinfo);
-	CheckParry(DamageAmount, DamageCauser);
+	AEnemy* enemy = nullptr;
+	enemy = Cast<AEnemy>(DamageCauser->GetOwner());
+	if(!enemy) enemy = Cast<AEnemy>(DamageCauser);
+
+	CheckGuard(DamageAmount, enemy, hitinfo);
+	CheckParry(DamageAmount, enemy);
 
 	if (Stat.HP - DamageAmount <= 0.f)
 	{
 		Stat.HP = FMath::Clamp(Stat.HP - DamageAmount, 0.0f, Stat.MaxHP);
-		AEnemy* enemy = Cast<AEnemy>(DamageCauser);
 		if (enemy)
 		{
 			enemy->InitTarget();
@@ -294,7 +306,7 @@ float APlayerCharacter::GetDamage(const EEquipType Type) const
 {
 	float Damage = Stat.PhyDamage;
 	Damage += GetWeaponDamage(Type);
-	
+
 	return Damage;
 }
 
@@ -354,7 +366,7 @@ void APlayerCharacter::AttackCombo(const EEquipType Type)
 				{
 					ResetAttack();
 					GetWorld()->GetTimerManager().ClearTimer(ResetTimer);
-				}),0.3f,false);
+				}), 0.3f, false);
 		}
 	}
 	else
@@ -380,7 +392,7 @@ void APlayerCharacter::LeftClick()
 		bIsAttacking = true;
 		RightWeapon->BasicAttack();
 	}
-		
+
 }
 
 void APlayerCharacter::RightClick()
@@ -430,7 +442,7 @@ void APlayerCharacter::PlayAttackMontage(const EEquipType Type)
 	AnimInstance->Montage_JumpToSection(FName(SectionName));
 
 	AttackCount++;
-	if(CurrentWeapon)
+	if (CurrentWeapon)
 		DecrementStamina(CurrentWeapon->GetStaminaCost());
 }
 
@@ -478,7 +490,7 @@ void APlayerCharacter::Hit(const FVector& ParticleSpawnLocation)
 	if (HitParticle)
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitParticle, ParticleSpawnLocation, FRotator(0.f), false);
 
-	if(Alive())PlayAnimMontage(HitMontage);
+	if (Alive())PlayAnimMontage(HitMontage);
 }
 
 void APlayerCharacter::SaveGameData(int32 SaveType)
@@ -514,7 +526,7 @@ void APlayerCharacter::LoadGameData()
 		FSaveData Data = LoadGameInstance->SaveData;
 		Stat = Data.Status;
 		Stat.Stamina = Stat.MaxStamina;
-		SetActorLocation(Data.Location);
+		if(Data.Location.IsNearlyZero() == false) SetActorLocation(Data.Location);
 		SetActorRotation(Data.Rotation);
 		StartPoint = Data.StartPoint;
 		if (Data.LostExp != 0) {
@@ -533,7 +545,7 @@ void APlayerCharacter::LoadGameData()
 		GetMesh()->bNoSkeletonUpdate = false;
 	}
 	else CLog::Log("SaveData is not valid");
-;
+	;
 }
 
 void APlayerCharacter::InitStatusInfo()
@@ -644,6 +656,13 @@ void APlayerCharacter::LevelUp(const FPlayerStatus& data)
 	SaveGameData();
 }
 
+void APlayerCharacter::StatusRestore()
+{
+	Stat.HP = Stat.MaxHP;
+	Stat.Stamina = Stat.MaxStamina;
+	Stat.Mana = Stat.MaxMana;
+}
+
 ABasicPlayerController* APlayerCharacter::GetPlayerController()
 {
 	if (!!PlayerController)
@@ -697,20 +716,23 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 				bLockSwitching = false;
 				}, 1.f, false);
 		}
-		
+
 	}
 }
 
 void APlayerCharacter::OnRunning()
 {
-	CheckFalse(GetStaminaRate() > RunStamina);
-	SetMovementState(EMovementState::EMS_Run);
-	GetCharacterMovement()->MaxWalkSpeed = PLAYER_RUN_SPEED;
+	// 달리기로 스테미나 전부소모시 전부회복될때까지 , 달리기가 먹히지 않음 
+	if (CanRun())
+	{
+		SetMovementState(EMovementState::EMS_Run);
+		GetCharacterMovement()->MaxWalkSpeed = PLAYER_RUN_SPEED;
+	}
 }
 
 void APlayerCharacter::OffRunning()
 {
-	SetMovementNormal();
+	if (MovementState != EMovementState::EMS_Exhausted) SetMovementNormal();
 	GetCharacterMovement()->MaxWalkSpeed = PLAYER_WALK_SPEED;
 }
 
@@ -778,7 +800,7 @@ void APlayerCharacter::DetectTarget()
 
 		TArray<TEnumAsByte<EObjectTypeQuery>> ObjectsTypes =
 		{ UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_PhysicsBody) };
-		TArray<AActor*> IgonerActor = {this};
+		TArray<AActor*> IgonerActor = { this };
 		FHitResult Result;
 
 		UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), Start, End, Radius,
@@ -840,7 +862,7 @@ void APlayerCharacter::SwapTargetRight()
 					CloseTarget = enemy;
 				}
 			}
-		
+
 		}
 	}
 	LockedTarget = CloseTarget;
@@ -919,21 +941,20 @@ bool APlayerCharacter::CheckParry(float& DamageAmount, AActor* DamageCauser)
 	//플레이어 방향을 확인하라
 	if (CheckFace(DamageCauser) == false)
 		bParryFail = true;
-		
+
 	if (bCanParry && !bParryFail)
 	{
 		if (DamageAmount > 0)//무적은아니지만 이후 4프레임에서 패링을 성공함
 		{
-			CheckNullResult(LeftWeapon,false);
+			CheckNullResult(LeftWeapon, false);
 			DamageAmount = DamageAmount * (1.0f - LeftWeapon->GetPhysicalDefenseRate());
 			DecrementStamina(Stat.MaxStamina * 0.2f);
 		}
 		bParrySucc = true;
 
 		ASoundManager::GetSoundManager()->PlaySFXAtLocation(this, ESFXType::ESFXType_ParrySucc, GetActorLocation());
-		
+
 		auto enemy = Cast<AEnemy>(DamageCauser);
-		enemy->SetActionState(EMonsterAction::EMA_Stun);
 		enemy->Stun();
 
 		CLog::Print("Parry Succ");
@@ -950,7 +971,7 @@ bool APlayerCharacter::CheckParry(float& DamageAmount, AActor* DamageCauser)
 bool APlayerCharacter::CanRoll()
 {
 	CheckTrueResult(bIsAttacking, false);
-	CheckNullResult(RollMontage,false);
+	CheckNullResult(RollMontage, false);
 	CheckTrueResult(PlayerController->bShowMouseCursor, false);
 	switch (MovementState)
 	{
@@ -960,7 +981,7 @@ bool APlayerCharacter::CanRoll()
 		return false;
 	default:
 		break;
-		
+
 	}
 	if (Stat.Stamina - RollStamina > 0)
 		return true;
@@ -1011,6 +1032,17 @@ bool APlayerCharacter::CanHit()
 	return result;
 }
 
+bool APlayerCharacter::CanRun()
+{
+	switch (MovementState)
+	{
+	case EMovementState::EMS_Roll:
+	case EMovementState::EMS_Exhausted:
+		return false;
+	}
+	return true;
+}
+
 bool APlayerCharacter::CanBlock()
 {
 	//CheckTrueResult(bBlocking,false);
@@ -1036,9 +1068,28 @@ bool APlayerCharacter::CanBlock()
 void APlayerCharacter::UpdateStamina(float DeltaStamina)
 {
 	CheckTrue(MovementState == EMovementState::EMS_Dead); //죽었을 때 종료
+	CheckTrue(MovementState == EMovementState::EMS_Roll)
+
+	if (GetStaminaRate() <= RunStamina)
+	{
+		SetMovementState(EMovementState::EMS_Exhausted);
+		OffRunning();
+	}
+
+
+	if (MovementState == EMovementState::EMS_Exhausted)
+	{
+		if (GetStaminaRate() >= 100.f)
+		{
+			SetMovementNormal();
+		}
+	}
+
 	CheckTrue((Stat.Stamina == Stat.MaxStamina) && (MovementState != EMovementState::EMS_Run)); //스테미나 변동이 없을 시 종료
 
 	CanBlock();
+
+
 
 	if (MovementState == EMovementState::EMS_Run && FMath::IsNearlyZero(GetVelocity().Length()) == false)
 	{
