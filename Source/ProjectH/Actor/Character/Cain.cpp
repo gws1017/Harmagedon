@@ -185,9 +185,6 @@ void ACain::SetMontageFinDelegate(const FCainMontageFinished& InFinished)
 
 void ACain::PlayMontageByAI(EPattern InAnimMon)
 {
-	// 이동 불가 설정
-	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
-
 	// 지정한 속도로 콤보 몽타주 재생
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	CurrentStatus = static_cast<uint8>(InAnimMon);
