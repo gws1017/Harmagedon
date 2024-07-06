@@ -6,12 +6,14 @@
 
 void UAnimNotify_CainAttackHitCheckEnd::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
+	Super::Notify(MeshComp, Animation, EventReference);
+
 	if (MeshComp)
 	{
 		ICainAnimNotifyInterface* AttackPawn = Cast<ICainAnimNotifyInterface>(MeshComp->GetOwner());
 		if (AttackPawn)
 		{
-			AttackPawn->AttackHitCheck();
+			AttackPawn->AttackHitCheckEnd();
 		}
 	}
 }
