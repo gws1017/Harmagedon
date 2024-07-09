@@ -158,7 +158,6 @@ public:
 
 	virtual void Landed(const FHitResult& Hit) override;
 
-	void SetThrownByBoss(bool flag) { IsThrownByBoss = flag; }
 
 public:
 
@@ -216,6 +215,7 @@ public:
 	FORCEINLINE void SetCanParryed(const bool value) { bCanParry = value; }
 	FORCEINLINE void SetBlock(const bool value) { bBlocking = value; }
 	FORCEINLINE void SetHP(const float value) { Stat.HP = value; }
+	FORCEINLINE void SetThrownByBoss(bool flag) { IsThrownByBoss = flag; }
 	FORCEINLINE void SetStartPoint(const FVector Loc) { StartPoint = Loc; }
 	UFUNCTION(BlueprintCallable)
 		FORCEINLINE void SetStr(const float value) { Stat.Strength = value; }
@@ -401,6 +401,8 @@ private:
 		FPlayerStatus Stat;
 
 	UPROPERTY(VisibleAnywhere, Category = "Status")
+		bool IsThrownByBoss = false;  //보스한테 잡혀서 착지했는지 확인
+	UPROPERTY(VisibleAnywhere, Category = "Status")
 		bool bBlockFail = false;
 	UPROPERTY(VisibleAnywhere, Category = "Status")
 		bool bBlocking = false;
@@ -461,5 +463,5 @@ private:
 		IInteractionInterface* OverlappingActor;
 
 
-	bool IsThrownByBoss = false;
+		
 };
