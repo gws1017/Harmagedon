@@ -217,6 +217,7 @@ public:
 	FORCEINLINE void SetHP(const float value) { Stat.HP = value; }
 	FORCEINLINE void SetThrownByBoss(bool flag) { IsThrownByBoss = flag; }
 	FORCEINLINE void SetStartPoint(const FVector Loc) { StartPoint = Loc; }
+	FORCEINLINE void SetCurrentPotionCount(const int32 cnt) { CurrentPotionCount = cnt; }
 	UFUNCTION(BlueprintCallable)
 		FORCEINLINE void SetStr(const float value) { Stat.Strength = value; }
 
@@ -240,6 +241,8 @@ public:
 	void UnEquip(const EEquipType Type);
 	void QuickUnEquip(AWeapon* Instance);
 	void EquipArmor(const EEquipType Type, USkeletalMesh* SkeletalMesh, const TArray<UStaticMesh*> StaticMeshes);
+
+	void UseComsumableItem();
 
 	void IncrementExp(float Amount);
 	void LevelUp(const FPlayerStatus& data);
@@ -343,6 +346,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 		UInputAction* RollAction;
 	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+		UInputAction* UseItemAction;
+	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 		UInputAction* AttackAction;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
@@ -363,6 +368,7 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Montage", meta = (AllowPrivateAccess = "true"))
 		UAnimMontage* DeathMontage;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Montage", meta = (AllowPrivateAccess = "true"))
 		UAnimMontage* HitMontage;
 
@@ -371,6 +377,8 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Montage", meta = (AllowPrivateAccess = "true"))
 		UAnimMontage* ParryMontage;
+
+
 
 	UPROPERTY(EditDefaultsOnly, Category = "Particle")
 		UParticleSystem* HitParticle;
@@ -430,6 +438,8 @@ private:
 		float ParryStamina;
 	UPROPERTY(EditAnywhere, Category = "Status")
 		float FaceAngle;
+	UPROPERTY(VisibleAnywhere, Category = "Status")
+		int32 CurrentPotionCount;
 	
 
 	UPROPERTY(EditDefaultsOnly, Category = "Status")
@@ -455,6 +465,8 @@ private:
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly, Category = "TargetSystem", meta = (AllowPrivateAccess = "true"))
 		AActor* LockedTarget;
 
+	UPROPERTY(EditAnywhere, Category = "BPClass")
+		TSubclassOf<AItem> SelectItemClass;
 	UPROPERTY(EditAnywhere, Category = "BPClass")
 		TSubclassOf<AExpItem> LostExpClass;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Controller")

@@ -39,6 +39,7 @@ public:
 	virtual void Equip(EEquipType Type) {};
 	virtual void UnEquip(EEquipType Type) {};
 	virtual void Use() {};
+	virtual void UseFail() {};
 
 protected:
 
