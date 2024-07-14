@@ -158,7 +158,6 @@ public:
 
 	virtual void Landed(const FHitResult& Hit) override;
 
-	void SetThrownByBoss(bool flag) { IsThrownByBoss = flag; }
 
 public:
 
@@ -216,7 +215,9 @@ public:
 	FORCEINLINE void SetCanParryed(const bool value) { bCanParry = value; }
 	FORCEINLINE void SetBlock(const bool value) { bBlocking = value; }
 	FORCEINLINE void SetHP(const float value) { Stat.HP = value; }
+	FORCEINLINE void SetThrownByBoss(bool flag) { IsThrownByBoss = flag; }
 	FORCEINLINE void SetStartPoint(const FVector Loc) { StartPoint = Loc; }
+	FORCEINLINE void SetCurrentPotionCount(const int32 cnt) { CurrentPotionCount = cnt; }
 	UFUNCTION(BlueprintCallable)
 		FORCEINLINE void SetStr(const float value) { Stat.Strength = value; }
 
@@ -240,6 +241,8 @@ public:
 	void UnEquip(const EEquipType Type);
 	void QuickUnEquip(AWeapon* Instance);
 	void EquipArmor(const EEquipType Type, USkeletalMesh* SkeletalMesh, const TArray<UStaticMesh*> StaticMeshes);
+
+	void UseComsumableItem();
 
 	void IncrementExp(float Amount);
 	void LevelUp(const FPlayerStatus& data);
@@ -343,6 +346,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 		UInputAction* RollAction;
 	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+		UInputAction* UseItemAction;
+	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 		UInputAction* AttackAction;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
@@ -363,6 +368,7 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Montage", meta = (AllowPrivateAccess = "true"))
 		UAnimMontage* DeathMontage;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Montage", meta = (AllowPrivateAccess = "true"))
 		UAnimMontage* HitMontage;
 
@@ -371,6 +377,8 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Montage", meta = (AllowPrivateAccess = "true"))
 		UAnimMontage* ParryMontage;
+
+
 
 	UPROPERTY(EditDefaultsOnly, Category = "Particle")
 		UParticleSystem* HitParticle;
@@ -401,6 +409,8 @@ private:
 		FPlayerStatus Stat;
 
 	UPROPERTY(VisibleAnywhere, Category = "Status")
+		bool IsThrownByBoss = false;  //보스한테 잡혀서 착지했는지 확인
+	UPROPERTY(VisibleAnywhere, Category = "Status")
 		bool bBlockFail = false;
 	UPROPERTY(VisibleAnywhere, Category = "Status")
 		bool bBlocking = false;
@@ -428,6 +438,8 @@ private:
 		float ParryStamina;
 	UPROPERTY(EditAnywhere, Category = "Status")
 		float FaceAngle;
+	UPROPERTY(VisibleAnywhere, Category = "Status")
+		int32 CurrentPotionCount;
 	
 
 	UPROPERTY(EditDefaultsOnly, Category = "Status")
@@ -454,6 +466,8 @@ private:
 		AActor* LockedTarget;
 
 	UPROPERTY(EditAnywhere, Category = "BPClass")
+		TSubclassOf<AItem> SelectItemClass;
+	UPROPERTY(EditAnywhere, Category = "BPClass")
 		TSubclassOf<AExpItem> LostExpClass;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Controller")
 		ABasicPlayerController* PlayerController;
@@ -461,5 +475,5 @@ private:
 		IInteractionInterface* OverlappingActor;
 
 
-	bool IsThrownByBoss = false;
+		
 };

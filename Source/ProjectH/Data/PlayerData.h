@@ -11,3 +11,6 @@
 
 #define PLAYER_WALK_SPEED 400.f //걷기 속도
 #define PLAYER_RUN_SPEED 600.f //달리기 속도
+
+#define PLAYER_TUTORIAL_MAP_NAME "TutorialLevel_Test"
+#define MAX_POTION_COUNT 1

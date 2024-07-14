@@ -183,10 +183,10 @@ void UInventoryComponent::UpdateSlot()
 //	Slot = nullptr;
 //}
 
-void UInventoryComponent::Equip(USlot* SelectSlot, USlot* EquipSlot, AItem* ItemInstance)
+void UInventoryComponent::Equip(USlot* SelectSlot, USlot* InvenSlot, AItem* ItemInstance)
 {
 	//UI에서 전달받은 장비창 슬롯정보로 아이템을 장비한다
-	if (EquipSlot == nullptr)
+	if (InvenSlot == nullptr)
 	{
 		CLog::Log("Equip State Error");
 		return;
@@ -197,18 +197,18 @@ void UInventoryComponent::Equip(USlot* SelectSlot, USlot* EquipSlot, AItem* Item
 	{
 		QuickUnEquip(SelectSlot);
 	}
-	if (!!EquipSlot && EquipSlot->bEquipped == true)
+	if (!!InvenSlot && InvenSlot->bEquipped == true)
 	{
-		QuickUnEquip(EquipSlot);
+		QuickUnEquip(InvenSlot);
 	}
 
 	SelectSlot->bEquipped = true;
-	auto InvenData = InventoryContents.Find(EquipSlot->ItemInfo.ItemCode);
+	auto InvenData = InventoryContents.Find(InvenSlot->ItemInfo.ItemCode);
 	InvenData->Slot = SelectSlot;
 	InvenData->bEquipped = true;
 
 	auto Type = SelectSlot->EquipType;
-	AEquipmentItem* Instance = Cast<AEquipmentItem>(GetCDOItem(EquipSlot->ItemInfo.AssetData.ItemClass));
+	AEquipmentItem* Instance = Cast<AEquipmentItem>(GetCDOItem(InvenSlot->ItemInfo.AssetData.ItemClass));
 	Instance->SetOwner(Player);
 
 	AArmor* ArmorItem = Cast<AArmor>(Instance);
@@ -216,7 +216,7 @@ void UInventoryComponent::Equip(USlot* SelectSlot, USlot* EquipSlot, AItem* Item
 	if (Type == EEquipType::ET_LeftWeapon || Type == EEquipType::ET_RightWeapon)
 	{
 		Instance = Cast<AWeapon>(AItem::Spawn<AItem>(GetWorld(),
-			EquipSlot->ItemInfo.AssetData.ItemClass, Cast<ACharacter>(GetOwner())));
+			InvenSlot->ItemInfo.AssetData.ItemClass, Cast<ACharacter>(GetOwner())));
 		Player->SetWeapon(Type, Cast<AWeapon>(Instance));
 		Player->SetCapture(Instance, true);
 		Player->ActiveWeapon = Cast<AWeapon>(Instance);

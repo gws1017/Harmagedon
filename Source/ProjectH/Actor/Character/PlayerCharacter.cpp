@@ -54,6 +54,7 @@ APlayerCharacter::APlayerCharacter()
 	RunStamina(PLAYER_RUN_STAMINA_RATE),
 	ParryStamina(10.f),
 	FaceAngle(150.f),
+	CurrentPotionCount(1),
 	StartPoint(0.f, 0.f, 0.f)
 {
 	//Tick함수 안쓰면 일단 꺼놓기
@@ -183,6 +184,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInput->BindAction(RunAction, ETriggerEvent::Triggered, this, &APlayerCharacter::OnRunning);
 		EnhancedInput->BindAction(RunAction, ETriggerEvent::Completed, this, &APlayerCharacter::OffRunning);
 
+		EnhancedInput->BindAction(UseItemAction, ETriggerEvent::Triggered, this, &APlayerCharacter::UseComsumableItem);
 
 		//구르기
 		EnhancedInput->BindAction(RollAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Roll);
@@ -527,7 +529,11 @@ void APlayerCharacter::LoadGameData()
 		FSaveData Data = LoadGameInstance->SaveData;
 		Stat = Data.Status;
 		Stat.Stamina = Stat.MaxStamina;
-		if(Data.Location.IsNearlyZero() == false) SetActorLocation(Data.Location);
+		if (Data.Location.IsNearlyZero() == false)
+		{
+			if(UGameplayStatics::GetCurrentLevelName(GetWorld()) == PLAYER_TUTORIAL_MAP_NAME)
+				SetActorLocation(Data.Location);
+		}
 		SetActorRotation(Data.Rotation);
 		StartPoint = Data.StartPoint;
 		if (Data.LostExp != 0) {
@@ -646,6 +652,26 @@ void APlayerCharacter::EquipArmor(const EEquipType Type, USkeletalMesh* Skeletal
 	}
 }
 
+void APlayerCharacter::UseComsumableItem()
+{
+	auto AnimInstance = GetMesh()->GetAnimInstance();
+
+	//장착한 아이템 블루프린트 정보로 스폰한다
+	CheckNull(SelectItemClass);
+	auto SpawnItem = AItem::Spawn<AItem>(GetWorld(), SelectItemClass, this);
+
+	//인벤토리에서 아이템 수량을 가져와야함
+	//SpawnItem->GetItemData().ItemCode
+	if (CurrentPotionCount > 0)
+	{
+		CurrentPotionCount--;
+		SpawnItem->Use();
+	}
+	else
+		SpawnItem->UseFail();
+
+}
+
 void APlayerCharacter::IncrementExp(float Amount)
 {
 	Stat.Exp += Amount;
@@ -662,6 +688,7 @@ void APlayerCharacter::StatusRestore()
 	Stat.HP = Stat.MaxHP;
 	Stat.Stamina = Stat.MaxStamina;
 	Stat.Mana = Stat.MaxMana;
+	CurrentPotionCount = MAX_POTION_COUNT;
 }
 
 ABasicPlayerController* APlayerCharacter::GetPlayerController()
