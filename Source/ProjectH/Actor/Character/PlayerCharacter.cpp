@@ -249,7 +249,8 @@ float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 		Stat.HP = FMath::Clamp(Stat.HP - DamageAmount, 0.0f, Stat.MaxHP);
 	}
 
-	UE_LOG(LogTemp, Display, L"Player Current HP : %f", Stat.HP);
+	//UE_LOG(LogTemp, Display, L"Player Current HP : %f", Stat.HP);
+	UE_LOG(LogTemp, Display, L"%f", DamageAmount);
 	return DamageAmount;
 }
 

@@ -33,19 +33,19 @@ ACain::ACain()
 	GetCapsuleComponent()->SetCollisionProfileName(CPROFILE_HCAPSULE);
 
 	RightHandTrigger = CreateDefaultSubobject<USphereComponent>(TEXT("RightHandTrigger"));
-	RightHandTrigger->SetSphereRadius(20.0f);
+	RightHandTrigger->SetSphereRadius(30.0f);
 	RightHandTrigger->SetupAttachment(GetMesh(), TEXT("SwordRSocket"));
 
 	LeftHandTrigger = CreateDefaultSubobject<USphereComponent>(TEXT("LeftHandTrigger"));
-	LeftHandTrigger->SetSphereRadius(20.0f);
+	LeftHandTrigger->SetSphereRadius(30.0f);
 	LeftHandTrigger->SetupAttachment(GetMesh(), TEXT("SwordLSocket"));
 
 	RightFootTrigger = CreateDefaultSubobject<USphereComponent>(TEXT("RightFootTrigger"));
-	RightFootTrigger->SetSphereRadius(20.0f);
+	RightFootTrigger->SetSphereRadius(30.0f);
 	RightFootTrigger->SetupAttachment(GetMesh(), TEXT("RightFootSocket"));
 
 	LeftFootTrigger = CreateDefaultSubobject<USphereComponent>(TEXT("LeftFootTrigger"));
-	LeftFootTrigger->SetSphereRadius(20.0f);
+	LeftFootTrigger->SetSphereRadius(30.0f);
 	LeftFootTrigger->SetupAttachment(GetMesh(), TEXT("LeftFootSocket"));
 
 
@@ -329,7 +329,7 @@ void ACain::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 	{
 		// 데미지 전달
 		playerActor->TakeDamage(CurrentAttackDamage, DamageEvent, GetController(), this);
-		playerActor->Hit(OverlappedComponent->GetComponentLocation());
+		//playerActor->Hit(OverlappedComponent->GetComponentLocation());
 		AttackCheckStart = false;
 
 		// 아래는 데미지 입은 후 처리
@@ -367,7 +367,6 @@ void ACain::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 			}
 
 			bAllowNextPattern = true;
-			AttackCheckStart = true;
 		}
 	}
 }
