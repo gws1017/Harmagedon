@@ -329,7 +329,7 @@ void ACain::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 	{
 		// 데미지 전달
 		playerActor->TakeDamage(CurrentAttackDamage, DamageEvent, GetController(), this);
-		//playerActor->Hit(OverlappedComponent->GetComponentLocation());
+		playerActor->Hit(OverlappedComponent->GetComponentLocation());
 		AttackCheckStart = false;
 
 		// 아래는 데미지 입은 후 처리
