@@ -1,7 +1,9 @@
 #include "Actor/Objects/SceneTrigger.h"
 #include "Actor/Character/PlayerCharacter.h"
 #include "Actor/Controller/BasicPlayerController.h"
+#include "Actor/Character/Cain.h"
 #include "Actor/Character/Enemy.h"
+#include "System/Sound/SoundManager.h"
 #include "Global.h"
 
 #include "Components/BoxComponent.h"
@@ -58,7 +60,7 @@ void ASceneTrigger::PlayScene(APlayerCharacter* player)
 	float EndTime = StaticCast<float>(SequencePlayer->GetEndTime().AsSeconds());
 
 	SequencePlayer->Play();
-	GetWorldTimerManager().SetTimer(CutSceneTimer, [&]() {
+	GetWorldTimerManager().SetTimer(CutSceneTimer, [this,player, StopActors]() {
 		for (auto actor : StopActors)
 		{
 			actor->SetActorHiddenInGame(false);
@@ -71,7 +73,21 @@ void ASceneTrigger::PlayScene(APlayerCharacter* player)
 void ASceneTrigger::FinishScene(APlayerCharacter* player)
 {
 	//컷신 종료후 처리할 내용
-	CLog::Print("Scene End");
+	//CLog::Print("Scene End");
+
+	// 보스 스폰 후 보스 체력 띄우기
+	CheckNull(CainBP);
+	FActorSpawnParameters params;
+	UWorld* WorldRef = player->GetWorld();
+	auto CainRef = WorldRef->SpawnActor<ACain>(CainBP, SpawnPosition,FRotator::ZeroRotator, params);
+	bPlayerEnterRoom = true;
+
+	ABasicPlayerController* PlayerController = player->GetPlayerController();
+	PlayerController->ShowBossHUD(CainRef);
+
+	CainRef->SetActorLocation(SpawnPosition);
+	ASoundManager::GetSoundManager()->SetBGM(EBGMType::EBGMType_BossCain);
+	ASoundManager::GetSoundManager()->PlayBGM();
 }
 
 

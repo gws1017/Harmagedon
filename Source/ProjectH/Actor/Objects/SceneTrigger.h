@@ -11,6 +11,7 @@ class UBoxComponent;
 class USoundCue;
 class UStaticMeshComponent;
 
+class ACain;
 class APlayerCharacter;
 
 UCLASS()
@@ -29,6 +30,10 @@ public:
 	UFUNCTION()
 		void OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+public:
+
+	UFUNCTION()
+		bool IsPlayerEnterRoom() const { return bPlayerEnterRoom; }
 
 private:
 
@@ -43,5 +48,12 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Sequence")
 		ULevelSequence* CutScene;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Actor")
+		FVector SpawnPosition;
+	UPROPERTY(EditDefaultsOnly, Category = "Actor")
+		TSubclassOf<ACain> CainBP;
+
 	FTimerHandle CutSceneTimer;
+
+	bool bPlayerEnterRoom;
 };

@@ -2,7 +2,6 @@
 #include "Actor/Character/PlayerCharacter.h"
 #include "Actor/Controller/BasicPlayerController.h"
 #include "Actor/Character/Cain.h"
-#include "System/Sound/SoundManager.h"
 #include "Global.h"
 
 #include "Components/BoxComponent.h"
@@ -34,9 +33,10 @@ void ABossGimmick::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* O
         {
             TArray<ACain*> cain;
             UHelpers::FindActors(GetWorld(), cain);
-            PlayerController->ShowBossHUD(cain[0]);
-            ASoundManager::GetSoundManager()->SetBGM(EBGMType::EBGMType_BossCain);
-            ASoundManager::GetSoundManager()->PlayBGM();
+            if (cain.IsEmpty() == false)
+            {
+                PlayerController->ShowBossHUD(cain[0]);
+            }
         }
     }
 }
