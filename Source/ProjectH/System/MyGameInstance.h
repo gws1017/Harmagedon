@@ -22,8 +22,13 @@ public:
 	struct FCharacterAbilityData* GetCharAbilityData(int32 Level);
 	struct FItemData* GetItemData(int64 ItemCode);
 
+	bool IsNewGame() { return bIsNewGame; }
+	void SetIsNewGame(const bool value) { bIsNewGame = value; }
 
 private:
+
+	UPROPERTY(VisibleAnywhere, Category = "GameSetting");
+	bool bIsNewGame = false;
 
 	UPROPERTY(EditAnywhere, Category = "Data");
 	class UDataTable* CharacterAbilityData;

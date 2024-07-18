@@ -24,6 +24,8 @@ void ABasicPlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	InitializeUIInstance();
+	SetInputMode(FInputModeGameOnly{});
+
 }
 
 void ABasicPlayerController::InitializeUIInstance()

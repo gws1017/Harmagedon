@@ -15,7 +15,6 @@
 #include "System/Sound/SoundManager.h"
 
 #include "Data/CharacterAbilityTables.h"
-#include "Data/PlayerData.h"
 
 #include "Component/InventoryComponent.h"
 #include "Global.h"
@@ -35,9 +34,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "InputActionValue.h"
-#include "PlayerCharacter.h"
-#include "Data/HCollision.h"
 
+#include "Data/HCollision.h"
 #include "Engine/DamageEvents.h"
 
 APlayerCharacter::APlayerCharacter()
@@ -130,9 +128,22 @@ void APlayerCharacter::BeginPlay()
 	{
 		TargetingSphere->bHiddenInGame = false;
 	}
+	auto GameInstance = GetGameInstance<UMyGameInstance>();
 
-	LoadGameData();
-	InitStatusInfo();
+	if (GameInstance->IsNewGame() == false)
+	{
+		LoadGameData();
+		InitStatusInfo();
+	}
+	else
+	{
+		Stat.Intelligence = 1;
+		Stat.Enduarance = 1;
+		Stat.Strength = 1;
+		Stat.Vitality = 1;
+		Stat.Energy = 1;
+		InitStatusInfo();
+	}
 
 	//인벤토리 방어구 캡처
 	SceneCapture->ShowOnlyComponent(GetMesh());
@@ -530,7 +541,7 @@ void APlayerCharacter::LoadGameData()
 		Stat.Stamina = Stat.MaxStamina;
 		if (Data.Location.IsNearlyZero() == false)
 		{
-			if(UGameplayStatics::GetCurrentLevelName(GetWorld()) == PLAYER_TUTORIAL_MAP_NAME)
+			if(UGameplayStatics::GetCurrentLevelName(GetWorld()) == TUTORIAL_LEVEL)
 				SetActorLocation(Data.Location);
 		}
 		SetActorRotation(Data.Rotation);
