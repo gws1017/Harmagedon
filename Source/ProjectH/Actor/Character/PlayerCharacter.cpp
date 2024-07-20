@@ -137,11 +137,11 @@ void APlayerCharacter::BeginPlay()
 	}
 	else
 	{
-		Stat.Intelligence = 1;
-		Stat.Enduarance = 1;
-		Stat.Strength = 1;
-		Stat.Vitality = 1;
-		Stat.Energy = 1;
+		Stat.Intelligence = 5;
+		Stat.Enduarance = 5;
+		Stat.Strength = 5;
+		Stat.Vitality = 5;
+		Stat.Energy = 5;
 		InitStatusInfo();
 	}
 

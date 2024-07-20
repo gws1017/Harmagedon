@@ -2,19 +2,21 @@
 
 
 #include "Actor/Character/Cain.h"
-#include "Components/SphereComponent.h"
 #include "Actor/Controller/CainController.h"
-#include "Components/CapsuleComponent.h"
-#include "Data/HCollision.h"
-#include "Engine/DamageEvents.h"
-#include "GameFramework/CharacterMovementComponent.h"
-#include "PlayerCharacter.h"
+#include "Actor/Character/PlayerCharacter.h"
+#include "Actor/Controller/BasicPlayerController.h"
+#include "Component/CainPatternInfo.h"
 #include "UI/BossHpBarWidget.h"
 #include "UI/BossHUDWidget.h"
 #include "UI/BossWidgetComponent.h"
-#include "Actor/Controller/BasicPlayerController.h"
-#include "Component/CainPatternInfo.h"
+#include "Data/HCollision.h"
+#include "System/Sound/SoundManager.h"
 #include "Global.h"
+
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Components/SphereComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Engine/DamageEvents.h"
 
 ACain::ACain()
 {
@@ -449,6 +451,10 @@ void ACain::SetDead()
 			Destroy();
 		}
 	), DeadEventDelayTime, false);
+
+	ASoundManager::GetSoundManager()->PlaySFX2D(ESFXType::ESFXType_Restore);
+	ASoundManager::GetSoundManager()->SetBGM(EBGMType::EBGMType_InGame);
+	ASoundManager::GetSoundManager()->PlayBGM();
 }
 
 void ACain::PlayDeadAnimation()

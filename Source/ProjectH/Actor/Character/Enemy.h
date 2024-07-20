@@ -112,7 +112,7 @@ protected:
 		float MaxHP;
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Status")
 		float HP;
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Status")
 		int32 Exp;
 	UPROPERTY(EditAnywhere, Category = "AI")
 		float AttackRange;
