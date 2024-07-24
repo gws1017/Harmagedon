@@ -158,6 +158,11 @@ void ABasicPlayerController::ShowBossHUD(AActor* EnemyPawn)
 	BossHUDWidget->SetVisibility(ESlateVisibility::Visible);
 }
 
+void ABasicPlayerController::HideBossHUD()
+{
+	BossHUDWidget->SetVisibility(ESlateVisibility::Hidden);
+}
+
 class UBossHUDWidget* ABasicPlayerController::GetBossHUD()
 {
 	return BossHUDWidget;

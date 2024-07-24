@@ -40,6 +40,9 @@ public:
 	void ShowBossHUD(AActor* EnemyPawn);
 
 	UFUNCTION()
+	void HideBossHUD();
+
+	UFUNCTION()
 	class UBossHUDWidget* GetBossHUD();
 
 private:

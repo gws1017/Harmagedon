@@ -18,7 +18,6 @@ public:
 	UBossHUDWidget(const FObjectInitializer& ObjectInitializer);
 
 public:
-	//void UpdateStat(const FPdCharacterStat& BaseStat, const FPdCharacterStat& ModifierStat);
 	void UpdateHpBar(float NewCurrentHp);
 
 	UFUNCTION()
@@ -31,7 +30,4 @@ protected:
 protected:
 	UPROPERTY()
 	TObjectPtr<class UBossHpBarWidget> HpBar;
-
-	//UPROPERTY()
-	//TObjectPtr<class UPdCharacterStatWidget> CharacterStat;
 };

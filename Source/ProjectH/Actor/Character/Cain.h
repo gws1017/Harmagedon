@@ -85,11 +85,6 @@ protected:
 
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
-// UI À§Á¬
-protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Widget/*, Meta = (AllowPrivateAccess = "true")*/)
-	TObjectPtr<UWidgetComponent> HpBar;
-
 // »ç¸Á
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Montage, Meta = (AllowPrivateAccess = "true"))
@@ -99,7 +94,7 @@ protected:
 	void PlayDeadAnimation();
 
 	FOnHpZeroDelegate OnHpZero;
-	float DeadEventDelayTime = 3.0f;
+	float DeadEventDelayTime = 2.8f;
 
 protected:
 	UPROPERTY(VisibleAnywhere, Category = trigger)

@@ -50,23 +50,6 @@ ACain::ACain()
 	LeftFootTrigger->SetSphereRadius(30.0f);
 	LeftFootTrigger->SetupAttachment(GetMesh(), TEXT("LeftFootSocket"));
 
-
-
-	// 위젯 컴포넌트 생성
-	HpBar = CreateDefaultSubobject<UBossWidgetComponent>(TEXT("Widget"));
-	HpBar->SetupAttachment(GetMesh());
-
-	//HpBar->SetRelativeLocation(FVector(0.0f, 0.0f, 180.0f));
-	HpBar->SetHiddenInGame(true);
-	static ConstructorHelpers::FClassFinder<UUserWidget> HpBarWidgetRef(TEXT("/Game/UI/Blueprint/WBP_BossHPBar.WBP_BossHPBar_C"));
-	if (HpBarWidgetRef.Class)
-	{
-		HpBar->SetWidgetClass(HpBarWidgetRef.Class);
-		HpBar->SetWidgetSpace(EWidgetSpace::Screen);
-		HpBar->SetDrawSize(FVector2D(150.0f, 15.0f));
-		HpBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	}
-
 	MaxHP = 2462.0;
 	HP = 2462.0;
 
@@ -240,6 +223,7 @@ float ACain::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, ACo
 	{
 		// hp = 0 알림을 구독한 모든 곳에 알리기
 		OnHpZero.Broadcast();
+		playerController->HideBossHUD();
 	}
 
 	return ActualDamage;
@@ -434,7 +418,6 @@ void ACain::SetDead()
 	SetActorEnableCollision(false);
 
 	// hp바 숨기기 (에디터에서 체크)
-	HpBar->SetHiddenInGame(true);
 
 	// AI컨트롤러라면 중지하기
 	ACainController* PdAIController = Cast<ACainController>(GetController());
