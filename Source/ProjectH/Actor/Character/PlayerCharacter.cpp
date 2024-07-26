@@ -142,6 +142,7 @@ void APlayerCharacter::BeginPlay()
 		Stat.Strength = 5;
 		Stat.Vitality = 5;
 		Stat.Energy = 5;
+		Stat.Faith = 5;
 		InitStatusInfo();
 	}
 
