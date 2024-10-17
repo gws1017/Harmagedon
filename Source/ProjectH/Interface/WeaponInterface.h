@@ -27,5 +27,5 @@ class PROJECTH_API IWeaponInterface
 public:
 
 	virtual AWeapon* GetWeapon(const EEquipType Type = EEquipType::ET_RightWeapon) const = 0;
-	virtual float GetDamage(const EEquipType Type = EEquipType::ET_RightWeapon) const = 0;
+	//virtual float GetDamage(const EEquipType Type = EEquipType::ET_RightWeapon) const = 0;
 };

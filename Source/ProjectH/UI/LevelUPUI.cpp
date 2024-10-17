@@ -117,9 +117,9 @@ int32 ULevelUPUI::GetChangePlayerDamage()
 	{
 		return  StaticCast<int32>
 			(GameInstance->GetCharAbilityData(GetChangeStrength())->PhyDmg +
-				GetOwnerCharacter()->GetDamage(EEquipType::ET_RightWeapon));
+				GetOwnerCharacter()->GetWeaponDamage(EEquipType::ET_RightWeapon));
 	}
-	return StaticCast<int32>(GetOwnerCharacter()->GetDamage(EEquipType::ET_RightWeapon));
+	return StaticCast<int32>(GetOwnerCharacter()->GetFinalDamage(EEquipType::ET_RightWeapon));
 }
 
 void ULevelUPUI::OnClickOKBtn()

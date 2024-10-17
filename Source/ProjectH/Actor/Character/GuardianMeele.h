@@ -21,7 +21,7 @@ protected:
 public:
 	//Getter
 	virtual AWeapon* GetWeapon(const EEquipType Type) const override { return WeaponInstance; }
-	virtual float GetDamage(const EEquipType Type) const override;
+	float GetDamage(const EEquipType Type) const;
 
 	virtual void Attack() override;
 

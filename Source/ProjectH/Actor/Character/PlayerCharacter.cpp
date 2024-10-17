@@ -316,7 +316,13 @@ AWeapon* APlayerCharacter::GetWeapon(const EEquipType Type) const
 	else return nullptr;
 }
 
-float APlayerCharacter::GetDamage(const EEquipType Type) const
+float APlayerCharacter::GetFinalPoise() const
+{
+	float PoiseValue = Stat.Poise;
+	return PoiseValue;
+}
+
+float APlayerCharacter::GetFinalDamage(const EEquipType Type) const
 {
 	float Damage = Stat.PhyDamage;
 	Damage += GetWeaponDamage(Type);

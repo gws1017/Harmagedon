@@ -4,6 +4,7 @@
 
 AShield::AShield()
 {
+	ItemCode = 10;
 	SpecialAttackStaminaCost = 10.f;
 }
 

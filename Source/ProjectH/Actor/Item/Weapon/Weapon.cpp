@@ -97,6 +97,8 @@ void AWeapon::WeaponApplyDamage(AActor* OtherActor, const FHitResult& SweepResul
 
 	if (!!OtherActor && !IgnoreActors.Contains(OtherActor))
 	{
+		//GetFinalDamage함수로 한번에 가져오도록 수정
+		//WeaponInterface도 함께 수정
 		float AdditionalDamage = 0.f;
 		if (Owner->ActorHasTag("Player"))
 			AdditionalDamage = Cast<APlayerCharacter>(Owner)->GetStrDamage();

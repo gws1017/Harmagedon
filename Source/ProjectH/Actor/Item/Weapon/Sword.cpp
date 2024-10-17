@@ -3,6 +3,11 @@
 #include "Interface/HitInterface.h"
 #include "Global.h"
 
+ASword::ASword()
+{
+	ItemCode = 1;
+}
+
 void ASword::BoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	WeaponApplyDamage(OtherActor,SweepResult);

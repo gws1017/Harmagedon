@@ -196,7 +196,9 @@ public:
 	FORCEINLINE int32 GetPlayerLevel() { return Stat.Level; }
 
 	UFUNCTION(BlueprintPure)
-		virtual float GetDamage(const EEquipType Type) const;
+		float GetFinalPoise() const;
+	UFUNCTION(BlueprintPure)
+		float GetFinalDamage(const EEquipType Type) const;
 	UFUNCTION(BlueprintCallable)
 		float GetWeaponDamage(const EEquipType Type) const;
 	ABasicPlayerController* GetPlayerController();
