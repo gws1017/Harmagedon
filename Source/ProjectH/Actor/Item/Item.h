@@ -19,6 +19,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+
 public:
 	template<typename T>
 	static T* Spawn(class UWorld* InWorld, TSubclassOf<T> BPClass, ACharacter* InOwner)
@@ -44,6 +45,9 @@ public:
 protected:
 
 	void SetSocketName(EEquipType Type);
+
+	UFUNCTION(BlueprintCallable)
+	void InitializeItemData();
 
 
 protected:

@@ -7,7 +7,6 @@
 
 AArmor::AArmor()
 {
-
 }
 
 void AArmor::BeginPlay()
@@ -18,7 +17,7 @@ void AArmor::BeginPlay()
 void AArmor::Equip(EEquipType Type)
 {
 	Super::Equip(Type);
-	
+	InitializeItemData();
 	auto Player = Cast<APlayerCharacter>(GetOwnerCharacter());
-	Player->EquipArmor(Type, SkeletalMesh, StaticMeshes);
+	Player->EquipArmor(Type,this);
 }

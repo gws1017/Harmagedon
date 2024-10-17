@@ -28,6 +28,9 @@ public:
 	FORCEINLINE float GetDarkDefenseRate() { return ItemData->StatData.DarkDeffenseRate * 0.01f; }
 
 	UFUNCTION(BlueprintCallable)
+	FORCEINLINE float GetPoise() { return ItemData->StatData.Poise; }
+
+	UFUNCTION(BlueprintCallable)
 	FORCEINLINE float GetRequireStr() { return ItemData->StatData.RequiuredStrength; }
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE float GetRequireVit() { return ItemData->StatData.RequiureVitality; }

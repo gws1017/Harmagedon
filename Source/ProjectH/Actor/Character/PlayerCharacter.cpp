@@ -4,6 +4,7 @@
 #include "Actor/Controller/BasicPlayerController.h"
 #include "Actor/Character/Enemy.h"
 #include "Actor/Item/Weapon/Weapon.h"
+#include "Actor/Item/Armor.h"
 #include "Actor/Item/PickupItem.h"
 #include "Actor/Item/ExpItem.h"
 #include "UI/Slot.h"
@@ -81,7 +82,9 @@ APlayerCharacter::APlayerCharacter()
 	UHelpers::CreateComponent<UStaticMeshComponent>(this, &ShoulderArmorComponents[0], "LeftShoulderArmor", GetMesh());
 	UHelpers::CreateComponent<UStaticMeshComponent>(this, &ShoulderArmorComponents[1], "RightShoulderArmor", GetMesh());
 
+
 	bUseControllerRotationYaw = false;
+
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->MaxWalkSpeed = PLAYER_WALK_SPEED;
 	GetCharacterMovement()->SetWalkableFloorAngle(70.f);
@@ -230,7 +233,10 @@ float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	DamageAmount = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	if (DamageAmount <= 0.f)
 		return DamageAmount;
+	float prevDmg = DamageAmount;
+	DamageAmount *= (1-GetArmorPhyscisDeffenseRate());
 
+	CLog::Log("Armor Block Dmg : " + FString::SanitizeFloat(prevDmg - DamageAmount));
 	// 무적상태
 	if (bIFrame)
 		DamageAmount = 0;
@@ -316,9 +322,25 @@ AWeapon* APlayerCharacter::GetWeapon(const EEquipType Type) const
 	else return nullptr;
 }
 
+float APlayerCharacter::GetArmorPhyscisDeffenseRate() const
+{
+	float Value = 0.f;
+	for (auto [Type, Armor] : EquippedArmor)
+	{
+		Value += Armor->GetPhysicalDefenseRate();
+	}
+	return Value;
+}
+
 float APlayerCharacter::GetFinalPoise() const
 {
 	float PoiseValue = Stat.Poise;
+
+	//방어구 강인도 합산
+	for (auto [Type, Armor] : EquippedArmor)
+	{
+		PoiseValue += Armor->GetPoise();
+	}
 	return PoiseValue;
 }
 
@@ -635,38 +657,42 @@ void APlayerCharacter::QuickUnEquip(AWeapon* Instance)
 	Instance->End_UnEquip();
 }
 
-void APlayerCharacter::EquipArmor(const EEquipType Type, USkeletalMesh* SkeletalMesh, const TArray<UStaticMesh*> StaticMeshes)
+void APlayerCharacter::EquipArmor(const EEquipType Type, AArmor* Armor)
 {
 	switch (Type)
 	{
 	case EEquipType::ET_Head:
-		CheckNull(StaticMeshes.Num() > 0);
-		HeadArmorComponent->SetStaticMesh(StaticMeshes[0]);
+		CheckNull(Armor->GetStaticMeshArray().Num() > 0);
+		HeadArmorComponent->SetStaticMesh(Armor->GetStaticMeshArray()[0]);
 		break;
 	case EEquipType::ET_Top:
-		CheckNull(SkeletalMesh);
-		CheckNull(StaticMeshes.Num() > 0);
-		ChestArmorComponent->SetSkeletalMesh(SkeletalMesh);
+		CheckNull(Armor->GetSkeletalMesh());
+		CheckNull(Armor->GetStaticMeshArray().Num() > 0);
+		ChestArmorComponent->SetSkeletalMesh(Armor->GetSkeletalMesh());
 		ChestArmorComponent->SetLeaderPoseComponent(GetMesh());
-		ShoulderArmorComponents[0]->SetStaticMesh(StaticMeshes[0]);
-		ShoulderArmorComponents[1]->SetStaticMesh(StaticMeshes[1]);
+		ShoulderArmorComponents[0]->SetStaticMesh(Armor->GetStaticMeshArray()[0]);
+		ShoulderArmorComponents[1]->SetStaticMesh(Armor->GetStaticMeshArray()[1]);
 		break;
 	case EEquipType::ET_Bottom:
-		CheckNull(SkeletalMesh);
-		PantsArmorComponent->SetSkeletalMesh(SkeletalMesh);
+		CheckNull(Armor->GetSkeletalMesh());
+		PantsArmorComponent->SetSkeletalMesh(Armor->GetSkeletalMesh());
 		PantsArmorComponent->SetLeaderPoseComponent(GetMesh());
 		break;
 	case EEquipType::ET_Hand:
-		CheckNull(StaticMeshes.Num() > 0);
-		HandArmorComponents[0]->SetStaticMesh(StaticMeshes[0]);
-		HandArmorComponents[1]->SetStaticMesh(StaticMeshes[1]);
+		CheckNull(Armor->GetStaticMeshArray().Num() > 0);
+		HandArmorComponents[0]->SetStaticMesh(Armor->GetStaticMeshArray()[0]);
+		HandArmorComponents[1]->SetStaticMesh(Armor->GetStaticMeshArray()[1]);
 		break;
 	case EEquipType::ET_Shoe:
-		CheckNull(SkeletalMesh);
-		ShoesArmorComponent->SetSkeletalMesh(SkeletalMesh);
+		CheckNull(Armor->GetSkeletalMesh());
+		ShoesArmorComponent->SetSkeletalMesh(Armor->GetSkeletalMesh());
 		ShoesArmorComponent->SetLeaderPoseComponent(GetMesh());
 		break;
 	}
+	if (EquippedArmor.Contains(Type))
+		EquippedArmor[Type] = Armor;
+	else
+		EquippedArmor.Add({ Type,Armor });
 }
 
 void APlayerCharacter::UseComsumableItem()

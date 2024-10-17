@@ -25,6 +25,7 @@ class UInventoryComponent;
 
 class ABasicPlayerController;
 class AWeapon;
+class AArmor;
 class APickupItem;
 class AExpItem;
 class AEnemy;
@@ -196,6 +197,10 @@ public:
 	FORCEINLINE int32 GetPlayerLevel() { return Stat.Level; }
 
 	UFUNCTION(BlueprintPure)
+
+	float GetArmorPhyscisDeffenseRate() const;
+
+	UFUNCTION(BlueprintPure)
 		float GetFinalPoise() const;
 	UFUNCTION(BlueprintPure)
 		float GetFinalDamage(const EEquipType Type) const;
@@ -242,7 +247,7 @@ public:
 	void Equip(const EEquipType Type);
 	void UnEquip(const EEquipType Type);
 	void QuickUnEquip(AWeapon* Instance);
-	void EquipArmor(const EEquipType Type, USkeletalMesh* SkeletalMesh, const TArray<UStaticMesh*> StaticMeshes);
+	void EquipArmor(const EEquipType Type,AArmor* Armor);
 
 	void UseComsumableItem();
 
@@ -401,11 +406,14 @@ private:
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly, Category = "Enums", meta = (AllowPrivateAccess = "true"))
 		EMovementState MovementState;
 
+	//장비 정보
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon")
 		AWeapon* RightWeapon;
 	UPROPERTY(VisibleAnywhere, Category = "Weapon")
 		AWeapon* LeftWeapon;
+
+		TMap<EEquipType, AArmor*> EquippedArmor;
 
 	UPROPERTY(VisibleAnywhere, Category = "Status", meta = (AllowPrivateAccess = "true"))
 		FPlayerStatus Stat;

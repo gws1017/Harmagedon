@@ -15,12 +15,22 @@ AItem::AItem()
 void AItem::BeginPlay()
 {
 	Super::BeginPlay();
+	InitializeItemData();
+	
+}
+
+void AItem::InitializeItemData()
+{
 	if (ItemCode >= 1)
 	{
-		auto GameInstance = GetGameInstance<UMyGameInstance>();
+		UMyGameInstance* GameInstance = NULL;
+		if (GetOwner())
+			GameInstance = GetOwner()->GetGameInstance<UMyGameInstance>();
+		else
+			GameInstance = GetGameInstance<UMyGameInstance>();
+
 		ItemData = GameInstance->GetItemData(ItemCode);
 	}
-	
 }
 
 void AItem::SetSocketName(EEquipType Type)
