@@ -3,6 +3,7 @@
 #include "Actor/Character/Cain.h"
 #include "Actor/Controller/BasicPlayerController.h"
 #include "Actor/Character/Enemy.h"
+#include "Actor/Item/EquipmentItem.h"
 #include "Actor/Item/Weapon/Weapon.h"
 #include "Actor/Item/Armor.h"
 #include "Actor/Item/PickupItem.h"
@@ -70,17 +71,41 @@ APlayerCharacter::APlayerCharacter()
 	UHelpers::CreateActorComponent<UInventoryComponent>(this, &InventoryComponent, "Inventory");
 
 
-	HandArmorComponents.Init(nullptr, 2);
-	ShoulderArmorComponents.Init(nullptr, 2);
+	FName SkeletalAmorName[3] = { "ChestArmor","PantsArmor","ShoeArmor" };
+	EEquipType SketalArmorType[3] = { EEquipType::ET_Top,EEquipType::ET_Bottom,EEquipType::ET_Shoe };
+	for (int i = 0; i < 3; ++i)
+	{
+		USkeletalMeshComponent* SkeltalArmorComponent;
+		UHelpers::CreateComponent<USkeletalMeshComponent>(this, &SkeltalArmorComponent, SkeletalAmorName[i], GetMesh());
+		if (ArmorComponents.Contains(SketalArmorType[i]))
+		{
+			ArmorComponents[SketalArmorType[i]].ArmorArray.Add(SkeltalArmorComponent);
+		}
+		else
+		{
+			ArmorComponents.Add({ SketalArmorType[i] ,FArmorArray()});
+			ArmorComponents[SketalArmorType[i]].ArmorArray.Add(SkeltalArmorComponent);
+		}
+	}
 
-	UHelpers::CreateComponent<USkeletalMeshComponent>(this, &ChestArmorComponent, "ChestArmor", GetMesh());
-	UHelpers::CreateComponent<USkeletalMeshComponent>(this, &PantsArmorComponent, "PantsArmor", GetMesh());
-	UHelpers::CreateComponent<USkeletalMeshComponent>(this, &ShoesArmorComponent, "ShoeArmor", GetMesh());
-	UHelpers::CreateComponent<UStaticMeshComponent>(this, &HeadArmorComponent, "HeadArmor", GetMesh());
-	UHelpers::CreateComponent<UStaticMeshComponent>(this, &HandArmorComponents[0], "LeftHandArmor", GetMesh());
-	UHelpers::CreateComponent<UStaticMeshComponent>(this, &HandArmorComponents[1], "RightHandArmor", GetMesh());
-	UHelpers::CreateComponent<UStaticMeshComponent>(this, &ShoulderArmorComponents[0], "LeftShoulderArmor", GetMesh());
-	UHelpers::CreateComponent<UStaticMeshComponent>(this, &ShoulderArmorComponents[1], "RightShoulderArmor", GetMesh());
+	FName StaticAmorName[5] = { "HeadArmor","LeftHandArmor","RightHandArmor","LeftShoulderArmor","RightShoulderArmor"};
+	EEquipType StaticArmorType[5] = { EEquipType::ET_Head,EEquipType::ET_Hand,EEquipType::ET_Hand,
+		EEquipType::ET_Top,EEquipType::ET_Top };
+
+	for (int i = 0; i < 5; ++i)
+	{
+		UStaticMeshComponent* StaitcArmorComponent;
+		UHelpers::CreateComponent<UStaticMeshComponent>(this, &StaitcArmorComponent, StaticAmorName[i], GetMesh());
+		if (ArmorComponents.Contains(StaticArmorType[i]))
+		{
+			ArmorComponents[StaticArmorType[i]].ArmorArray.Add(StaitcArmorComponent);
+		}
+		else
+		{
+			ArmorComponents.Add({ StaticArmorType[i] ,FArmorArray() });
+			ArmorComponents[StaticArmorType[i]].ArmorArray.Add(StaitcArmorComponent);
+		}
+	}
 
 
 	bUseControllerRotationYaw = false;
@@ -112,12 +137,19 @@ void APlayerCharacter::BeginPlay()
 	InventoryComponent->AddItem(50, false);
 	InventoryComponent->AddItem(60, false);
 
+	EEquipType Typename[3] = { EEquipType::ET_Head, EEquipType::ET_Top, EEquipType::ET_Hand };
+	FName SocketName[5] = { "HeadSocket","ShoulderLSocket","ShoulderRSocket","HandLSocket","HandRSocket"};
 	//소켓 설정
-	HeadArmorComponent->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), TEXT("HeadSocket"));
-	ShoulderArmorComponents[0]->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), TEXT("ShoulderLSocket"));
-	ShoulderArmorComponents[1]->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), TEXT("ShoulderRSocket"));
-	HandArmorComponents[0]->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), TEXT("HandLSocket"));
-	HandArmorComponents[1]->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), TEXT("HandRSocket"));
+	int j = 0;
+	for (int i = 0; i < 3;++i)
+	{
+		for (UMeshComponent* armor : ArmorComponents[Typename[i]].ArmorArray)
+		{
+			auto StaticArmor = Cast<UStaticMeshComponent>(armor);
+			if(StaticArmor)
+				StaticArmor->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), SocketName[j++]);
+		}
+	}
 
 	TargetingSphere->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::TargetingBeginOverlap);
 	TargetingSphere->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::TargetingEndOverlap);
@@ -151,14 +183,11 @@ void APlayerCharacter::BeginPlay()
 
 	//인벤토리 방어구 캡처
 	SceneCapture->ShowOnlyComponent(GetMesh());
-	SceneCapture->ShowOnlyComponent(ChestArmorComponent);
-	SceneCapture->ShowOnlyComponent(PantsArmorComponent);
-	SceneCapture->ShowOnlyComponent(ShoesArmorComponent);
-	SceneCapture->ShowOnlyComponent(HeadArmorComponent);
-	SceneCapture->ShowOnlyComponent(ShoulderArmorComponents[0]);
-	SceneCapture->ShowOnlyComponent(ShoulderArmorComponents[1]);
-	SceneCapture->ShowOnlyComponent(HandArmorComponents[0]);
-	SceneCapture->ShowOnlyComponent(HandArmorComponents[1]);
+	for (auto[Type,ArmorArray] : ArmorComponents)
+	{
+		for(auto ArmorComponent : ArmorArray.ArmorArray)
+			SceneCapture->ShowOnlyComponent(ArmorComponent);
+	}
 
 	CheckNull(PlayerController);
 	if (UEnhancedInputLocalPlayerSubsystem* SubSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
@@ -327,7 +356,8 @@ float APlayerCharacter::GetArmorPhyscisDeffenseRate() const
 	float Value = 0.f;
 	for (auto [Type, Armor] : EquippedArmor)
 	{
-		Value += Armor->GetPhysicalDefenseRate();
+		if (Armor)
+			Value += Armor->GetPhysicalDefenseRate();
 	}
 	return Value;
 }
@@ -339,7 +369,8 @@ float APlayerCharacter::GetFinalPoise() const
 	//방어구 강인도 합산
 	for (auto [Type, Armor] : EquippedArmor)
 	{
-		PoiseValue += Armor->GetPoise();
+		if(Armor)
+			PoiseValue += Armor->GetPoise();
 	}
 	return PoiseValue;
 }
@@ -623,21 +654,22 @@ void APlayerCharacter::RemoveCapture(AActor* InActor, const bool bIncludeFromChi
 	SceneCapture->RemoveShowOnlyActorComponents(InActor, bIncludeFromChildActors);
 }
 
-void APlayerCharacter::Equip(const EEquipType Type/*, AEquipItem* EquipItem */)
+void APlayerCharacter::Equip(const EEquipType Type, AEquipmentItem* EquipItem )
 {
 	//플레이어가 가진 인스턴스를 장착하지말고 인스턴스를 넘겨받아서 장착하자
 	switch (Type)
 	{
 	case EEquipType::ET_LeftWeapon:
-		LeftWeapon->Equip(Type);
+		LeftWeapon = Cast<AWeapon>(EquipItem);
+		WeaponEquipped = EWeaponEquipped::EWE_Sword;
 		break;
 	case EEquipType::ET_RightWeapon:
-		RightWeapon->Equip(Type);
+		RightWeapon = Cast<AWeapon>(EquipItem);
+		WeaponEquipped = EWeaponEquipped::EWE_Sword;
 		break;
 	}
-	// EquipItem->Equip(Type);
+	EquipItem->Equip(Type);
 	//무기에서 장비종류를 얻어오자
-	WeaponEquipped = EWeaponEquipped::EWE_Sword;
 }
 
 void APlayerCharacter::UnEquip(const EEquipType Type)
@@ -647,6 +679,10 @@ void APlayerCharacter::UnEquip(const EEquipType Type)
 		ActiveWeapon->UnEquip(Type);
 		WeaponEquipped = EWeaponEquipped::EWE_None;
 	}
+	if (EquippedArmor[Type])
+	{
+		EquippedArmor[Type]->UnEquip(Type);
+	}
 }
 
 void APlayerCharacter::QuickUnEquip(AWeapon* Instance)
@@ -655,44 +691,6 @@ void APlayerCharacter::QuickUnEquip(AWeapon* Instance)
 	if (LeftWeapon == Instance)LeftWeapon = nullptr;
 	if (RightWeapon == Instance)RightWeapon = nullptr;
 	Instance->End_UnEquip();
-}
-
-void APlayerCharacter::EquipArmor(const EEquipType Type, AArmor* Armor)
-{
-	switch (Type)
-	{
-	case EEquipType::ET_Head:
-		CheckNull(Armor->GetStaticMeshArray().Num() > 0);
-		HeadArmorComponent->SetStaticMesh(Armor->GetStaticMeshArray()[0]);
-		break;
-	case EEquipType::ET_Top:
-		CheckNull(Armor->GetSkeletalMesh());
-		CheckNull(Armor->GetStaticMeshArray().Num() > 0);
-		ChestArmorComponent->SetSkeletalMesh(Armor->GetSkeletalMesh());
-		ChestArmorComponent->SetLeaderPoseComponent(GetMesh());
-		ShoulderArmorComponents[0]->SetStaticMesh(Armor->GetStaticMeshArray()[0]);
-		ShoulderArmorComponents[1]->SetStaticMesh(Armor->GetStaticMeshArray()[1]);
-		break;
-	case EEquipType::ET_Bottom:
-		CheckNull(Armor->GetSkeletalMesh());
-		PantsArmorComponent->SetSkeletalMesh(Armor->GetSkeletalMesh());
-		PantsArmorComponent->SetLeaderPoseComponent(GetMesh());
-		break;
-	case EEquipType::ET_Hand:
-		CheckNull(Armor->GetStaticMeshArray().Num() > 0);
-		HandArmorComponents[0]->SetStaticMesh(Armor->GetStaticMeshArray()[0]);
-		HandArmorComponents[1]->SetStaticMesh(Armor->GetStaticMeshArray()[1]);
-		break;
-	case EEquipType::ET_Shoe:
-		CheckNull(Armor->GetSkeletalMesh());
-		ShoesArmorComponent->SetSkeletalMesh(Armor->GetSkeletalMesh());
-		ShoesArmorComponent->SetLeaderPoseComponent(GetMesh());
-		break;
-	}
-	if (EquippedArmor.Contains(Type))
-		EquippedArmor[Type] = Armor;
-	else
-		EquippedArmor.Add({ Type,Armor });
 }
 
 void APlayerCharacter::UseComsumableItem()

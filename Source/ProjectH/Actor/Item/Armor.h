@@ -24,7 +24,7 @@ public:
 	USkeletalMesh* GetSkeletalMesh() { return SkeletalMesh; }
 	TArray<UStaticMesh*> GetStaticMeshArray() { return StaticMeshes; }
 	virtual void Equip(EEquipType Type);
-	//virtual void UnEquip(EEquipType Type);
+	virtual void UnEquip(EEquipType Type);
 
 protected:
 

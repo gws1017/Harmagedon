@@ -229,7 +229,7 @@ void UInventoryComponent::Equip(USlot* SelectSlot, USlot* InvenSlot, AItem* Item
 	if (ArmorItem)
 		ArmorItem->Equip(Type);
 	else
-		Player->Equip(SelectSlot->EquipType);
+		Player->Equip(SelectSlot->EquipType,Instance);
 }
 
 void UInventoryComponent::UnEquip(USlot* EquipSlot)

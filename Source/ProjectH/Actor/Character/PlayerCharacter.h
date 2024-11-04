@@ -12,6 +12,7 @@
 class USkeletalMesh;
 class UStaticMesh;
 
+class UMeshComponent;
 class USpringArmComponent;
 class USphereComponent;
 class UCameraComponent;
@@ -24,6 +25,7 @@ class UParticleSystem;
 class UInventoryComponent;
 
 class ABasicPlayerController;
+class AEquipmentItem;
 class AWeapon;
 class AArmor;
 class APickupItem;
@@ -128,6 +130,14 @@ public:
 
 };
 
+USTRUCT(BlueprintType)
+struct FArmorArray
+{
+	GENERATED_BODY()
+
+	TArray<UMeshComponent*> ArmorArray;
+};
+
 UCLASS()
 class PROJECTH_API APlayerCharacter 
 	: 
@@ -179,7 +189,9 @@ public:
 	FORCEINLINE EMovementState GetMovementState() const { return MovementState; }
 	UFUNCTION(BlueprintCallable)
 		 UInventoryComponent* GetInventory() const { return InventoryComponent; }
-	
+
+	TMap<EEquipType, AArmor*>& GetArmors() { return EquippedArmor; }
+	TArray<UMeshComponent*> GetArmorComponent(const EEquipType Type) const { return ArmorComponents[Type].ArmorArray; }
 	UFUNCTION(BlueprintCallable)
 		 FPlayerStatus GetPlayerStat() const { return Stat; }
 	UFUNCTION(BlueprintCallable)
@@ -244,10 +256,9 @@ public:
 	void Die();
 	virtual void DeathEnd();
 
-	void Equip(const EEquipType Type);
+	void Equip(const EEquipType Type, AEquipmentItem* EquipItem);
 	void UnEquip(const EEquipType Type);
 	void QuickUnEquip(AWeapon* Instance);
-	void EquipArmor(const EEquipType Type,AArmor* Armor);
 
 	void UseComsumableItem();
 
@@ -328,18 +339,9 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Component")
 		UInventoryComponent* InventoryComponent;
 
-	UPROPERTY(VisibleAnywhere,BlueprintReadOnly, Category = "Armor | Chest", meta = (AllowPrivateAccess = "true"))
-		USkeletalMeshComponent* ChestArmorComponent;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Armor | Pants", meta = (AllowPrivateAccess = "true"))
-		USkeletalMeshComponent* PantsArmorComponent;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Armor | Shoes", meta = (AllowPrivateAccess = "true"))
-		USkeletalMeshComponent* ShoesArmorComponent;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Armor | Head", meta = (AllowPrivateAccess = "true"))
-		UStaticMeshComponent* HeadArmorComponent;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Armor | Hands", meta = (AllowPrivateAccess = "true"))
-		TArray<UStaticMeshComponent*> HandArmorComponents;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Armor | Chest", meta = (AllowPrivateAccess = "true"))
-		TArray<UStaticMeshComponent*> ShoulderArmorComponents;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+		TMap<EEquipType,FArmorArray> ArmorComponents;
+
 
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
@@ -408,11 +410,12 @@ private:
 
 	//장비 정보
 
-	UPROPERTY(VisibleAnywhere, Category = "Weapon")
+	UPROPERTY(VisibleAnywhere, Category = "Equipment")
 		AWeapon* RightWeapon;
-	UPROPERTY(VisibleAnywhere, Category = "Weapon")
+	UPROPERTY(VisibleAnywhere, Category = "Equipment")
 		AWeapon* LeftWeapon;
 
+		UPROPERTY(VisibleAnywhere, Category = "Equipment")
 		TMap<EEquipType, AArmor*> EquippedArmor;
 
 	UPROPERTY(VisibleAnywhere, Category = "Status", meta = (AllowPrivateAccess = "true"))
