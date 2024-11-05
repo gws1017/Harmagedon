@@ -20,7 +20,6 @@ void AArmor::Equip(EEquipType Type)
 	InitializeItemData();
 
 	auto Player = Cast<APlayerCharacter>(GetOwnerCharacter());
-	TMap<EEquipType, AArmor*>& EquippedArmor = Player->GetArmors();
 	TArray<UMeshComponent*> ArmorArray = Player->GetArmorComponent(Type);
 
 	switch (Type)
@@ -67,10 +66,7 @@ void AArmor::Equip(EEquipType Type)
 		break;
 	}
 	}
-	if (EquippedArmor.Contains(Type))
-		EquippedArmor[Type] = this;
-	else
-		EquippedArmor.Add({ Type,this });
+	
 }
 
 void AArmor::UnEquip(EEquipType Type)
@@ -80,9 +76,6 @@ void AArmor::UnEquip(EEquipType Type)
 	auto Player = Cast<APlayerCharacter>(GetOwnerCharacter());
 
 	TArray<UMeshComponent*> ArmorArray = Player->GetArmorComponent(Type);
-
-	auto& EquippedArmor = Player->GetArmors();
-	EquippedArmor[Type] = nullptr;
 
 	for (auto ArmorComponent : ArmorArray)
 	{

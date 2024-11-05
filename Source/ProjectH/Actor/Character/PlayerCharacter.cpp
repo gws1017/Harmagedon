@@ -344,17 +344,16 @@ void APlayerCharacter::TargetingEndOverlap(UPrimitiveComponent* OverlappedCompon
 
 AWeapon* APlayerCharacter::GetWeapon(const EEquipType Type) const
 {
-	if (Type == EEquipType::ET_RightWeapon)
-		return RightWeapon;
-	else if (Type == EEquipType::ET_LeftWeapon)
-		return LeftWeapon;
-	else return nullptr;
+	if (EquipmentMap.Contains(Type))
+		return Cast<AWeapon>(EquipmentMap[Type]);
+	
+	return nullptr;
 }
 
 float APlayerCharacter::GetArmorPhyscisDeffenseRate() const
 {
 	float Value = 0.f;
-	for (auto [Type, Armor] : EquippedArmor)
+	for (auto [Type, Armor] : EquipmentMap)
 	{
 		if (Armor)
 			Value += Armor->GetPhysicalDefenseRate();
@@ -367,7 +366,7 @@ float APlayerCharacter::GetFinalPoise() const
 	float PoiseValue = Stat.Poise;
 
 	//방어구 강인도 합산
-	for (auto [Type, Armor] : EquippedArmor)
+	for (auto [Type, Armor] : EquipmentMap)
 	{
 		if(Armor)
 			PoiseValue += Armor->GetPoise();
@@ -386,17 +385,13 @@ float APlayerCharacter::GetFinalDamage(const EEquipType Type) const
 float APlayerCharacter::GetWeaponDamage(const EEquipType Type) const
 {
 	float Damage = 0.f;
-	if (Type == EEquipType::ET_RightWeapon)
+	if (EquipmentMap.Contains(Type) && EquipmentMap[Type])
 	{
-		CheckNullResult(RightWeapon, Damage);
-		Damage = RightWeapon->GetPhysicalDamage();
+		AWeapon* WeaponInstance = Cast<AWeapon>(EquipmentMap[Type]);
+		CheckNullResult(WeaponInstance, Damage);
+		Damage = WeaponInstance->GetPhysicalDamage();
 	}
-	else if (Type == EEquipType::ET_LeftWeapon)
-	{
-		CheckNullResult(LeftWeapon, Damage);
-		Damage = LeftWeapon->GetPhysicalDamage();
-	}
-	else CLog::Log("EquipType Error, Only Use Right, Left");
+	else CLog::Log("EquipType Error");
 	return Damage;
 }
 
@@ -406,16 +401,13 @@ void APlayerCharacter::SetWeapon(EEquipType Type, AWeapon* Instance)
 		LeftWeapon = Instance;
 	else if (Type == EEquipType::ET_RightWeapon)
 		RightWeapon = Instance;
-	else
-		CLog::Log("Only Set Left ,Right Weapon Type");
+	else CLog::Log("EquipType Error");
+
 }
 
 void APlayerCharacter::EmptyWeapon()
 {
-	if (ActiveWeapon == LeftWeapon) LeftWeapon = nullptr;
-	else if (ActiveWeapon == RightWeapon) RightWeapon = nullptr;
 	WeaponEquipped = EWeaponEquipped::EWE_None;
-	ActiveWeapon = nullptr;
 }
 
 void APlayerCharacter::End_Attack()
@@ -656,38 +648,20 @@ void APlayerCharacter::RemoveCapture(AActor* InActor, const bool bIncludeFromChi
 
 void APlayerCharacter::Equip(const EEquipType Type, AEquipmentItem* EquipItem )
 {
-	//플레이어가 가진 인스턴스를 장착하지말고 인스턴스를 넘겨받아서 장착하자
-	switch (Type)
-	{
-	case EEquipType::ET_LeftWeapon:
-		LeftWeapon = Cast<AWeapon>(EquipItem);
-		WeaponEquipped = EWeaponEquipped::EWE_Sword;
-		break;
-	case EEquipType::ET_RightWeapon:
-		RightWeapon = Cast<AWeapon>(EquipItem);
-		WeaponEquipped = EWeaponEquipped::EWE_Sword;
-		break;
-	}
+	//플레이어가 가진 인스턴스를 장착하지말고 인스턴스를 넘겨받아 장착
 	EquipItem->Equip(Type);
-	//무기에서 장비종류를 얻어오자
 }
 
 void APlayerCharacter::UnEquip(const EEquipType Type)
 {
-	if (ActiveWeapon)
+	if (EquipmentMap.Contains(Type) && EquipmentMap[Type])
 	{
-		ActiveWeapon->UnEquip(Type);
-		WeaponEquipped = EWeaponEquipped::EWE_None;
-	}
-	if (EquippedArmor[Type])
-	{
-		EquippedArmor[Type]->UnEquip(Type);
+		EquipmentMap[Type]->UnEquip(Type);
 	}
 }
 
 void APlayerCharacter::QuickUnEquip(AWeapon* Instance)
 {
-	if (ActiveWeapon == Instance)ActiveWeapon = nullptr;
 	if (LeftWeapon == Instance)LeftWeapon = nullptr;
 	if (RightWeapon == Instance)RightWeapon = nullptr;
 	Instance->End_UnEquip();

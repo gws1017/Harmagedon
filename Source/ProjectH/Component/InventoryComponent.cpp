@@ -219,17 +219,20 @@ void UInventoryComponent::Equip(USlot* SelectSlot, USlot* InvenSlot, AItem* Item
 			InvenSlot->ItemInfo.AssetData.ItemClass, Cast<ACharacter>(GetOwner())));
 		Player->SetWeapon(Type, Cast<AWeapon>(Instance));
 		Player->SetCapture(Instance, true);
-		Player->ActiveWeapon = Cast<AWeapon>(Instance);
 	}
 	
 	if (!!ItemInstance)
 		ItemInstance = Instance;
 
 	SelectSlot->ItemInstance = Instance;
-	if (ArmorItem)
-		ArmorItem->Equip(Type);
+	Player->Equip(SelectSlot->EquipType,Instance);
+	auto& EquippedMap = Player->GetEquipmentMap();
+
+	if (EquippedMap.Contains(Type))
+		EquippedMap[Type] = Instance;
 	else
-		Player->Equip(SelectSlot->EquipType,Instance);
+		EquippedMap.Add({ Type,Instance });
+
 }
 
 void UInventoryComponent::UnEquip(USlot* EquipSlot)
@@ -248,9 +251,11 @@ void UInventoryComponent::UnEquip(USlot* EquipSlot)
 	InvenData->bEquipped = false;
 	
 	auto Player = Cast<APlayerCharacter>(GetOwner());
-	Player->ActiveWeapon = Cast<AWeapon>(EquipSlot->ItemInstance);
 	Player->UnEquip(EquipSlot->EquipType);
 	EquipSlot->ItemInstance = nullptr;
+
+	auto& EquippedMap = Player->GetEquipmentMap();
+	EquippedMap[EquipSlot->EquipType] = nullptr;
 	
 }
 

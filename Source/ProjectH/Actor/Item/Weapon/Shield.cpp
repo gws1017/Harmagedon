@@ -14,6 +14,19 @@ void AShield::BoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 	WeaponApplyDamage(OtherActor,SweepResult);
 }
 
+void AShield::Equip(EEquipType Type)
+{
+	Super::Equip(Type);
+
+	Cast<APlayerCharacter>(GetOwnerCharacter())->SetWeaponEquipped(EWeaponEquipped::EWE_Shield);
+}
+
+void AShield::UnEquip(EEquipType Type)
+{
+	Super::UnEquip(Type);
+	Cast<APlayerCharacter>(GetOwnerCharacter())->SetWeaponEquipped(EWeaponEquipped::EWE_None);
+}
+
 void AShield::BasicAttack()
 {
 	Super::BasicAttack();

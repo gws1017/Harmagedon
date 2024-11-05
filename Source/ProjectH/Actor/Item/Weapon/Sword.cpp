@@ -13,6 +13,19 @@ void ASword::BoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
 	WeaponApplyDamage(OtherActor,SweepResult);
 }
 
+void ASword::Equip(EEquipType Type)
+{
+	Super::Equip(Type);
+
+	Cast<APlayerCharacter>(GetOwnerCharacter())->SetWeaponEquipped(EWeaponEquipped::EWE_Sword);
+}
+
+void ASword::UnEquip(EEquipType Type)
+{
+	Super::UnEquip(Type);
+	Cast<APlayerCharacter>(GetOwnerCharacter())->SetWeaponEquipped(EWeaponEquipped::EWE_None);
+}
+
 void ASword::BasicAttack()
 {
 	Super::BasicAttack();
@@ -21,3 +34,4 @@ void ASword::BasicAttack()
 
 	PlayAttackMontage();
 }
+

@@ -22,6 +22,9 @@ public:
 
 		virtual void BoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 
+		virtual void Equip(EEquipType Type) override;
+		virtual void UnEquip(EEquipType Type) override;
+
 		virtual void BasicAttack() override;
 		virtual void Block() override;
 

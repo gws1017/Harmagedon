@@ -50,8 +50,6 @@ void AEquipmentItem::UnEquip(EEquipType Type)
 	CheckTrue(bEquipping);//무기 넣는중이여도 종료
 
 	bEquipping = true;
-
-	EquipType = EEquipType::ET_None;
 }
 
 void AEquipmentItem::Begin_Equip()

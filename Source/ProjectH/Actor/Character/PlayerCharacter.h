@@ -190,7 +190,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 		 UInventoryComponent* GetInventory() const { return InventoryComponent; }
 
-	TMap<EEquipType, AArmor*>& GetArmors() { return EquippedArmor; }
+	TMap<EEquipType, AEquipmentItem*>& GetEquipmentMap() { return EquipmentMap; }
 	TArray<UMeshComponent*> GetArmorComponent(const EEquipType Type) const { return ArmorComponents[Type].ArmorArray; }
 	UFUNCTION(BlueprintCallable)
 		 FPlayerStatus GetPlayerStat() const { return Stat; }
@@ -283,9 +283,6 @@ public:
 	void SetCapture(AActor* InActor, const bool bIncludeFromChildActors);
 	void RemoveCapture(AActor* InActor, const bool bIncludeFromChildActors);
 	//외부에서 접근할 수 있는 변수 작성(되도록이면 변수는 private에 작성하고 Getter Setter 이용할 것)
-	
-	UPROPERTY(VisibleAnywhere, Category = "Weapon")
-		AWeapon* ActiveWeapon;
 
 private:
 
@@ -416,7 +413,7 @@ private:
 		AWeapon* LeftWeapon;
 
 		UPROPERTY(VisibleAnywhere, Category = "Equipment")
-		TMap<EEquipType, AArmor*> EquippedArmor;
+		TMap<EEquipType, AEquipmentItem*> EquipmentMap;
 
 	UPROPERTY(VisibleAnywhere, Category = "Status", meta = (AllowPrivateAccess = "true"))
 		FPlayerStatus Stat;
