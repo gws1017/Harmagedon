@@ -171,7 +171,8 @@ public:
 
 
 public:
-
+	UFUNCTION()
+	void OnPlayerMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 	UFUNCTION()
 		void TargetingBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 			UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);

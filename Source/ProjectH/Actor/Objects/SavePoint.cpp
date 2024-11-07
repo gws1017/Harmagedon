@@ -62,7 +62,7 @@ void ASavePoint::OnInteraction()
 	//플레이어 정보 초기화
 	player->StatusRestore();
 	player->SetStartPoint(player->GetActorLocation());
-
+	player->SaveGameData();
 	//몹 리젠
 	TArray<AEnemySpawner*> SpawnerArray;
 	UHelpers::FindActors<AEnemySpawner>(GetWorld(), SpawnerArray);

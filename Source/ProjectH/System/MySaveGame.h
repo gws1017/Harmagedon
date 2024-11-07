@@ -16,6 +16,9 @@ public:
 		FPlayerStatus Status;
 
 	UPROPERTY(VisibleAnywhere, Category = "SaveData")
+		TMap<EEquipType, int32> EquipmentInfo;
+
+	UPROPERTY(VisibleAnywhere, Category = "SaveData")
 		int32 LostExp;
 
 	UPROPERTY(VisibleAnywhere, Category = "SaveData")

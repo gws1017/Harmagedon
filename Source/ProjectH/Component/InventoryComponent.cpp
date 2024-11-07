@@ -5,6 +5,8 @@
 #include "Actor/Item/Weapon/Weapon.h"
 #include "Actor/Item/Armor.h"
 #include "Actor/Character/PlayerCharacter.h"
+#include "Actor/Controller/BasicPlayerController.h"
+#include "UI/EquipmentUI.h"
 #include "Global.h"
 
 UInventoryComponent::UInventoryComponent()
@@ -145,44 +147,29 @@ void UInventoryComponent::UpdateSlot()
 
 }
 
-//void UInventoryComponent::UpdateEquipItem()
-//{
-//	for (auto [Type, Slots] : EquipInfo)
-//	{
-//		if (Slots.ItemSlots.IsEmpty()) continue;
-//		//슬롯에 들어가있는 장비 중 선택 슬롯의 장비를 장착한다.
-//		auto Slot = EquipInfo[Type].ItemSlots[Slots.SelectSlot];
-//		if (Slot && Slot->bEquipped)
-//		{
-//			GetCDOItem(Slot->ItemInfo.AssetData.ItemClass)->Equip(Type);
-//		}
-//		
-//	}
-//}
-//
-//void UInventoryComponent::EquipInSlot(const int64 ItemCode, int32 SlotNumber)
-//{
-//	FInventoryItem* Data = InventoryContents.Find(ItemCode);
-//	CheckNull(Data);
-//	EEquipType Type = Data->ItemInfo.EquipType;
-//
-//	FInventoryItem* Slot = EquipInfo[Type].ItemSlots[SlotNumber];
-//	if(Slot != nullptr)
-//	{
-//		(Slot)->bEquipped = false;
-//	}
-//
-//	Slot = Data;
-//	Data->bEquipped = true;
-//}
-//
-//void UInventoryComponent::UnEquipInSlot(EEquipType Type, int32 SlotNumber)
-//{
-//	auto Slot = EquipInfo[Type].ItemSlots[SlotNumber];
-//	Slot->bEquipped = false;
-//	Slot = nullptr;
-//}
+void UInventoryComponent::EquipFromCode(const EEquipType EquipType, const int64 ItemCode)
+{
+	auto Data = InventoryContents.Find(ItemCode);
+	CheckNull(Data);
+	auto PlayerController = Cast<APlayerCharacter>(GetOwner())->GetPlayerController();
+	
+	
+	auto EquipUI = Cast<UEquipmentUI>(PlayerController->GetEquipmentUIInstance());
+	if (EquipUI->SlotMap.IsEmpty())
+	{
+		PlayerController->ToggleEquipMenu();
+		PlayerController->ToggleEquipMenu();
+	}
+	//무기슬롯 여러개로 바뀌면 변경
+	if (!EquipUI->SlotMap.IsEmpty())
+	{
+		Equip(EquipUI->SlotMap[EquipType].SlotArray[0], Data->Slot);
+		EquipUI->SlotMap[EquipType].SlotArray[0]->SlotUpdateFromData(*Data);
+	}
 
+}
+
+//아이템코드로 장착하는 함수 필요
 void UInventoryComponent::Equip(USlot* SelectSlot, USlot* InvenSlot, AItem* ItemInstance)
 {
 	//UI에서 전달받은 장비창 슬롯정보로 아이템을 장비한다
@@ -254,8 +241,7 @@ void UInventoryComponent::UnEquip(USlot* EquipSlot)
 	Player->UnEquip(EquipSlot->EquipType);
 	EquipSlot->ItemInstance = nullptr;
 
-	auto& EquippedMap = Player->GetEquipmentMap();
-	EquippedMap[EquipSlot->EquipType] = nullptr;
+	
 	
 }
 

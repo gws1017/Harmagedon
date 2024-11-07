@@ -56,6 +56,18 @@ void AWeapon::BeginPlay()
 
 }
 
+void AWeapon::OnWeaponMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	if (Montage == DrawMontage )
+	{
+		Begin_Equip();
+	}
+	else if (Montage == SheathMontage)
+	{
+		End_UnEquip();
+	}
+}
+
 
 
 bool AWeapon::IsSameTagWithTarget(AActor* other, const FName& tag)

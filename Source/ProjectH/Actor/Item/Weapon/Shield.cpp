@@ -24,7 +24,6 @@ void AShield::Equip(EEquipType Type)
 void AShield::UnEquip(EEquipType Type)
 {
 	Super::UnEquip(Type);
-	Cast<APlayerCharacter>(GetOwnerCharacter())->SetWeaponEquipped(EWeaponEquipped::EWE_None);
 }
 
 void AShield::BasicAttack()

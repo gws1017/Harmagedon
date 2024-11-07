@@ -91,15 +91,9 @@ public:
 	void ClearInventory();
 
 	UFUNCTION(BlueprintCallable)
-		void UpdateSlot();
-	//아이템 장착시 사용되는 함수
-	//void UpdateEquipItem(); //장착중인 아이템 확인후 플레이어 소켓에 부착한다.
-	//UI에서 마우스입력을 받아 호출한다.
-	//UFUNCTION(BlueprintCallable)
-	//	void EquipInSlot(const int64 ItemCode , int32 SlotNumber); //인벤토리에 있는 아이템중에서, 특정 아이템을 장착상태로 전환한다.
-	//UFUNCTION(BlueprintCallable)
-	//	void UnEquipInSlot(EEquipType Type,int32 SlotNumber); //인벤토리에 있는 아이템중에서, 특정 아이템을 탈착상태로 전환한다.
-	
+	void UpdateSlot();
+
+	void EquipFromCode(const EEquipType EquipType, const int64 ItemCode);
 	//실제 객체를 생성해서 탈부착하는 함수
 	UFUNCTION(BlueprintCallable)
 	void Equip(USlot* SelectSlot, USlot* InvenSlot, AItem* ItemInstance = nullptr);

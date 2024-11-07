@@ -33,12 +33,9 @@ void AEquipmentItem::Equip(EEquipType Type)
 
 	CheckTrue(bEquipped);//이미 착용중이면 함수 종료
 	CheckTrue(bEquipping);//무기 꺼내는중이여도 종료
-	if (OwnerCharacter == nullptr)
-	{
-		CLog::Log("Weapon Owner is Nullptr!");
-		return;
-	}
 	EquipType = Type;
+	if (OwnerCharacter == nullptr)
+		OwnerCharacter = Cast<ACharacter>(GetOwner());
 	SetSocketName(Type);
 	bEquipping = true;
 
@@ -54,6 +51,7 @@ void AEquipmentItem::UnEquip(EEquipType Type)
 
 void AEquipmentItem::Begin_Equip()
 {
+	CheckTrue(bEquipped)
 	bEquipped = true;
 	CheckNull(OwnerCharacter);
 	AttachToComponent(OwnerCharacter->GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), EquipSocket);
@@ -73,9 +71,12 @@ void AEquipmentItem::End_UnEquip()
 {
 	bEquipped = false;
 	bEquipping = false;
-	EquipType = EEquipType::ET_None;
 	auto Player = Cast<APlayerCharacter>(GetOwnerCharacter());
-	if(Player)
+	if (Player)
+	{
+		auto& EquippedMap = Player->GetEquipmentMap();
+		EquippedMap[EquipType] = nullptr;
 		Player->EmptyWeapon();
+	}
 	Destroy();
 }

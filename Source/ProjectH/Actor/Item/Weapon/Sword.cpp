@@ -23,7 +23,6 @@ void ASword::Equip(EEquipType Type)
 void ASword::UnEquip(EEquipType Type)
 {
 	Super::UnEquip(Type);
-	Cast<APlayerCharacter>(GetOwnerCharacter())->SetWeaponEquipped(EWeaponEquipped::EWE_None);
 }
 
 void ASword::BasicAttack()

@@ -154,6 +154,9 @@ void APlayerCharacter::BeginPlay()
 	TargetingSphere->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::TargetingBeginOverlap);
 	TargetingSphere->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::TargetingEndOverlap);
 
+	GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &APlayerCharacter::OnPlayerMontageEnded);
+
+
 	//Debug Setting
 	if (UKismetSystemLibrary::IsPackagedForDistribution()) //Package
 	{
@@ -194,6 +197,7 @@ void APlayerCharacter::BeginPlay()
 	{
 		SubSystem->AddMappingContext(IMCPlayer, 0);
 	}
+
 }
 
 void APlayerCharacter::Tick(float DeltaTime)
@@ -324,6 +328,22 @@ void APlayerCharacter::Landed(const FHitResult& Hit)
 }
 
 
+void APlayerCharacter::OnPlayerMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	if (bInterrupted)
+	{
+		if (LeftWeapon && !LeftWeapon->GetEquipped())
+		{
+			LeftWeapon->OnWeaponMontageEnded(Montage, bInterrupted);
+		}
+		if (RightWeapon && !RightWeapon->GetEquipped())
+		{
+			RightWeapon->OnWeaponMontageEnded(Montage, bInterrupted);
+		}
+	}
+	
+}
+
 void APlayerCharacter::TargetingBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	AEnemy* Target = Cast<AEnemy>(OtherActor);
@@ -407,7 +427,13 @@ void APlayerCharacter::SetWeapon(EEquipType Type, AWeapon* Instance)
 
 void APlayerCharacter::EmptyWeapon()
 {
-	WeaponEquipped = EWeaponEquipped::EWE_None;
+	if (EquipmentMap.Contains(EEquipType::ET_LeftWeapon)
+		&& EquipmentMap.Contains(EEquipType::ET_RightWeapon))
+	{
+		if(!EquipmentMap[EEquipType::ET_LeftWeapon] && !EquipmentMap[EEquipType::ET_RightWeapon])
+			WeaponEquipped = EWeaponEquipped::EWE_None;
+	}
+	
 }
 
 void APlayerCharacter::End_Attack()
@@ -561,9 +587,17 @@ void APlayerCharacter::Hit(const FVector& ParticleSpawnLocation)
 void APlayerCharacter::SaveGameData(int32 SaveType)
 {
 	UMySaveGame* SaveGameInstance = Cast<UMySaveGame>(UGameplayStatics::CreateSaveGameObject(UMySaveGame::StaticClass()));
+	auto EquipMap = GetEquipmentMap();
+	TMap<EEquipType, int32> EquipmentInfo;
 
+	for (const auto[Type, Instance] : EquipMap)
+	{
+		FItemData data = Instance->GetItemData();
+		EquipmentInfo.Add({ Type,data.ItemCode });
+	}
 	SaveGameInstance->SaveData = {
 		Stat,
+		EquipmentInfo,
 		0,
 		GetActorLocation(),
 		GetActorRotation(),
@@ -588,6 +622,7 @@ void APlayerCharacter::LoadGameData()
 
 	if (LoadGameInstance)
 	{
+		CLog::Log("SaveData Load Success");
 		FSaveData Data = LoadGameInstance->SaveData;
 		Stat = Data.Status;
 		Stat.Stamina = Stat.MaxStamina;
@@ -596,6 +631,14 @@ void APlayerCharacter::LoadGameData()
 			if(UGameplayStatics::GetCurrentLevelName(GetWorld()) == TUTORIAL_LEVEL)
 				SetActorLocation(Data.Location);
 		}
+
+		for (auto [Type, ItemCode] : Data.EquipmentInfo)
+		{
+			InventoryComponent->EquipFromCode(Type, ItemCode);
+			//CLog::Log(ItemCode);
+			//CLog::Print(ItemCode);
+		}
+
 		SetActorRotation(Data.Rotation);
 		StartPoint = Data.StartPoint;
 		if (Data.LostExp != 0) {

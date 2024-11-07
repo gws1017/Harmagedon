@@ -26,6 +26,7 @@ public:
 
 	FORCEINLINE bool GetGameInputMode() const { return bGameInputMode; }
 
+	FORCEINLINE UUserWidget* GetEquipmentUIInstance() const { return EquipmentUIInstance; }
 	void ChangeMenuWidget(UUserWidget* NewWidget);
 
 	void ShowRestartMenu();

@@ -86,4 +86,6 @@ void AArmor::UnEquip(EEquipType Type)
 		if (StaticArmor)
 			StaticArmor->SetStaticMesh(nullptr);
 	}
+
+	End_UnEquip();
 }

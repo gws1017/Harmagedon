@@ -39,7 +39,6 @@ void AItem::SetSocketName(EEquipType Type)
 	// 소켓이름도 다 다르게 Set해줘야함
 	//직검 왼쪽 오른쪽 소켓 LeftSword RightSword
 	//방패 왼쪽 오른쪽 소켓... LeftShield RightSield
-
 	FString Base = EquipSocket.ToString();
 	switch (Type)
 	{
@@ -48,18 +47,6 @@ void AItem::SetSocketName(EEquipType Type)
 		break;
 	case EEquipType::ET_RightWeapon:
 		EquipSocket = FName(Base + "RSocket");
-		break;
-	case EEquipType::ET_Top:
-		EquipSocket = "Top";
-		break;
-	case EEquipType::ET_Bottom:
-		EquipSocket = "Bottom";
-		break;
-	case EEquipType::ET_Head:
-		EquipSocket = "Head";
-		break;
-	case EEquipType::ET_Shoe:
-		EquipSocket = "Shoe";
 		break;
 	}
 }
