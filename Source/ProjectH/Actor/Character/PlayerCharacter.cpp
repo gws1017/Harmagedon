@@ -332,6 +332,9 @@ void APlayerCharacter::OnPlayerMontageEnded(UAnimMontage* Montage, bool bInterru
 {
 	if (bInterrupted)
 	{
+		if(bSaveAttack == false)
+			bIsAttacking = false;
+
 		if (LeftWeapon && !LeftWeapon->GetEquipped())
 		{
 			LeftWeapon->OnWeaponMontageEnded(Montage, bInterrupted);

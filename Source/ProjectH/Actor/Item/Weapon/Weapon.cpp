@@ -61,9 +61,11 @@ void AWeapon::OnWeaponMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 	if (Montage == DrawMontage )
 	{
 		Begin_Equip();
+		End_Equip();
 	}
 	else if (Montage == SheathMontage)
 	{
+		Begin_UnEquip();
 		End_UnEquip();
 	}
 }
