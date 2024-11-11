@@ -29,7 +29,8 @@ public:
 		FVector StartPoint;
 	UPROPERTY(VisibleAnywhere, Category = "SaveData")
 		FVector DeathLocation;
-
+	UPROPERTY(VisibleAnywhere, Category = "SaveData")
+		bool CainDie;
 };
 
 UCLASS()

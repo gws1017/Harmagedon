@@ -4,6 +4,7 @@
 
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
+#include "System/MySaveGame.h"
 
 APhysicsTrigger::APhysicsTrigger()
 {
@@ -30,13 +31,19 @@ void APhysicsTrigger::BeginPlay()
 
 void APhysicsTrigger::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	UMySaveGame* SaveGameInstance = Cast<UMySaveGame>(UGameplayStatics::CreateSaveGameObject(UMySaveGame::StaticClass()));
+	SaveGameInstance = Cast<UMySaveGame>(UGameplayStatics::LoadGameFromSlot(SaveGameInstance->PlayerName, SaveGameInstance->UserIndex));
+	if (SaveGameInstance->SaveData.CainDie)
+	{
+		return;
+	}
+
 	APlayerCharacter* player = Cast<APlayerCharacter>(OtherActor);
 
 	CheckNull(player);
 	CLog::Print(OtherComp->GetOwner()->GetName());
 	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	Mesh->SetSimulatePhysics(true);
-
 }
 
 

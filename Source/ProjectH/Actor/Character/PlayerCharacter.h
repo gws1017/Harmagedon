@@ -285,6 +285,8 @@ public:
 	void RemoveCapture(AActor* InActor, const bool bIncludeFromChildActors);
 	//외부에서 접근할 수 있는 변수 작성(되도록이면 변수는 private에 작성하고 Getter Setter 이용할 것)
 
+	bool GetCainDie() const { return CainDie; }
+	void SetCainDie(bool flag) { CainDie = flag; }
 private:
 
 	//캐릭터 내부에서만 호출되는 함수 작성 (주로 키입력)
@@ -486,5 +488,5 @@ private:
 		IInteractionInterface* OverlappingActor;
 
 
-		
+		bool CainDie;
 };

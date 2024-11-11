@@ -17,6 +17,7 @@
 #include "Components/SphereComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Engine/DamageEvents.h"
+#include "System/MySaveGame.h"
 
 ACain::ACain()
 {
@@ -413,6 +414,14 @@ void ACain::SetDead()
 	// 이동 불가 설정
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 	PlayDeadAnimation();
+
+	TArray<APlayerCharacter*> actors;
+	UHelpers::FindActors(GetWorld(), actors);
+	for (APlayerCharacter* player : actors)
+	{
+		player->SetCainDie(true);
+		player->SaveGameData();
+	}
 
 	// 충돌감지 끄기
 	SetActorEnableCollision(false);

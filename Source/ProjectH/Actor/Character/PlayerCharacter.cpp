@@ -605,7 +605,8 @@ void APlayerCharacter::SaveGameData(int32 SaveType)
 		GetActorLocation(),
 		GetActorRotation(),
 		StartPoint,
-		DeathLocation
+		DeathLocation,
+		CainDie
 	};
 	if (SaveType == 1)//죽었을때 수정해야하는 부분
 	{
