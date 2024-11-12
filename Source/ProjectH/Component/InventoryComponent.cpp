@@ -77,14 +77,9 @@ void UInventoryComponent::AddItem(const FItemData& ItemData, bool bEquipped)
 {
 	FInventoryItem* Item = InventoryContents.Find(ItemData.ItemCode);
 
-	//무게 확인
-	if (!CheckWeight(ItemData.NumericData.Weight)) return;
-
 	//이미 있는아이템인가?
 	if (Item) Item->Count++;
 	else InventoryContents.Add({ ItemData.ItemCode ,FInventoryItem(ItemData, bEquipped) });
-
-	CurrentWeight += ItemData.NumericData.Weight;
 
 	OnInventoryUpdated.Broadcast();
 }
@@ -95,8 +90,7 @@ void UInventoryComponent::AddItem(const int64 ItemCode, bool bEquipped)
 	FItemData* Data = GetOwner()->GetGameInstance<UMyGameInstance>()->GetItemData(ItemCode);
 	if (Data == nullptr)
 		return;
-	//무게 확인
-	if (!CheckWeight(Data->NumericData.Weight)) return;
+
 
 	//이미 있는아이템인가?
 	if (Item) Item->Count++;
@@ -115,7 +109,6 @@ void UInventoryComponent::AddItem(const int64 ItemCode, bool bEquipped)
 		}
 		
 	}
-	CurrentWeight += Data->NumericData.Weight;
 	
 	OnInventoryUpdated.Broadcast();
 }
@@ -179,6 +172,11 @@ void UInventoryComponent::Equip(USlot* SelectSlot, USlot* InvenSlot, AItem* Item
 		return;
 	}
 
+	//무게 확인 -> 이속 감소
+	//if (!CheckWeight(InvenSlot->ItemInfo.NumericData.Weight));
+
+	CurrentWeight += InvenSlot->ItemInfo.NumericData.Weight;
+
 	auto Player = Cast<APlayerCharacter>(GetOwner());
 	if (!!SelectSlot && SelectSlot->bEquipped == true)
 	{
@@ -236,7 +234,10 @@ void UInventoryComponent::UnEquip(USlot* EquipSlot)
 	auto InvenData = InventoryContents.Find(EquipSlot->ItemInfo.ItemCode);
 	InvenData->Slot = nullptr;
 	InvenData->bEquipped = false;
-	
+
+	CurrentWeight -= EquipSlot->ItemInfo.NumericData.Weight;
+	//if (!CheckWeight(EquipSlot->ItemInfo.NumericData.Weight)); //무게확인 이속증가
+
 	auto Player = Cast<APlayerCharacter>(GetOwner());
 	Player->UnEquip(EquipSlot->EquipType);
 	EquipSlot->ItemInstance = nullptr;
