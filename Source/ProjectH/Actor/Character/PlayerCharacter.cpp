@@ -55,7 +55,8 @@ APlayerCharacter::APlayerCharacter()
 	ParryStamina(10.f),
 	FaceAngle(150.f),
 	CurrentPotionCount(1),
-	StartPoint(0.f, 0.f, 0.f)
+	StartPoint(0.f, 0.f, 0.f),
+	LockInterpSpeed(10.0f)
 {
 	//Tick함수 안쓰면 일단 꺼놓기
 	PrimaryActorTick.bCanEverTick = true;
@@ -83,12 +84,12 @@ APlayerCharacter::APlayerCharacter()
 		}
 		else
 		{
-			ArmorComponents.Add({ SketalArmorType[i] ,FArmorArray()});
+			ArmorComponents.Add({ SketalArmorType[i] ,FArmorArray() });
 			ArmorComponents[SketalArmorType[i]].ArmorArray.Add(SkeltalArmorComponent);
 		}
 	}
 
-	FName StaticAmorName[5] = { "HeadArmor","LeftHandArmor","RightHandArmor","LeftShoulderArmor","RightShoulderArmor"};
+	FName StaticAmorName[5] = { "HeadArmor","LeftHandArmor","RightHandArmor","LeftShoulderArmor","RightShoulderArmor" };
 	EEquipType StaticArmorType[5] = { EEquipType::ET_Head,EEquipType::ET_Hand,EEquipType::ET_Hand,
 		EEquipType::ET_Top,EEquipType::ET_Top };
 
@@ -116,9 +117,10 @@ APlayerCharacter::APlayerCharacter()
 
 	GetCapsuleComponent()->SetCollisionProfileName(CPROFILE_HCAPSULE);
 
+	TargetingSphere->SetSphereRadius(45.f);
 	SpringArm->bDoCollisionTest = false;
 	SpringArm->bUsePawnControlRotation = true;
-	
+
 	Tags.Add("Player");
 }
 
@@ -138,7 +140,7 @@ void APlayerCharacter::BeginPlay()
 	InventoryComponent->AddItem(60, false);
 
 	EEquipType Typename[3] = { EEquipType::ET_Head, EEquipType::ET_Top, EEquipType::ET_Hand };
-	FName SocketName[5] = { "HeadSocket","ShoulderLSocket","ShoulderRSocket","HandLSocket","HandRSocket"};
+	FName SocketName[5] = { "HeadSocket","ShoulderLSocket","ShoulderRSocket","HandLSocket","HandRSocket" };
 	//소켓 설정
 	int j = 0;
 	for (int i = 0; i < 3;++i)
@@ -146,7 +148,7 @@ void APlayerCharacter::BeginPlay()
 		for (UMeshComponent* armor : ArmorComponents[Typename[i]].ArmorArray)
 		{
 			auto StaticArmor = Cast<UStaticMeshComponent>(armor);
-			if(StaticArmor)
+			if (StaticArmor)
 				StaticArmor->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), SocketName[j++]);
 		}
 	}
@@ -186,9 +188,9 @@ void APlayerCharacter::BeginPlay()
 
 	//인벤토리 방어구 캡처
 	SceneCapture->ShowOnlyComponent(GetMesh());
-	for (auto[Type,ArmorArray] : ArmorComponents)
+	for (auto [Type, ArmorArray] : ArmorComponents)
 	{
-		for(auto ArmorComponent : ArmorArray.ArmorArray)
+		for (auto ArmorComponent : ArmorArray.ArmorArray)
 			SceneCapture->ShowOnlyComponent(ArmorComponent);
 	}
 
@@ -251,7 +253,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		//상호작용
 		EnhancedInput->BindAction(InteractionAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Interaction);
 		//락온
-		EnhancedInput->BindAction(TargetLockAction, ETriggerEvent::Triggered, this, &APlayerCharacter::DetectTarget);
+		EnhancedInput->BindAction(TargetLockAction, ETriggerEvent::Triggered, this, &APlayerCharacter::LockOn);
 
 		//UI관련 입력 바인딩
 		EnhancedInput->BindAction(OpenEquipUIAction, ETriggerEvent::Triggered, GetPlayerController(), &ABasicPlayerController::ToggleEquipMenu);
@@ -267,7 +269,7 @@ float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	if (DamageAmount <= 0.f)
 		return DamageAmount;
 	float prevDmg = DamageAmount;
-	DamageAmount *= (1-GetArmorPhyscisDeffenseRate());
+	DamageAmount *= (1 - GetArmorPhyscisDeffenseRate());
 
 	CLog::Log("Armor Block Dmg : " + FString::SanitizeFloat(prevDmg - DamageAmount));
 	// 무적상태
@@ -282,7 +284,7 @@ float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	}
 	AEnemy* enemy = nullptr;
 	enemy = Cast<AEnemy>(DamageCauser->GetOwner());
-	if(!enemy) enemy = Cast<AEnemy>(DamageCauser);
+	if (!enemy) enemy = Cast<AEnemy>(DamageCauser);
 
 	CheckGuard(DamageAmount, enemy, hitinfo);
 	CheckParry(DamageAmount, enemy);
@@ -332,7 +334,7 @@ void APlayerCharacter::OnPlayerMontageEnded(UAnimMontage* Montage, bool bInterru
 {
 	if (bInterrupted)
 	{
-		if(bSaveAttack == false)
+		if (bSaveAttack == false)
 			bIsAttacking = false;
 
 		if (LeftWeapon && !LeftWeapon->GetEquipped())
@@ -344,7 +346,7 @@ void APlayerCharacter::OnPlayerMontageEnded(UAnimMontage* Montage, bool bInterru
 			RightWeapon->OnWeaponMontageEnded(Montage, bInterrupted);
 		}
 	}
-	
+
 }
 
 void APlayerCharacter::TargetingBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -369,7 +371,7 @@ AWeapon* APlayerCharacter::GetWeapon(const EEquipType Type) const
 {
 	if (EquipmentMap.Contains(Type))
 		return Cast<AWeapon>(EquipmentMap[Type]);
-	
+
 	return nullptr;
 }
 
@@ -391,7 +393,7 @@ float APlayerCharacter::GetFinalPoise() const
 	//방어구 강인도 합산
 	for (auto [Type, Armor] : EquipmentMap)
 	{
-		if(Armor)
+		if (Armor)
 			PoiseValue += Armor->GetPoise();
 	}
 	return PoiseValue;
@@ -433,10 +435,10 @@ void APlayerCharacter::EmptyWeapon()
 	if (EquipmentMap.Contains(EEquipType::ET_LeftWeapon)
 		&& EquipmentMap.Contains(EEquipType::ET_RightWeapon))
 	{
-		if(!EquipmentMap[EEquipType::ET_LeftWeapon] && !EquipmentMap[EEquipType::ET_RightWeapon])
+		if (!EquipmentMap[EEquipType::ET_LeftWeapon] && !EquipmentMap[EEquipType::ET_RightWeapon])
 			WeaponEquipped = EWeaponEquipped::EWE_None;
 	}
-	
+
 }
 
 void APlayerCharacter::End_Attack()
@@ -593,7 +595,7 @@ void APlayerCharacter::SaveGameData(int32 SaveType)
 	auto EquipMap = GetEquipmentMap();
 	TMap<EEquipType, int32> EquipmentInfo;
 
-	for (const auto[Type, Instance] : EquipMap)
+	for (const auto [Type, Instance] : EquipMap)
 	{
 		FItemData data = Instance->GetItemData();
 		EquipmentInfo.Add({ Type,data.ItemCode });
@@ -632,7 +634,7 @@ void APlayerCharacter::LoadGameData()
 		Stat.Stamina = Stat.MaxStamina;
 		if (Data.Location.IsNearlyZero() == false)
 		{
-			if(UGameplayStatics::GetCurrentLevelName(GetWorld()) == TUTORIAL_LEVEL)
+			if (UGameplayStatics::GetCurrentLevelName(GetWorld()) == TUTORIAL_LEVEL)
 				SetActorLocation(Data.Location);
 		}
 
@@ -693,7 +695,7 @@ void APlayerCharacter::RemoveCapture(AActor* InActor, const bool bIncludeFromChi
 	SceneCapture->RemoveShowOnlyActorComponents(InActor, bIncludeFromChildActors);
 }
 
-void APlayerCharacter::Equip(const EEquipType Type, AEquipmentItem* EquipItem )
+void APlayerCharacter::Equip(const EEquipType Type, AEquipmentItem* EquipItem)
 {
 	//플레이어가 가진 인스턴스를 장착하지말고 인스턴스를 넘겨받아 장착
 	EquipItem->Equip(Type);
@@ -788,7 +790,7 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 	}
 	else
 	{
-		if (FMath::Abs(LookAxisVector.X) > 40.0f)
+		if (FMath::Abs(LookAxisVector.X) > LockSwitchAngle)
 		{
 			CheckNull(LockedTarget);
 			CheckTrue(bLockSwitching);
@@ -843,6 +845,7 @@ void APlayerCharacter::SmoothRoll()
 void APlayerCharacter::Roll()
 {
 	CheckFalse(CanRoll());
+	bUseControllerRotationYaw = false;
 	SetMovementState(EMovementState::EMS_Roll);
 	DecrementStamina(RollStamina);
 	PlayAnimMontage(RollMontage);
@@ -872,7 +875,7 @@ void APlayerCharacter::Interaction()
 	OverlappingActor->OnInteraction();
 }
 
-void APlayerCharacter::DetectTarget()
+void APlayerCharacter::LockOn()
 {
 	if (bTargetLock)
 	{
@@ -880,27 +883,37 @@ void APlayerCharacter::DetectTarget()
 	}
 	else
 	{
-		float StartOffset = 280.f;
-		float EndOffset = 2000.f;
-		float Radius = 300.f;
+		DetectTarget();
+	}
+}
 
-		FVector Start = GetActorLocation();
-		Start += Camera->GetForwardVector() * StartOffset;
-		FVector End = Start + Camera->GetForwardVector() * EndOffset;
+void APlayerCharacter::DetectTarget()
+{
+	float StartOffset = 280.f;
+	float EndOffset = 2000.f;
+	float Radius = 300.f;
 
-		TArray<TEnumAsByte<EObjectTypeQuery>> ObjectsTypes =
-		{ UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_PhysicsBody) };
-		TArray<AActor*> IgonerActor = { this };
-		FHitResult Result;
+	FVector Start = GetActorLocation();
+	Start += Camera->GetForwardVector() * StartOffset;
+	FVector End = Start + Camera->GetForwardVector() * EndOffset;
 
-		UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), Start, End, Radius,
-			ObjectsTypes, false, IgonerActor, EDrawDebugTrace::None, Result, true);
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectsTypes =
+	{ UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_PhysicsBody) };
+	TArray<AActor*> IgonerActor = { this };
+	FHitResult Result;
 
-		if (Result.GetActor())
-		{
-			LockedTarget = Result.GetActor();
-			bTargetLock = true;
-		}
+	UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), Start, End, Radius,
+		ObjectsTypes, false, IgonerActor, EDrawDebugTrace::None, Result, true);
+
+	if (Result.GetActor())
+	{
+		LockedTarget = Result.GetActor();
+		bTargetLock = true;
+		bUseControllerRotationYaw = true;
+	}
+	else
+	{
+		UnlockTarget();
 	}
 }
 
@@ -916,11 +929,13 @@ void APlayerCharacter::LockTarget()
 	LerpRotation.Roll = GetControlRotation().Roll;
 
 	GetController()->SetControlRotation(LerpRotation);
+	//
 }
 
 void APlayerCharacter::UnlockTarget()
 {
 	bTargetLock = false;
+	bUseControllerRotationYaw = false;
 	LockedTarget = nullptr;
 }
 
@@ -1160,11 +1175,11 @@ void APlayerCharacter::UpdateStamina(float DeltaStamina)
 	CheckTrue(MovementState == EMovementState::EMS_Dead); //죽었을 때 종료
 	CheckTrue(MovementState == EMovementState::EMS_Roll)
 
-	if (GetStaminaRate() <= RunStamina)
-	{
-		SetMovementState(EMovementState::EMS_Exhausted);
-		OffRunning();
-	}
+		if (GetStaminaRate() <= RunStamina)
+		{
+			SetMovementState(EMovementState::EMS_Exhausted);
+			OffRunning();
+		}
 
 
 	if (MovementState == EMovementState::EMS_Exhausted)

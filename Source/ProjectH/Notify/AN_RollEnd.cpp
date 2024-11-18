@@ -16,5 +16,7 @@ void UAN_RollEnd::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* An
 	if (PlayerCharacter)
 	{
 		PlayerCharacter->SetMovementNormal();
+		if (PlayerCharacter->IsLocking())
+			PlayerCharacter->bUseControllerRotationYaw = true;
 	}
 }

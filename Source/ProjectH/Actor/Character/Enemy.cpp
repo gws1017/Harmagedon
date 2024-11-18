@@ -197,8 +197,7 @@ void AEnemy::Die()
 {
 	if (DecrementEnemyFunc.IsBound())
 		DecrementEnemyFunc.Execute();
-	if (CombatTarget)
-		CombatTarget = nullptr;
+	
 
 	StopAnimMontage();
 	PlayAnimMontage(DeathMontage);
@@ -208,6 +207,22 @@ void AEnemy::Die()
 	AgroSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	ActionSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//락온되지않도록 Object Type 변경
+	GetMesh()->SetCollisionObjectType(ECollisionChannel::ECC_Pawn);
+
+	//플레이어 락온해제
+	FTimerHandle UnlockTimer;
+	GetWorldTimerManager().SetTimer(UnlockTimer, [this]() {
+		//락온 상태면 다른타겟찾고 아니면 그냥끄기
+		APlayerCharacter* player = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+		if (player->IsLocking())
+			player->DetectTarget();
+		else
+			player->UnlockTarget();
+		}, 4.0f, false);
+
+	if (CombatTarget)
+		CombatTarget = nullptr;
 }
 
 void AEnemy::DeathEnd()

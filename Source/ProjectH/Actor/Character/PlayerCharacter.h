@@ -200,6 +200,7 @@ public:
 	FORCEINLINE bool IsBlocking() { return bBlocking; }
 	FORCEINLINE bool GetParrySucc() { return bParrySucc; }
 	FORCEINLINE bool GetParryFail() { return bParryFail; }
+	FORCEINLINE bool IsLocking() { return bTargetLock; }
 	FORCEINLINE float GetHP() const { return Stat.HP; }
 	FORCEINLINE float GetMaxHP() const { return Stat.MaxHP; }
 	FORCEINLINE float GetStamina() const { return Stat.Stamina; }
@@ -271,6 +272,9 @@ public:
 
 	bool CanBlock();
 
+	void DetectTarget();
+	void UnlockTarget();
+
 	virtual void Hit(const FVector& ParticleSpawnLocation);
 
 	UFUNCTION(BlueprintCallable)
@@ -302,9 +306,8 @@ private:
 	void EquipWeapon();
 	void Interaction();
 
-	void DetectTarget();
+	void LockOn();
 	void LockTarget();
-	void UnlockTarget();
 	void SwapTargetRight();
 	void SwapTargetLeft();
 
@@ -468,7 +471,9 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "TargetSystem")
 		bool bLockSwitching = false; 
 	UPROPERTY(EditAnywhere, Category = "TargetSystem")
-		float LockInterpSpeed = 5.0f; 
+		float LockSwitchAngle;
+	UPROPERTY(EditAnywhere, Category = "TargetSystem")
+		float LockInterpSpeed; 
 	UPROPERTY(VisibleAnywhere, Category = "TargetSystem")
 		TArray<AEnemy*> TargetArray;
 	UPROPERTY(VisibleAnywhere, Category = "TargetSystem")
