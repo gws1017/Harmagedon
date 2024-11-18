@@ -50,5 +50,6 @@ void AGuardianMeele::Disappear()
 
 void AGuardianMeele::DecrementStamina()
 {
-	CurrentStamina -= WeaponInstance->GetStaminaCost();
+	if (WeaponInstance)
+		CurrentStamina -= WeaponInstance->GetStaminaCost();
 }
