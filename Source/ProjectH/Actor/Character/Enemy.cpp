@@ -219,7 +219,7 @@ void AEnemy::Die()
 			player->DetectTarget();
 		else
 			player->UnlockTarget();
-		}, 4.0f, false);
+		}, 0.4f, false);
 
 	if (CombatTarget)
 		CombatTarget = nullptr;
