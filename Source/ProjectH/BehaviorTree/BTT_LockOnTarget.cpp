@@ -16,7 +16,7 @@ EBTNodeResult::Type UBTT_LockOnTarget::ExecuteTask(UBehaviorTreeComponent& Owner
 
 	ControlledPawn->StopMove();
 
-	//if(ControlledPawn->GetTarget())
+	if(ControlledPawn->IsLockOn() != bTargetLock)
 		ControlledPawn->SetLockOn(bTargetLock);
 	FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 	return EBTNodeResult::Succeeded;

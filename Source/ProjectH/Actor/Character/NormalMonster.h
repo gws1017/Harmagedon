@@ -47,6 +47,7 @@ public:
 	FORCEINLINE float GetMaxStamina() const { return MaxStamina; }
 	FORCEINLINE float GetStamina() const { return CurrentStamina; }
 	FORCEINLINE bool IsPatrol() const { return bPatrol; }
+	FORCEINLINE bool IsLockOn() const { return bTargetLock; }
 	FORCEINLINE bool CanAttack() const;
 
 

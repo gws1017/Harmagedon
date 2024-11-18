@@ -54,8 +54,8 @@ void AEnemy::BeginPlay()
 
 	AgroSphere->InitSphereRadius(DetectRadius);
 	ActionSphere->InitSphereRadius(ActionRadius);
-	AgroSphere->SetRelativeLocation(FVector(DetectRadius, 0.f, 0.f));
-	ActionSphere->SetRelativeLocation(FVector(ActionRadius, 0.f, 0.f));
+	//AgroSphere->SetRelativeLocation(FVector(DetectRadius, 0.f, 0.f));
+	//ActionSphere->SetRelativeLocation(FVector(ActionRadius, 0.f, 0.f));
 
 	//Debug Setting
 	if (UKismetSystemLibrary::IsPackagedForDistribution())
