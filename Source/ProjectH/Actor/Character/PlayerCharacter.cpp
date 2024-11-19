@@ -653,7 +653,7 @@ void APlayerCharacter::LoadGameData()
 				AExpItem* actor = GetWorld()->SpawnActor<AExpItem>(LostExpClass);
 				FVector Loc = Data.DeathLocation;
 				Loc.Z -= 90.f;
-				actor->Init(Data.LostExp, Loc);
+				actor->InitializeExp(Data.LostExp, Loc);
 			}
 			else CLog::Log("LostExp BP is not valid");
 		}

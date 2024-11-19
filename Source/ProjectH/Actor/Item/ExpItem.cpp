@@ -4,12 +4,12 @@
 
 #include "Components/SphereComponent.h"
 
-void AExpItem::Init(int32 LostExp, const FVector& Location)
+void AExpItem::InitializeExp(int32 Amount, const FVector& Location)
 {
-	Exp = LostExp;
+	Exp = Amount;
 	FVector Loc = Location;
 	Loc.Z += (OverlapSphere->Bounds.SphereRadius) + HeightOffset;
-	SetActorLocation(Loc);
+	InitializeSpawnLocation(Loc);
 }
 
 void AExpItem::OnInteraction()

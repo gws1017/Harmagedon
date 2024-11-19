@@ -6,7 +6,10 @@
 #include "Components/StaticMeshComponent.h"
 #include "NiagaraComponent.h"
 
+#include "NavigationSystem.h"
+
 APickupItem::APickupItem()
+	:SearchExtent(500.f,500.f,500.f)
 {
 	UHelpers::CreateComponent<USphereComponent>(this, &OverlapSphere, "OverlapSphere", GetRootComponent());
 	UHelpers::CreateComponent<UStaticMeshComponent>(this, &Mesh, "StaticMesh", OverlapSphere);
@@ -49,4 +52,29 @@ void APickupItem::OnInteraction()
 	if (ItemEffect)
 		ItemEffect->Deactivate();
 	Destroy();
+}
+
+void APickupItem::InitializeSpawnLocation(const FVector& Location)
+{
+	//스폰가능한 위치인지 확인한다
+	FNavLocation ValidNavLocation;
+	FVector ValidLocation = Location;
+	//현재 월드에 포함된 네비게이션 시스템의 레퍼런스를 가져온다.
+	if (UNavigationSystemV1* NavSystem = UNavigationSystemV1::GetCurrent(GetWorld()))
+	{
+		//가장 가까운 유효한 위치를 찾는다
+		bool bFoundLocation = NavSystem->ProjectPointToNavigation(
+			Location,
+			ValidNavLocation,
+			SearchExtent
+		);
+		if (bFoundLocation)
+			ValidLocation = ValidNavLocation.Location;
+		else
+			CLog::Print("Invalid Spawn Location");
+
+	}
+	DrawDebugSphere(GetWorld(), ValidLocation, 30.f, 12, FColor::White, true, 3.f, 0, 1.f);
+
+	SetActorLocation(ValidLocation);
 }

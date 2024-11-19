@@ -13,7 +13,7 @@ class PROJECTH_API AExpItem : public APickupItem
 	GENERATED_BODY()
 	
 public:
-	void Init(int32 LostExp, const FVector& Location);
+	void InitializeExp(int32 Amount, const FVector& Location);
 
 	virtual void OnInteraction() override;
 	virtual void Use() override;

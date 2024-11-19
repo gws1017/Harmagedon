@@ -31,7 +31,7 @@ public:
 
 	virtual void OnInteraction();
 
-	//void Init(int32 LostExp, const FVector& Location);
+	void InitializeSpawnLocation(const FVector& Location);
 
 
 protected:
@@ -42,10 +42,12 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Component")
 		UStaticMeshComponent* Mesh;
 
-	UPROPERTY(EditAnywhere, Category = "Exp | Effect")
+	UPROPERTY(EditAnywhere, Category = "Effect")
+	FVector SearchExtent;
+	UPROPERTY(EditAnywhere, Category = "Effect")
 		UNiagaraComponent* ItemEffect;
 
-	UPROPERTY(VisibleDefaultsOnly, Category = "Exp")
+	UPROPERTY(VisibleDefaultsOnly)
 		APlayerCharacter* PlayerInstance;
 
 };
