@@ -31,6 +31,8 @@ public:
 
 	virtual void OnInteraction();
 
+	virtual void ToggleOverlapUI(ABasicPlayerController* PlayerController);
+
 	void InitializeSpawnLocation(const FVector& Location);
 
 
@@ -42,7 +44,9 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Component")
 		UStaticMeshComponent* Mesh;
 
-	UPROPERTY(EditAnywhere, Category = "Effect")
+	UPROPERTY(EditAnywhere)
+	FText OverlapText;
+	UPROPERTY(EditAnywhere)
 	FVector SearchExtent;
 	UPROPERTY(EditAnywhere, Category = "Effect")
 		UNiagaraComponent* ItemEffect;

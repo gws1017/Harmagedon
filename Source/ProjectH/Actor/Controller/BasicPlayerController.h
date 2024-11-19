@@ -10,6 +10,8 @@ class UPasueMenuUI;
 class ULevelUPUI;
 class UEquipmentUI;
 class UInventoryUI;
+class UOverlapUI;
+class UBossHUDWidget;
 
 UCLASS()
 class PROJECTH_API ABasicPlayerController : public APlayerController
@@ -33,6 +35,8 @@ public:
 	void ShowInventoryMenu();
 
 	UFUNCTION()
+	void ToggleOverlapUI(FText OvelapText);
+	UFUNCTION()
 	void ToggleEquipMenu();
 	UFUNCTION(BlueprintCallable)
 		void ToggleInventoryMenu();
@@ -44,15 +48,15 @@ public:
 	void HideBossHUD();
 
 	UFUNCTION()
-	class UBossHUDWidget* GetBossHUD();
+	UBossHUDWidget* GetBossHUD();
 
 private:
 	void InitializeUIInstance();
 
 	UFUNCTION(BlueprintCallable)
-		void ToggleUI(UUserWidget* widget);
+		void ToggleUI(UUserWidget* widget,bool ShowCursor = true);
 	UFUNCTION(BlueprintCallable)
-		void ShowGameUI(UUserWidget* GameUI);
+		void ShowGameUI(UUserWidget* GameUI, bool ShowCursor = true);
 	UFUNCTION(BlueprintCallable)
 		void RemoveGameUI(UUserWidget* GameUI);
 
@@ -88,6 +92,11 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 		UInventoryUI* InventoryUIInstance;
 
+		UPROPERTY(EditDefaultsOnly, Category = "UI")
+		TSubclassOf<UOverlapUI> OverlapUIClass;
+		UPROPERTY(BlueprintReadOnly)
+		UOverlapUI* OverlapUIInstance;
+
 	UPROPERTY(VisibleAnywhere)
 		UUserWidget* CurrentWidget;
 
@@ -96,8 +105,8 @@ protected:
 // HUD
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HUD)
-	TSubclassOf<class UBossHUDWidget> BossHUDWidgetClass;
+	TSubclassOf<UBossHUDWidget> BossHUDWidgetClass;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HUD)
-	TObjectPtr<class UBossHUDWidget> BossHUDWidget;
+	TObjectPtr<UBossHUDWidget> BossHUDWidget;
 };

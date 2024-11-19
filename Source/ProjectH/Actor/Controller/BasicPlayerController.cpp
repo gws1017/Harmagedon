@@ -5,18 +5,13 @@
 #include "UI/RestartMenuUI.h"
 #include "UI/EquipmentUI.h"
 #include "UI/InventoryUI.h"
+#include "UI/OverlapUI.h"
+#include "UI/BossHUDWidget.h"
 #include "Global.h"
 
-#include "UI/BossHUDWidget.h"
 
 ABasicPlayerController::ABasicPlayerController()
 {
-	// HUD 블루프린트 가져오기
-	static ConstructorHelpers::FClassFinder<UBossHUDWidget> PdHUDWidgetRef(TEXT("/Game/UI/Blueprint/WBP_BossHUD.WBP_BossHUD_C"));
-	if (PdHUDWidgetRef.Class)
-	{
-		BossHUDWidgetClass = PdHUDWidgetRef.Class;
-	}
 }
 
 void ABasicPlayerController::BeginPlay()
@@ -66,31 +61,43 @@ void ABasicPlayerController::InitializeUIInstance()
 			InventoryUIInstance = CreateWidget<UInventoryUI>(GetWorld(), InventoryUIClass);
 	}
 
-	// 위젯 생성하고 화면에 띄움
-	BossHUDWidget = CreateWidget<UBossHUDWidget>(GetWorld(), BossHUDWidgetClass);
-	if (BossHUDWidget)
+	if (!!OverlapUIClass)
 	{
-		BossHUDWidget->AddToViewport();
-		BossHUDWidget->SetVisibility(ESlateVisibility::Hidden);
+		if (OverlapUIInstance == nullptr)
+			OverlapUIInstance = CreateWidget<UOverlapUI>(GetWorld(), OverlapUIClass);
 	}
+
+	// 위젯 생성하고 화면에 띄움
+	if (!!BossHUDWidgetClass)
+	{
+		if (BossHUDWidget == nullptr)
+			BossHUDWidget = CreateWidget<UBossHUDWidget>(GetWorld(), BossHUDWidgetClass);
+		if (BossHUDWidget)
+		{
+			BossHUDWidget->AddToViewport();
+			BossHUDWidget->SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
+	
 }
 
-void ABasicPlayerController::ToggleUI(UUserWidget* widget)
+void ABasicPlayerController::ToggleUI(UUserWidget* widget, bool ShowCursor)
 {
 	CheckNull(widget);
 	if (widget->IsInViewport())
 		RemoveGameUI(widget);
 	else
-		ShowGameUI(widget);
+		ShowGameUI(widget, ShowCursor);
 }
 
-void ABasicPlayerController::ShowGameUI(UUserWidget* GameUI)
+void ABasicPlayerController::ShowGameUI(UUserWidget* GameUI, bool ShowCursor)
 {
 	if (GameUI)
 	{
-		bShowMouseCursor = true;
-		bGameInputMode = true;
-		SetInputMode(FInputModeGameAndUI{});
+		bShowMouseCursor = ShowCursor;
+		bGameInputMode = ShowCursor;
+		if(ShowCursor)
+			SetInputMode(FInputModeGameAndUI{});
 		if (!GameUI->IsInViewport())GameUI->AddToViewport();
 		GameUI->SetVisibility(ESlateVisibility::Visible);
 	}
@@ -130,6 +137,12 @@ void ABasicPlayerController::ShowRestartMenu()
 void ABasicPlayerController::ShowInventoryMenu()
 {
 	ShowGameUI(InventoryUIInstance);
+}
+
+void ABasicPlayerController::ToggleOverlapUI(FText OvelapText)
+{
+	OverlapUIInstance->OverlapText = OvelapText;
+	ToggleUI(OverlapUIInstance,false);
 }
 
 void ABasicPlayerController::ToggleEquipMenu()

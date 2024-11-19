@@ -1,5 +1,6 @@
 #include "Actor/Item/PickupItem.h"
 #include "Actor/Character/PlayerCharacter.h"
+#include "Actor/Controller/BasicPlayerController.h"
 #include "Global.h"
 
 #include "Components/SphereComponent.h"
@@ -32,6 +33,7 @@ void APickupItem::OverlapSphereBeginOverlap(UPrimitiveComponent* OverlappedCompo
 		PlayerInstance = OverlapPlayer;
 		PlayerInstance->SetOverlappingActor(this);
 		//UI띄울거면 여기에
+		ToggleOverlapUI(OverlapPlayer->GetPlayerController());
 	}
 }
 
@@ -42,6 +44,7 @@ void APickupItem::OverlapSphereEndOverlap(UPrimitiveComponent* OverlappedCompone
 	if (OverlapPlayer)
 	{
 		CheckNull(PlayerInstance);
+		ToggleOverlapUI(OverlapPlayer->GetPlayerController());
 		PlayerInstance->SetOverlappingActor(nullptr);
 		PlayerInstance = nullptr;
 	}
@@ -52,6 +55,11 @@ void APickupItem::OnInteraction()
 	if (ItemEffect)
 		ItemEffect->Deactivate();
 	Destroy();
+}
+
+void APickupItem::ToggleOverlapUI(ABasicPlayerController* PlayerController)
+{
+	PlayerController->ToggleOverlapUI(OverlapText);
 }
 
 void APickupItem::InitializeSpawnLocation(const FVector& Location)

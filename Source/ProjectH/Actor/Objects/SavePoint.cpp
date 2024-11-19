@@ -1,4 +1,4 @@
-#include "Actor/Objects/SavePoint.h"
+ï»¿#include "Actor/Objects/SavePoint.h"
 #include "Actor/Objects/EnemySpawner.h"
 #include "Actor/Character/PlayerCharacter.h"
 #include "System/Sound/SoundManager.h"
@@ -36,6 +36,7 @@ void ASavePoint::OverlapBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent
 	{
 		EnableInput(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 		OverlapPlayer->SetOverlappingActor(this);
+		ToggleOverlapUI(OverlapPlayer->GetPlayerController());
 	}
 }
 
@@ -45,6 +46,7 @@ void ASavePoint::OverlapBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, 
 
 	if (OverlapPlayer)
 	{
+		ToggleOverlapUI(OverlapPlayer->GetPlayerController());
 		DisableInput(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 		OverlapPlayer->SetOverlappingActor(nullptr);
 	}
@@ -54,16 +56,16 @@ void ASavePoint::OnInteraction()
 {
 	APlayerCharacter* player = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 
-	//»ç¿îµå ÀÌÆåÆ® È°¼ºÈ­
+	//ì‚¬ìš´ë“œ ì´í™íŠ¸ í™œì„±í™”
 	ASoundManager::GetSoundManager()->PlaySFXAtLocation(this, ESFXType::ESFXType_Save, GetActorLocation());
 	if (ItemEffect->GetAsset())
 		ItemEffect->Activate(true);
 
-	//ÇÃ·¹ÀÌ¾î Á¤º¸ ÃÊ±âÈ­
+	//í”Œë ˆì´ì–´ ì •ë³´ ì´ˆê¸°í™”
 	player->StatusRestore();
 	player->SetStartPoint(player->GetActorLocation());
 	player->SaveGameData();
-	//¸÷ ¸®Á¨
+	//ëª¹ ë¦¬ì  
 	TArray<AEnemySpawner*> SpawnerArray;
 	UHelpers::FindActors<AEnemySpawner>(GetWorld(), SpawnerArray);
 	for (auto spawner : SpawnerArray)
@@ -71,4 +73,10 @@ void ASavePoint::OnInteraction()
 		spawner->RespawnMonster();
 	}
 }
+
+void ASavePoint::ToggleOverlapUI(ABasicPlayerController* PlayerController)
+{
+	PlayerController->ToggleOverlapUI(FText::FromString(TEXT("ì„±ë°°ì—ì„œ íœ´ì‹í•œë‹¤")));
+}
+
 

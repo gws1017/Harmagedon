@@ -40,6 +40,8 @@ public:
 		void OverlapBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	virtual void OnInteraction() override;
+	virtual void ToggleOverlapUI(ABasicPlayerController* PlayerController);
+
 
 private:
 

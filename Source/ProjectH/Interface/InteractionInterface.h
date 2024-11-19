@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+#include "Actor/Controller/BasicPlayerController.h"
 #include "InteractionInterface.generated.h"
 
 // This class does not need to be modified.
@@ -23,4 +24,6 @@ class PROJECTH_API IInteractionInterface
 public:
 
 	virtual void OnInteraction() = 0;
+
+	virtual void ToggleOverlapUI(ABasicPlayerController* PlayerController) = 0;
 };
