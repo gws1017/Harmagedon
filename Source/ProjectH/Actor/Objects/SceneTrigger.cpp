@@ -13,6 +13,7 @@
 #include "LevelSequencePlayer.h"
 #include "LevelSequence.h"
 #include "System/MySaveGame.h"
+#include "System/MyGameInstance.h"
 
 ASceneTrigger::ASceneTrigger()
 {
@@ -41,12 +42,16 @@ void ASceneTrigger::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCompo
 
 void ASceneTrigger::PlayScene(APlayerCharacter* player)
 {
-	// Cain보스를 한번 처치했다면 보스 룸에 가도 보스 등장 안함
-	UMySaveGame* SaveGameInstance = Cast<UMySaveGame>(UGameplayStatics::CreateSaveGameObject(UMySaveGame::StaticClass()));
-	SaveGameInstance = Cast<UMySaveGame>(UGameplayStatics::LoadGameFromSlot(SaveGameInstance->PlayerName, SaveGameInstance->UserIndex));
-	if (SaveGameInstance->SaveData.CainDie)
+	auto GameInstance = GetGameInstance<UMyGameInstance>();
+	if (GameInstance->IsNewGame() == false)
 	{
-		return;
+		// Cain보스를 한번 처치했다면 보스 룸에 가도 보스 등장 안함
+		UMySaveGame* SaveGameInstance = Cast<UMySaveGame>(UGameplayStatics::CreateSaveGameObject(UMySaveGame::StaticClass()));
+		SaveGameInstance = Cast<UMySaveGame>(UGameplayStatics::LoadGameFromSlot(SaveGameInstance->PlayerName, SaveGameInstance->UserIndex));
+		if (SaveGameInstance->SaveData.CainDie)
+		{
+			return;
+		}
 	}
 
 	CheckNull(CutScene);
