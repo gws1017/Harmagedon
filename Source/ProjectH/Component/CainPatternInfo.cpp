@@ -8,10 +8,9 @@ UCainPatternInfo::UCainPatternInfo()
 }
 
 // Sets default values for this component's properties
-void UCainPatternInfo::Init(TArray<float> InAttackDamages, TArray<FString> InAttackMeans, class UAnimMontage* InBTMontage, bool inAllowParrying)
+void UCainPatternInfo::Init(TArray<float> InAttackDamages, TArray<FString> InAttackMeans, class UAnimMontage* InBTMontage)
 {
 	AttackDamages = InAttackDamages;
 	AttackMeans = InAttackMeans;
 	BTMontage = InBTMontage;
-	bAllowParrying = inAllowParrying;
 }

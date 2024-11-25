@@ -45,6 +45,7 @@ public:
 	void SetupCharacterWidget(UBossHpBarWidget* InUserWidget);
 	void SetupHUDWidget(UBossHUDWidget* InHUDWidget);
 	void SetHp(float NewHp);
+	bool GetAttackCheck() const { return AttackCheckStart; };
 
 	FOnHpChangedDelegate OnHpChanged;
 	TObjectPtr<APlayerCharacter> HoldingPlayer;
@@ -59,6 +60,8 @@ protected:
 protected:
 	virtual void SetMontageFinDelegate(const FCainMontageFinished& InOnAttackFinished) override;
 	virtual void PlayMontageByAI(EPattern AnimMon) override;
+	virtual void JumpMontageSection(FName SectionName, EPattern AnimMon) override;
+	virtual void GroggyAnim() override;
 
 	virtual float GetAIDetectRoomRange() override;
 	virtual bool IsHealthUnderHalf() override;
@@ -70,15 +73,20 @@ protected:
 	virtual int32 GetHitCount() override;
 	virtual void SetPrevRandomNumber(int32 number) override;
 	virtual int32 GetPrevRandomNumber() override;
+	virtual bool IsSuccessParry() override;
+public:
+	virtual void IsSuccessParry(bool flag) override { bSuccessParry = flag; }
+
 
 	FCainMontageFinished OnMontageFinished;
 
 
 
 // 노티파이 인터페이스
-protected:
+public:
 	virtual void AttackHitCheck() override;
 	virtual void AttackHitCheckEnd() override;
+	virtual void StopAnim() override;
 
 protected:
 	void MontageEnd(UAnimMontage* TargetMontage, bool IsProperlyEnded);
@@ -112,7 +120,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Animation)
 	TArray<UCainPatternInfo*> PatternInfoes;
 
-
 	uint8 CurrentStatus;
 	int32 AttackCountInPattern;
 	int32 HitCount = 0;
@@ -142,4 +149,6 @@ protected:
 
 	bool bFirstPhase = true;
 	int32 PrevRandomNumber;
+
+	bool bSuccessParry = false;
 };

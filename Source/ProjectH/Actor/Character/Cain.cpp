@@ -72,8 +72,7 @@ ACain::ACain()
 		TEXT("/Script/Engine.AnimMontage'/Game/Actor/Characters/Enemy/Boss/Animation/AM_CainDash.AM_CainDash'"),
 		TEXT("/Script/Engine.AnimMontage'/Game/Actor/Characters/Enemy/Boss/Animation/AM_CainBackDash.AM_CainBackDash'"),
 		TEXT("/Script/Engine.AnimMontage'/Game/Actor/Characters/Enemy/Boss/Animation/AM_CainLeftDash.AM_CainLeftDash'"),
-		TEXT("/Script/Engine.AnimMontage'/Game/Actor/Characters/Enemy/Boss/Animation/AM_CainRightDash.AM_CainRightDash'"),
-		TEXT("/Script/Engine.AnimMontage'/Game/Actor/Characters/Enemy/Boss/Animation/AM_CainGroggy.AM_CainGroggy'")
+		TEXT("/Script/Engine.AnimMontage'/Game/Actor/Characters/Enemy/Boss/Animation/AM_CainGroggy.AM_CainGroggy'"),
 	};
 
 	TArray<class UAnimMontage*> Patterns;
@@ -139,9 +138,7 @@ ACain::ACain()
 		FName patternName = FName(*FString::Printf(TEXT("info%d"), i));
 		UCainPatternInfo* info = CreateDefaultSubobject<UCainPatternInfo>(patternName);
 
-		bool bAllowParrying = ((i == punch1Number) || (i == grabNumber) || (i == punch2Number)) ? true : false;
-
-		info->Init(AttackDamages[i], AttackMeansByPattern[i], Patterns[i], bAllowParrying);
+		info->Init(AttackDamages[i], AttackMeansByPattern[i], Patterns[i]);
 		PatternInfoes.Push(info);
 	}
 }
@@ -171,22 +168,44 @@ void ACain::SetMontageFinDelegate(const FCainMontageFinished& InFinished)
 
 void ACain::PlayMontageByAI(EPattern InAnimMon)
 {
-	// 지정한 속도로 콤보 몽타주 재생
+	// 지정한 속도로 몽타주 재생
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	CurrentStatus = static_cast<uint8>(InAnimMon);
 	AnimInstance->Montage_Play(PatternInfoes[CurrentStatus]->BTMontage, 1.0f);
 
-	// 몽타주가 끝나면 콤보 종료 함수 호출 예약
 	FOnMontageEnded EndDelegate;
 	EndDelegate.BindUObject(this, &ACain::MontageEnd);
 	AnimInstance->Montage_SetEndDelegate(EndDelegate, PatternInfoes[static_cast<uint8>(InAnimMon)]->BTMontage);
 
 	if (CurrentStatus == static_cast<uint8>(EPattern::HOOK1)
 		|| CurrentStatus == static_cast<uint8>(EPattern::THROWAWAY)
-		|| CurrentStatus == static_cast<uint8>(EPattern::STOMP2))
+		|| CurrentStatus == static_cast<uint8>(EPattern::STOMP2)
+		|| CurrentStatus == static_cast<uint8>(EPattern::GROGGY))
 	{
 		bAllowNextPattern = false;
 	}
+}
+
+void ACain::JumpMontageSection(FName SectionName, EPattern AnimMon)
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	AnimInstance->Montage_JumpToSection(SectionName, PatternInfoes[static_cast<uint8>(AnimMon)]->BTMontage);
+}
+
+void ACain::GroggyAnim()
+{
+	// 그로기 시작
+	PlayMontageByAI(EPattern::GROGGY);
+
+	FTimerHandle TimerHandle;
+	GetWorldTimerManager().SetTimer(TimerHandle, [this]() {
+		JumpMontageSection(FName("Groggy"), EPattern::GROGGY);
+		}, 0.24f, false);
+
+	TimerHandle.Invalidate();
+	GetWorldTimerManager().SetTimer(TimerHandle, [this]() {
+		JumpMontageSection(FName("GroggyEnd"), EPattern::GROGGY);
+		}, 2.57f, false);
 }
 
 void ACain::AttackHitCheck()
@@ -198,6 +217,15 @@ void ACain::AttackHitCheck()
 void ACain::AttackHitCheckEnd()
 {
 	AttackCheckStart = false;
+}
+
+void ACain::StopAnim()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance)
+	{
+		AnimInstance->Montage_Stop(0.2f); // 블렌드 아웃 시간 설정
+	}
 }
 
 void ACain::MontageEnd(UAnimMontage* TargetMontage, bool IsProperlyEnded)
@@ -325,7 +353,7 @@ void ACain::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 			playerActor->LaunchCharacter(GetActorForwardVector() * 1000, false, false);
 		}
 
-		if (CurrentStatus == static_cast<uint8>(EPattern::GRAB))
+		if (CurrentStatus == static_cast<uint8>(EPattern::GRAB) && !bSuccessParry)
 		{
 			playerActor->GetCharacterMovement()->DisableMovement();
 			playerActor->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -342,6 +370,9 @@ void ACain::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 			// 피격 카운트를 0으로 초기화
 			HitCount = 0;
 		}
+
+		if (bSuccessParry) 
+			return;
 
 		if (CurrentStatus == static_cast<uint8>(EPattern::PUNCH1)
 			|| CurrentStatus == static_cast<uint8>(EPattern::GRAB)
@@ -407,6 +438,11 @@ void ACain::SetPrevRandomNumber(int32 number)
 int32 ACain::GetPrevRandomNumber()
 {
 	return PrevRandomNumber;
+}
+
+bool ACain::IsSuccessParry()
+{
+	return bSuccessParry;
 }
 
 void ACain::SetDead()

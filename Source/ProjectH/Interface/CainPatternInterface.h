@@ -28,10 +28,7 @@ enum class EPattern : uint8
 	DASH,
 	BACKDASH,
 	LEFTDASH,
-	RIGHTDASH,
 	GROGGY
-	//LEFTSTRAFEWALK,
-	//RIGHTSTRAFEWALK
 };
 
 // This class does not need to be modified.
@@ -55,6 +52,8 @@ class PROJECTH_API ICainPatternInterface
 public:
 	virtual void SetMontageFinDelegate(const FCainMontageFinished& InOnAttackFinished) = 0;
 	virtual void PlayMontageByAI(EPattern AnimMon) = 0;
+	virtual void JumpMontageSection(FName SectionName, EPattern AnimMon) = 0;
+	virtual void GroggyAnim() = 0;
 
 	virtual float GetAIDetectRoomRange() = 0;
 	virtual bool IsHealthUnderHalf() = 0;
@@ -66,4 +65,6 @@ public:
 	virtual int32 GetHitCount() = 0;
 	virtual void SetPrevRandomNumber(int32 number) = 0;
 	virtual int32 GetPrevRandomNumber() = 0;
+	virtual bool IsSuccessParry() = 0;
+	virtual void IsSuccessParry(bool flag) = 0;
 };

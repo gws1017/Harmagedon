@@ -24,4 +24,5 @@ class PROJECTH_API ICainAnimNotifyInterface
 public:
 	virtual void AttackHitCheck() = 0;
 	virtual void AttackHitCheckEnd() = 0;
+	virtual void StopAnim() = 0;
 };

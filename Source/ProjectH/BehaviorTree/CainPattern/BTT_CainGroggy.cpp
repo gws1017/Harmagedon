@@ -38,7 +38,8 @@ EBTNodeResult::Type UBTT_CainGroggy::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 		}
 	);
 	AIPawn->SetMontageFinDelegate(OnFinished);
-	AIPawn->PlayMontageByAI(EPattern::GROGGY);
+	AIPawn->GroggyAnim();
+	AIPawn->IsSuccessParry(false);
 
 	return EBTNodeResult::InProgress;
 }

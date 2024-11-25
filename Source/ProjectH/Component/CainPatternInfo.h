@@ -16,7 +16,7 @@ public:
 	UCainPatternInfo();
 
 	// Sets default values for this component's properties
-	void Init(TArray<float> InAttackDamage, TArray<FString> InAttackMeans, class UAnimMontage* InBTMontages, bool inAllowParrying);
+	void Init(TArray<float> InAttackDamage, TArray<FString> InAttackMeans, class UAnimMontage* InBTMontages);
 
 public:
 	//공격력, 두번공격 시 추가 공격력
@@ -30,6 +30,4 @@ public:
 	//몽타주
 	UPROPERTY(VisibleInstanceOnly, Category = info)
 	class UAnimMontage* BTMontage;
-
-	bool bAllowParrying;
 };
