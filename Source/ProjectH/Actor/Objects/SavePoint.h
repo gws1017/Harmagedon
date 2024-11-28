@@ -56,4 +56,7 @@ private:
 		UStaticMeshComponent*	WaterMesh;
 	UPROPERTY(EditDefaultsOnly)
 		UNiagaraComponent* ItemEffect;
+
+		UPROPERTY(EditAnywhere)
+		FText OverlapText;
 };

@@ -76,7 +76,7 @@ void ASavePoint::OnInteraction()
 
 void ASavePoint::ToggleOverlapUI(ABasicPlayerController* PlayerController)
 {
-	PlayerController->ToggleOverlapUI(FText::FromString(TEXT("성배에서 휴식한다")));
+	PlayerController->ToggleOverlapUI(OverlapText);
 }
 
 
