@@ -7,6 +7,7 @@
 #include "UI/InventoryUI.h"
 #include "UI/OverlapUI.h"
 #include "UI/BossHUDWidget.h"
+#include "UI/SettingMenuUI.h"
 #include "Global.h"
 
 
@@ -61,11 +62,23 @@ void ABasicPlayerController::InitializeUIInstance()
 			InventoryUIInstance = CreateWidget<UInventoryUI>(GetWorld(), InventoryUIClass);
 	}
 
+	if (!!SettingUIClass)
+	{
+		if (SettingUIInstance == nullptr)
+			SettingUIInstance = CreateWidget<USettingMenuUI>(GetWorld(), SettingUIClass);
+	}
+
 	if (!!OverlapUIClass)
 	{
 		if (OverlapUIInstance == nullptr)
 			OverlapUIInstance = CreateWidget<UOverlapUI>(GetWorld(), OverlapUIClass);
 	}
+
+	//if (!!MenuUIClass)
+	//{
+	//	if (MenuUIInstance == nullptr)
+	//		MenuUIInstance = CreateWidget<UInventoryUI>(GetWorld(), MenuUIClass);
+	//}
 
 	// 위젯 생성하고 화면에 띄움
 	if (!!BossHUDWidgetClass)

@@ -12,6 +12,7 @@ class UEquipmentUI;
 class UInventoryUI;
 class UOverlapUI;
 class UBossHUDWidget;
+class USettingMenuUI;
 
 UCLASS()
 class PROJECTH_API ABasicPlayerController : public APlayerController
@@ -39,7 +40,7 @@ public:
 	UFUNCTION()
 	void ToggleEquipMenu();
 	UFUNCTION(BlueprintCallable)
-		void ToggleInventoryMenu();
+	void ToggleInventoryMenu();
 
 	UFUNCTION()
 	void ShowBossHUD(AActor* EnemyPawn);
@@ -91,6 +92,11 @@ protected:
 		TSubclassOf<UInventoryUI> InventoryUIClass;
 	UPROPERTY(BlueprintReadOnly)
 		UInventoryUI* InventoryUIInstance;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<USettingMenuUI> SettingUIClass;
+	UPROPERTY(BlueprintReadOnly)
+	USettingMenuUI* SettingUIInstance;
 
 		UPROPERTY(EditDefaultsOnly, Category = "UI")
 		TSubclassOf<UOverlapUI> OverlapUIClass;
