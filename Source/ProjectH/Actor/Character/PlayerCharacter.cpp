@@ -54,7 +54,6 @@ APlayerCharacter::APlayerCharacter()
 	RunStamina(PLAYER_RUN_STAMINA_RATE),
 	ParryStamina(10.f),
 	FaceAngle(150.f),
-	CurrentPotionCount(1),
 	StartPoint(0.f, 0.f, 0.f),
 	LockInterpSpeed(10.0f)
 {
@@ -183,6 +182,7 @@ void APlayerCharacter::BeginPlay()
 		Stat.Vitality = 5;
 		Stat.Energy = 5;
 		Stat.Faith = 5;
+		Stat.CurrentPotionCount = 1;
 		InitStatusInfo();
 	}
 
@@ -726,9 +726,9 @@ void APlayerCharacter::UseComsumableItem()
 
 	//인벤토리에서 아이템 수량을 가져와야함
 	//SpawnItem->GetItemData().ItemCode
-	if (CurrentPotionCount > 0)
+	if (Stat.CurrentPotionCount > 0)
 	{
-		CurrentPotionCount--;
+		Stat.CurrentPotionCount--;
 		SpawnItem->Use();
 	}
 	else
@@ -752,7 +752,7 @@ void APlayerCharacter::StatusRestore()
 	Stat.HP = Stat.MaxHP;
 	Stat.Stamina = Stat.MaxStamina;
 	Stat.Mana = Stat.MaxMana;
-	CurrentPotionCount = MAX_POTION_COUNT;
+	Stat.CurrentPotionCount = MAX_POTION_COUNT;
 }
 
 ABasicPlayerController* APlayerCharacter::GetPlayerController()

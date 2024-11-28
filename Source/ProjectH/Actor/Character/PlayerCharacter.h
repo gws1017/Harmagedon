@@ -128,6 +128,8 @@ public:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
 		int32 Exp; //현재 경험치
 
+		UPROPERTY(VisibleAnywhere, Category = "Status")
+		int32 CurrentPotionCount;
 };
 
 USTRUCT(BlueprintType)
@@ -209,6 +211,8 @@ public:
 
 	FORCEINLINE	float GetStrDamage() { return Stat.PhyDamage; }
 	FORCEINLINE int32 GetPlayerLevel() { return Stat.Level; }
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE int32 GetCurrentPotionCount() { return Stat.CurrentPotionCount; }
 
 	UFUNCTION(BlueprintPure)
 
@@ -238,7 +242,7 @@ public:
 	FORCEINLINE void SetHP(const float value) { Stat.HP = value; }
 	FORCEINLINE void SetThrownByBoss(bool flag) { IsThrownByBoss = flag; }
 	FORCEINLINE void SetStartPoint(const FVector Loc) { StartPoint = Loc; }
-	FORCEINLINE void SetCurrentPotionCount(const int32 cnt) { CurrentPotionCount = cnt; }
+	FORCEINLINE void SetCurrentPotionCount(const int32 cnt) { Stat.CurrentPotionCount = cnt; }
 	UFUNCTION(BlueprintCallable)
 		FORCEINLINE void SetStr(const float value) { Stat.Strength = value; }
 
@@ -454,8 +458,7 @@ private:
 		float ParryStamina;
 	UPROPERTY(EditAnywhere, Category = "Status")
 		float FaceAngle;
-	UPROPERTY(VisibleAnywhere, Category = "Status")
-		int32 CurrentPotionCount;
+
 	
 
 	UPROPERTY(EditDefaultsOnly, Category = "Status")
