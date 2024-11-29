@@ -13,6 +13,8 @@ public:
 
 	FCharacterAbilityData() : TotalHP(0.f),
 		TotalStamina(0.f), TotalMana(0.f),
+		PhyDmg(0.f), MagDmg(0.f), BleedResistance(0), PoisonResistance(0),
+		MaxMagicSlot(0),MaxWeight(0.f),Poise(0.f),
 		LevelUpExp(0) {}
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Data")

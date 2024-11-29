@@ -66,7 +66,13 @@ struct FPlayerStatus
 {
 	GENERATED_BODY()
 
-	FPlayerStatus() = default;
+	FPlayerStatus() :
+		HP(),MaxHP(), Stamina(), MaxStamina(), Mana(), MaxMana(),
+		PhyDamage(), MagDamage(), BleedResistance(), PoisonResistance(),
+		MaxMagicSlot(), MaxWeight(), Poise(),
+		Vitality(), Strength(), Energy(), Faith(), Intelligence(), Enduarance(),
+		Level(), Exp(), CurrentPotionCount()
+	{};
 	FPlayerStatus(float hp,float Sta, float mp, int32 lev) :
 		MaxHP(hp),MaxStamina(Sta),MaxMana(mp),Level(lev)
 	{

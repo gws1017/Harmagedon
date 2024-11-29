@@ -12,6 +12,20 @@ struct FSaveData {
 	GENERATED_BODY()
 public:
 
+	FSaveData() :
+		LostExp(0),
+		Location(FVector::ZeroVector), Rotation(FRotator::ZeroRotator), StartPoint(FVector::ZeroVector),DeathLocation(FVector::ZeroVector),
+		CainDie(false)
+	{};
+	FSaveData(FPlayerStatus status, TMap<EEquipType, int32> einfo,int32 exp,
+		FVector loc, FRotator rot, FVector start, FVector deathLoc, bool cainDie) :
+		Status(status), EquipmentInfo(einfo),
+		LostExp(exp),
+		Location(loc), Rotation(rot), StartPoint(start), DeathLocation(deathLoc),
+		CainDie(cainDie)
+	{
+	};
+
 	UPROPERTY(VisibleAnywhere, Category = "SaveData")
 		FPlayerStatus Status;
 

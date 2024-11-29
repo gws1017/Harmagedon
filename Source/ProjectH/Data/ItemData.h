@@ -31,6 +31,9 @@ struct FItemTextData
 	GENERATED_BODY()
 
 public:
+
+	FItemTextData() = default;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ToolTip = "아이템 이름"))
 		FText Name;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (MultiLine = true,ToolTip = "아이템 설명 마우스 가져다대면 띄우기 가능"))
@@ -43,6 +46,11 @@ struct FItemNumericData
 	GENERATED_BODY()
 
 public:
+
+	FItemNumericData() :
+		PurchasePrice(0.f), Weight(0.f), MaxStackSize(0.f), bIsStackable(false)
+	{};
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ToolTip = "구매시 필요 재화량"))
 		float PurchasePrice;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ToolTip = "무게"))
@@ -60,6 +68,12 @@ struct FItemStatData
 	GENERATED_BODY()
 
 public:
+
+	FItemStatData() :
+		PhysicalDamage(0.f), LightDamage(0.f), DarkDamage(0.f), CriticalDamage(0.f),
+		Poise(0.f), PhyscialDeffenseRate(0.f), DarkDeffenseRate(0.f), LightDeffenseRate(0.f),
+		RequiuredStrength(0.f), RequiureVitality(0.f), RequiuredFaith(0.f), RequiuredIntelligence(0.f)
+	{};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ToolTip = "물리 공격력"))
 		float PhysicalDamage;
@@ -96,6 +110,9 @@ struct FItemAssetData
 	GENERATED_BODY()
 
 public:
+
+	FItemAssetData() = default;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ToolTip = "아이템 아이콘(인벤토리UI)"))
 		UTexture2D* Icon;
 
@@ -115,7 +132,8 @@ public:
 		TextData(),
 		NumericData(),
 		StatData(),
-		AssetData()
+		AssetData(),
+		ItemType(EItemType::IT_None)
 	{
 
 	}

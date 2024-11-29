@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "UI/BaseUI.h"
+#include "Data/ItemData.h"
 #include "InventoryUI.generated.h"
 
 struct FInventoryItem;
@@ -14,7 +15,9 @@ struct FTabData
 	GENERATED_BODY()
 
 public:
-
+	FTabData() :
+		ItemType(EItemType::IT_None)
+	{};
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TabData")
 		FText TabName;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TabData")

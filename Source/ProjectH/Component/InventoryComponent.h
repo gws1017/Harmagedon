@@ -20,7 +20,9 @@ struct FInventoryItem
 
 public:
 
-	FInventoryItem() = default;
+	FInventoryItem() : 
+		ItemInfo(),Count(0),bEquipped(false)
+	{};
 	FInventoryItem(const FItemData& ItemData, bool bEquipped)
 		: ItemInfo(ItemData), Count(1), bEquipped(bEquipped)
 	{};
