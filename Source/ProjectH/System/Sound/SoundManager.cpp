@@ -38,6 +38,9 @@ void ASoundManager::SetBGM(EBGMType Type)
 void ASoundManager::PlayBGM()
 {
 	CheckNull(SoundManagerInstance);
+	if (IsValid(SoundManagerInstance) == false) return;
+	CheckNull(MainAudio);
+	if (IsValid(MainAudio) == false) return;
 	if (MainBGM)
 	{
 		MainAudio->SetSound(MainBGM);

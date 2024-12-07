@@ -37,6 +37,7 @@
 #include "EnhancedInputComponent.h"
 #include "InputActionValue.h"
 
+#include "NavigationSystem.h"
 #include "Data/HCollision.h"
 #include "Engine/DamageEvents.h"
 
@@ -159,7 +160,7 @@ void APlayerCharacter::BeginPlay()
 
 
 	//Debug Setting
-	if (UKismetSystemLibrary::IsPackagedForDistribution()) //Package
+	if (UKismetSystemLibrary::IsPackagedForDistribution()) //Packagel
 	{
 		TargetingSphere->bHiddenInGame = true;
 	}
@@ -171,9 +172,12 @@ void APlayerCharacter::BeginPlay()
 
 	if (GameInstance->IsNewGame() == false)
 	{
-		LoadGameData();
-		InitStatusInfo();
-	}
+		FTimerHandle GameLoadTimer;
+		GetWorld()->GetTimerManager().SetTimer(GameLoadTimer, [this]() {
+			LoadGameData();
+			InitStatusInfo();
+		}, 3.f, false);
+	}ll
 	else
 	{
 		Stat.Intelligence = 5;
@@ -184,6 +188,7 @@ void APlayerCharacter::BeginPlay()
 		Stat.Faith = 5;
 		Stat.CurrentPotionCount = 1;
 		InitStatusInfo();
+		SetActorLocation(StartPoint);
 	}
 
 	//인벤토리 방어구 캡처
@@ -592,13 +597,18 @@ void APlayerCharacter::Hit(const FVector& ParticleSpawnLocation)
 void APlayerCharacter::SaveGameData(int32 SaveType)
 {
 	UMySaveGame* SaveGameInstance = Cast<UMySaveGame>(UGameplayStatics::CreateSaveGameObject(UMySaveGame::StaticClass()));
+	SaveGameInstance->PlayerName = "Player0";
+	SaveGameInstance->UserIndex = 0;
 	auto EquipMap = GetEquipmentMap();
 	TMap<EEquipType, int32> EquipmentInfo;
 
 	for (const auto [Type, Instance] : EquipMap)
 	{
-		FItemData data = Instance->GetItemData();
-		EquipmentInfo.Add({ Type,data.ItemCode });
+		if(IsValid(Instance))
+		{
+			FItemData data = Instance->GetItemData();
+			EquipmentInfo.Add({ Type,data.ItemCode });
+		}
 	}
 	SaveGameInstance->SaveData = {
 		Stat,
@@ -624,7 +634,7 @@ void APlayerCharacter::SaveGameData(int32 SaveType)
 void APlayerCharacter::LoadGameData()
 {
 	UMySaveGame* LoadGameInstance = Cast<UMySaveGame>(UGameplayStatics::CreateSaveGameObject(UMySaveGame::StaticClass()));
-	LoadGameInstance = Cast<UMySaveGame>(UGameplayStatics::LoadGameFromSlot(LoadGameInstance->PlayerName, LoadGameInstance->UserIndex));
+	LoadGameInstance = Cast<UMySaveGame>(UGameplayStatics::LoadGameFromSlot("Player0", 0));
 
 	if (LoadGameInstance)
 	{
@@ -632,21 +642,31 @@ void APlayerCharacter::LoadGameData()
 		FSaveData Data = LoadGameInstance->SaveData;
 		Stat = Data.Status;
 		Stat.Stamina = Stat.MaxStamina;
-		if (Data.Location.IsNearlyZero() == false)
-		{
-			if (UGameplayStatics::GetCurrentLevelName(GetWorld()) == TUTORIAL_LEVEL)
-				SetActorLocation(Data.Location);
-		}
 
 		for (auto [Type, ItemCode] : Data.EquipmentInfo)
 		{
 			InventoryComponent->EquipFromCode(Type, ItemCode);
-			//CLog::Log(ItemCode);
-			//CLog::Print(ItemCode);
 		}
 
+
+		FNavLocation ValidNavLocation;
+		FVector ValidLocation = Data.Location;
+		if (UNavigationSystemV1* NavSystem = UNavigationSystemV1::GetCurrent(GetWorld()))
+		{
+			bool bFoundLocation = NavSystem->ProjectPointToNavigation(
+				ValidLocation,
+				ValidNavLocation,
+				FVector(500.f,500.f,500.f)
+			);
+			if (bFoundLocation)
+				ValidLocation = ValidNavLocation.Location;
+			else
+				CLog::Print("Invalid Spawn Location");
+
+		}
+		SetActorLocation(ValidLocation);
 		SetActorRotation(Data.Rotation);
-		StartPoint = Data.StartPoint;
+
 		if (Data.LostExp != 0) {
 			if (LostExpClass)
 			{

@@ -33,7 +33,7 @@ public:
 public:
 
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE FItemData GetItemData() { return *ItemData; }
+	FItemData GetItemData() { return *ItemData; }
 
 public:	
 
