@@ -14,4 +14,11 @@ class PROJECTH_API UHUDOverlay : public UBaseUI
 {
 	GENERATED_BODY()
 	
+public:
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void ShowLoadingTexture();
+	UFUNCTION(BlueprintImplementableEvent)
+	void HideLoadingTexture();
+
 };

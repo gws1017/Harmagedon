@@ -172,12 +172,15 @@ void APlayerCharacter::BeginPlay()
 
 	if (GameInstance->IsNewGame() == false)
 	{
+		APlayerCameraManager* CM = PlayerController->PlayerCameraManager;
+		CM->StartCameraFade(0, 1, 3.f, FLinearColor::Black);
+		PlayerController->ShowLoadingScreen();
 		FTimerHandle GameLoadTimer;
 		GetWorld()->GetTimerManager().SetTimer(GameLoadTimer, [this]() {
 			LoadGameData();
 			InitStatusInfo();
 		}, 3.f, false);
-	}ll
+	}
 	else
 	{
 		Stat.Intelligence = 5;
@@ -683,6 +686,8 @@ void APlayerCharacter::LoadGameData()
 		GetMesh()->bNoSkeletonUpdate = false;
 	}
 	else CLog::Log("SaveData is not valid");
+	PlayerController->HideLoadingScreen();
+	PlayerController->PlayerCameraManager->StopCameraFade();
 	;
 }
 

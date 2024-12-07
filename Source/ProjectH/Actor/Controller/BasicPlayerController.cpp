@@ -168,6 +168,17 @@ void ABasicPlayerController::ToggleInventoryMenu()
 	ToggleUI(InventoryUIInstance);
 }
 
+void ABasicPlayerController::ShowLoadingScreen()
+{
+	CheckNull(HUDOverlayInstance);
+	HUDOverlayInstance->ShowLoadingTexture();
+}
+
+void ABasicPlayerController::HideLoadingScreen()
+{
+	CheckNull(HUDOverlayInstance);
+	HUDOverlayInstance->HideLoadingTexture();
+}
 
  /*************************************************************************************************
  * 보스방 입장 트리거에 플레이어가 들어왔을 때 컨트롤러를 가져와 이 함수를 호출

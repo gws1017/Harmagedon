@@ -42,6 +42,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ToggleInventoryMenu();
 
+	void ShowLoadingScreen();
+	void HideLoadingScreen();
+
 	UFUNCTION()
 	void ShowBossHUD(AActor* EnemyPawn);
 
