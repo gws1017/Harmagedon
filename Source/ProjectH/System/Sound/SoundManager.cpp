@@ -23,6 +23,7 @@ ASoundManager::ASoundManager()
 
 void ASoundManager::SetBGM(EBGMType Type)
 {
+	if (IsValid(this) == false) return;
 	if (BGMSoundMap.IsEmpty() == false)
 	{
 		if (BGMSoundMap[Type] == nullptr)

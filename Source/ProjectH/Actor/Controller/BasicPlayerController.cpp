@@ -193,6 +193,7 @@ void ABasicPlayerController::ShowBossHUD(AActor* EnemyPawn)
 {
 	BossHUDWidget->InitBar(EnemyPawn);
 	BossHUDWidget->SetVisibility(ESlateVisibility::Visible);
+	PlayerCameraManager->StopCameraFade();
 }
 
 void ABasicPlayerController::HideBossHUD()

@@ -278,7 +278,8 @@ float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 		return DamageAmount;
 	float prevDmg = DamageAmount;
 	DamageAmount *= (1 - GetArmorPhyscisDeffenseRate());
-
+	if (DamageAmount <= 0) DamageAmount = 0;
+	
 	CLog::Log("Armor Block Dmg : " + FString::SanitizeFloat(prevDmg - DamageAmount));
 	// 무적상태
 	if (bIFrame)
@@ -645,10 +646,14 @@ void APlayerCharacter::LoadGameData()
 		FSaveData Data = LoadGameInstance->SaveData;
 		Stat = Data.Status;
 		Stat.Stamina = Stat.MaxStamina;
+		StartPoint = Data.StartPoint;
 
-		for (auto [Type, ItemCode] : Data.EquipmentInfo)
+		if (Data.EquipmentInfo.IsEmpty() == false)
 		{
-			InventoryComponent->EquipFromCode(Type, ItemCode);
+			for (auto [Type, ItemCode] : Data.EquipmentInfo)
+			{
+				InventoryComponent->EquipFromCode(Type, ItemCode);
+			}
 		}
 
 
@@ -688,7 +693,6 @@ void APlayerCharacter::LoadGameData()
 	else CLog::Log("SaveData is not valid");
 	PlayerController->HideLoadingScreen();
 	PlayerController->PlayerCameraManager->StopCameraFade();
-	;
 }
 
 void APlayerCharacter::InitStatusInfo()
