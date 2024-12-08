@@ -192,6 +192,11 @@ void APlayerCharacter::BeginPlay()
 		Stat.CurrentPotionCount = 1;
 		InitStatusInfo();
 		SetActorLocation(StartPoint);
+		FTimerHandle GameLoadTimer;
+		GetWorld()->GetTimerManager().SetTimer(GameLoadTimer, [this]() {
+			PlayerController->PlayerCameraManager->StopCameraFade();
+			PlayerController->HideLoadingScreen();
+		}, 2.f, false);
 	}
 
 	//인벤토리 방어구 캡처
