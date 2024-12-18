@@ -29,6 +29,5 @@ bool UBTD_SuccessParry::CalculateRawConditionValue(UBehaviorTreeComponent& Owner
 		return false;
 	}
 
-
 	return AIPawn->IsSuccessParry();
 }

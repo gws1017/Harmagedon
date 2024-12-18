@@ -26,9 +26,8 @@ void UAnimNotify_CainParryCheck::Notify(USkeletalMeshComponent* MeshComp, UAnimS
 				// 패링성공시
 				if (playercharacter->GetParrySucc())
 				{
+					BossCain->IsSuccessParry(true);
 					//보스 애니메이션 중지
-					bool flag = playercharacter->GetParrySucc();
-					BossCain->IsSuccessParry(playercharacter->GetParrySucc());
 					BossCain->StopAnim();
 				}
 			}

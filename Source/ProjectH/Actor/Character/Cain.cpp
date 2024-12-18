@@ -197,11 +197,13 @@ void ACain::GroggyAnim()
 	// 그로기 시작
 	PlayMontageByAI(EPattern::GROGGY);
 
+	// 0.24초 뒤에 Groggy 섹션으로 점프
 	FTimerHandle TimerHandle;
 	GetWorldTimerManager().SetTimer(TimerHandle, [this]() {
 		JumpMontageSection(FName("Groggy"), EPattern::GROGGY);
 		}, 0.24f, false);
 
+	// 2.57초 뒤에 GroggyEnd 섹션으로 점프
 	TimerHandle.Invalidate();
 	GetWorldTimerManager().SetTimer(TimerHandle, [this]() {
 		JumpMontageSection(FName("GroggyEnd"), EPattern::GROGGY);
