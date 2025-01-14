@@ -54,7 +54,7 @@ APlayerCharacter::APlayerCharacter()
 	RollStamina(PLAYER_ROLL_STAIMINA),
 	RunStamina(PLAYER_RUN_STAMINA_RATE),
 	ParryStamina(10.f),
-	FaceAngle(150.f),
+	FaceAngle(90.f),
 	StartPoint(0.f, 0.f, 0.f),
 	LockInterpSpeed(10.0f)
 {
@@ -300,7 +300,9 @@ float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	enemy = Cast<AEnemy>(DamageCauser->GetOwner());
 	if (!enemy) enemy = Cast<AEnemy>(DamageCauser);
 
-	CheckGuard(DamageAmount, enemy, hitinfo);
+	//가드 중일 때만 체크
+	if(bBlocking)
+		CheckGuard(DamageAmount, enemy, hitinfo);
 	CheckParry(DamageAmount, enemy);
 
 	if (Stat.HP - DamageAmount <= 0.f)
@@ -1045,8 +1047,16 @@ bool APlayerCharacter::CheckFace(AActor* OtherActor)
 {
 	//Yaw각도 차이는 서로 같은방향을 바라보면 0에 가까워지고(같은 각도니까), 
 	//반대로 마주본다면 각도차이는 커질 것이다.
-	float AngleZ = FMath::Abs(GetActorRotation().Yaw - OtherActor->GetActorRotation().Yaw);
-	return AngleZ >= FaceAngle;
+	// 
+	//25.01.14 박해성
+	//Yaw 각도보다 직관적인 내적방식을 이용해 판정하도록 수정했습니다.
+	//90도보다 클경우 마주보고 있는걸로 인식합니다.
+
+	float DotResult = GetActorForwardVector().Dot(OtherActor->GetActorForwardVector());
+	float Angle = FMath::RadiansToDegrees(FMath::Acos(DotResult));
+	CLog::Print(Angle);
+	CLog::Print(Angle > FaceAngle);
+	return Angle > FaceAngle;
 }
 
 bool APlayerCharacter::CheckGuard(float& DamageAmount, AActor* DamageCauser, const FHitResult& HitInfo)
@@ -1061,8 +1071,6 @@ bool APlayerCharacter::CheckGuard(float& DamageAmount, AActor* DamageCauser, con
 		//왼쪽 무기에서 물리경감률을 얻어온다, 가드는 항상 왼쪽무기로
 		CheckNullResult(LeftWeapon, false);
 		ret = true;
-		DamageAmount = DamageAmount * (1.0f - LeftWeapon->GetPhysicalDefenseRate());
-		DecrementStamina(Stat.MaxStamina * BlockStaminaRate);
 		LeftWeapon->Hit(HitInfo.ImpactPoint);
 	}//가드 실패
 	else if (bBlockFail)
@@ -1071,6 +1079,11 @@ bool APlayerCharacter::CheckGuard(float& DamageAmount, AActor* DamageCauser, con
 		ret = false;
 		DamageAmount *= 1.2f;
 	}
+
+	//가드중 히트 시 가드 성공여부와 상관없이 스테미나가 소모되어야한다
+	if(bBlocking)
+		DecrementStamina(Stat.MaxStamina * BlockStaminaRate);
+
 	return ret;
 }
 
