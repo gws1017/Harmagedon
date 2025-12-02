@@ -19,7 +19,6 @@ class UCameraComponent;
 class UAnimMontage;
 class UInputMappingContext;
 class UInputAction;
-class USceneCaptureComponent2D;
 class UParticleSystem;
 
 class UInventoryComponent;
@@ -295,12 +294,19 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void InitStatusInfo();
 
-	void SetCapture(AActor* InActor, const bool bIncludeFromChildActors);
-	void RemoveCapture(AActor* InActor, const bool bIncludeFromChildActors);
 	//외부에서 접근할 수 있는 변수 작성(되도록이면 변수는 private에 작성하고 Getter Setter 이용할 것)
 
 	bool GetCainDie() const { return CainDie; }
 	void SetCainDie(bool flag) { CainDie = flag; }
+
+protected:
+
+	void InitializeArmorComponent();
+
+	void AttachArmorSocket();
+
+	void SetInventoryCharacter();
+
 private:
 
 	//캐릭터 내부에서만 호출되는 함수 작성 (주로 키입력)
@@ -339,7 +345,7 @@ private:
 
 	void UpdateStamina(float DeltaStamina);
 
-private:
+protected:
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Component")
 		USpringArmComponent* SpringArm;
@@ -347,8 +353,7 @@ private:
 		UCameraComponent* Camera;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Component")
 		USphereComponent* TargetingSphere;
-	UPROPERTY(VisibleDefaultsOnly,BlueprintReadOnly, Category = "Component", meta = (AllowPrivateAccess = "true"))
-		USceneCaptureComponent2D* SceneCapture;
+
 	UPROPERTY(VisibleAnywhere, Category = "Component")
 		UInventoryComponent* InventoryComponent;
 

@@ -4,6 +4,7 @@
 #include "Actor/Item/EquipmentItem.h"
 #include "Actor/Item/Weapon/Weapon.h"
 #include "Actor/Item/Armor.h"
+#include "Actor/Character/InventoryCharacter.h"
 #include "Actor/Character/PlayerCharacter.h"
 #include "Actor/Controller/BasicPlayerController.h"
 #include "UI/EquipmentUI.h"
@@ -203,7 +204,7 @@ void UInventoryComponent::Equip(USlot* SelectSlot, USlot* InvenSlot, AItem* Item
 		Instance = Cast<AWeapon>(AItem::Spawn<AItem>(GetWorld(),
 			InvenSlot->ItemInfo.AssetData.ItemClass, Cast<ACharacter>(GetOwner())));
 		Player->SetWeapon(Type, Cast<AWeapon>(Instance));
-		Player->SetCapture(Instance, true);
+		if(!!InventoryPawn)InventoryPawn->SetCapture(Instance, true);
 	}
 	
 	if (!!ItemInstance)

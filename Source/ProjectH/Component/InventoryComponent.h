@@ -11,6 +11,7 @@ enum class EItemType : uint8;
 enum class EEquipType : uint8;
 class AItem;
 class USlot;
+class AInventoryCharacter;
 
 
 USTRUCT(BlueprintType)
@@ -83,6 +84,9 @@ public:
 	TArray<FInventoryItem> GetInventoryContents() const;
 	TArray<FInventoryItem> GetInventoryItemsFromItemType(const EItemType Type) const;
 	TArray<FInventoryItem> GetInventoryItemsFromEquipType(const EEquipType Type) const;
+	
+	void SetInventoryPawn(AInventoryCharacter* pawn) { InventoryPawn = pawn; }
+
 	//아이템 습득 및 삭제시 사용되는 함수(인벤토리에 추가 / 삭제)
 	//플레이어 상호작용 및 UI에서 호출된다.
 		void AddItem(const FItemData& ItemData, bool bEquipped = false);
@@ -128,4 +132,7 @@ protected:
 		float Capacity;
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")
 		float CurrentWeight;
+
+	UPROPERTY(VisibleAnywhere, Category = "Inventory")
+		AInventoryCharacter* InventoryPawn;
 };

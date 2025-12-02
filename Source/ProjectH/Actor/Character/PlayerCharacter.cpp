@@ -28,7 +28,6 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
-#include "Components/SceneCaptureComponent2D.h"
 #include "Particles/ParticleSystem.h"
 #include "Animation/AnimMontage.h"
 
@@ -67,47 +66,10 @@ APlayerCharacter::APlayerCharacter()
 
 	UHelpers::CreateComponent<USpringArmComponent>(this, &SpringArm, "SpringArm", GetCapsuleComponent());
 	UHelpers::CreateComponent<UCameraComponent>(this, &Camera, "Camera", SpringArm);
-	UHelpers::CreateComponent<USceneCaptureComponent2D>(this, &SceneCapture, "SceneCapture", GetCapsuleComponent());
 	UHelpers::CreateComponent<USphereComponent>(this, &TargetingSphere, "TargetingSphere", GetCapsuleComponent());
 	UHelpers::CreateActorComponent<UInventoryComponent>(this, &InventoryComponent, "Inventory");
 
-
-	FName SkeletalAmorName[3] = { "ChestArmor","PantsArmor","ShoeArmor" };
-	EEquipType SketalArmorType[3] = { EEquipType::ET_Top,EEquipType::ET_Bottom,EEquipType::ET_Shoe };
-	for (int i = 0; i < 3; ++i)
-	{
-		USkeletalMeshComponent* SkeltalArmorComponent;
-		UHelpers::CreateComponent<USkeletalMeshComponent>(this, &SkeltalArmorComponent, SkeletalAmorName[i], GetMesh());
-		if (ArmorComponents.Contains(SketalArmorType[i]))
-		{
-			ArmorComponents[SketalArmorType[i]].ArmorArray.Add(SkeltalArmorComponent);
-		}
-		else
-		{
-			ArmorComponents.Add({ SketalArmorType[i] ,FArmorArray() });
-			ArmorComponents[SketalArmorType[i]].ArmorArray.Add(SkeltalArmorComponent);
-		}
-	}
-
-	FName StaticAmorName[5] = { "HeadArmor","LeftHandArmor","RightHandArmor","LeftShoulderArmor","RightShoulderArmor" };
-	EEquipType StaticArmorType[5] = { EEquipType::ET_Head,EEquipType::ET_Hand,EEquipType::ET_Hand,
-		EEquipType::ET_Top,EEquipType::ET_Top };
-
-	for (int i = 0; i < 5; ++i)
-	{
-		UStaticMeshComponent* StaitcArmorComponent;
-		UHelpers::CreateComponent<UStaticMeshComponent>(this, &StaitcArmorComponent, StaticAmorName[i], GetMesh());
-		if (ArmorComponents.Contains(StaticArmorType[i]))
-		{
-			ArmorComponents[StaticArmorType[i]].ArmorArray.Add(StaitcArmorComponent);
-		}
-		else
-		{
-			ArmorComponents.Add({ StaticArmorType[i] ,FArmorArray() });
-			ArmorComponents[StaticArmorType[i]].ArmorArray.Add(StaitcArmorComponent);
-		}
-	}
-
+	InitializeArmorComponent();
 
 	bUseControllerRotationYaw = false;
 
@@ -139,19 +101,7 @@ void APlayerCharacter::BeginPlay()
 	InventoryComponent->AddItem(50, false);
 	InventoryComponent->AddItem(60, false);
 
-	EEquipType Typename[3] = { EEquipType::ET_Head, EEquipType::ET_Top, EEquipType::ET_Hand };
-	FName SocketName[5] = { "HeadSocket","ShoulderLSocket","ShoulderRSocket","HandLSocket","HandRSocket" };
-	//소켓 설정
-	int j = 0;
-	for (int i = 0; i < 3;++i)
-	{
-		for (UMeshComponent* armor : ArmorComponents[Typename[i]].ArmorArray)
-		{
-			auto StaticArmor = Cast<UStaticMeshComponent>(armor);
-			if (StaticArmor)
-				StaticArmor->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), SocketName[j++]);
-		}
-	}
+	AttachArmorSocket();
 
 	TargetingSphere->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::TargetingBeginOverlap);
 	TargetingSphere->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::TargetingEndOverlap);
@@ -170,6 +120,7 @@ void APlayerCharacter::BeginPlay()
 	}
 	auto GameInstance = GetGameInstance<UMyGameInstance>();
 
+	//DataLoad
 	if (GameInstance->IsNewGame() == false)
 	{
 		APlayerCameraManager* CM = PlayerController->PlayerCameraManager;
@@ -199,13 +150,7 @@ void APlayerCharacter::BeginPlay()
 		}, 2.f, false);
 	}
 
-	//인벤토리 방어구 캡처
-	SceneCapture->ShowOnlyComponent(GetMesh());
-	for (auto [Type, ArmorArray] : ArmorComponents)
-	{
-		for (auto ArmorComponent : ArmorArray.ArmorArray)
-			SceneCapture->ShowOnlyComponent(ArmorComponent);
-	}
+	
 
 	CheckNull(PlayerController);
 	if (UEnhancedInputLocalPlayerSubsystem* SubSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
@@ -721,16 +666,6 @@ void APlayerCharacter::InitStatusInfo()
 	Stat.Mana = Stat.MaxMana;
 }
 
-void APlayerCharacter::SetCapture(AActor* InActor, const bool bIncludeFromChildActors)
-{
-	SceneCapture->ShowOnlyActorComponents(InActor, bIncludeFromChildActors);
-}
-
-void APlayerCharacter::RemoveCapture(AActor* InActor, const bool bIncludeFromChildActors)
-{
-	SceneCapture->RemoveShowOnlyActorComponents(InActor, bIncludeFromChildActors);
-}
-
 void APlayerCharacter::Equip(const EEquipType Type, AEquipmentItem* EquipItem)
 {
 	//플레이어가 가진 인스턴스를 장착하지말고 인스턴스를 넘겨받아 장착
@@ -796,6 +731,68 @@ ABasicPlayerController* APlayerCharacter::GetPlayerController()
 	if (!!PlayerController)
 		return PlayerController;
 	return GetController<ABasicPlayerController>();
+}
+
+void APlayerCharacter::InitializeArmorComponent()
+{
+	FName SkeletalAmorName[3] = { "ChestArmor","PantsArmor","ShoeArmor" };
+	EEquipType SketalArmorType[3] = { EEquipType::ET_Top,EEquipType::ET_Bottom,EEquipType::ET_Shoe };
+	for (int i = 0; i < 3; ++i)
+	{
+		USkeletalMeshComponent* SkeltalArmorComponent;
+		UHelpers::CreateComponent<USkeletalMeshComponent>(this, &SkeltalArmorComponent, SkeletalAmorName[i], GetMesh());
+		if (ArmorComponents.Contains(SketalArmorType[i]))
+		{
+			ArmorComponents[SketalArmorType[i]].ArmorArray.Add(SkeltalArmorComponent);
+		}
+		else
+		{
+			ArmorComponents.Add({ SketalArmorType[i] ,FArmorArray() });
+			ArmorComponents[SketalArmorType[i]].ArmorArray.Add(SkeltalArmorComponent);
+		}
+	}
+
+	FName StaticAmorName[5] = { "HeadArmor","LeftHandArmor","RightHandArmor","LeftShoulderArmor","RightShoulderArmor" };
+	EEquipType StaticArmorType[5] = { EEquipType::ET_Head,EEquipType::ET_Hand,EEquipType::ET_Hand,
+		EEquipType::ET_Top,EEquipType::ET_Top };
+
+	for (int i = 0; i < 5; ++i)
+	{
+		UStaticMeshComponent* StaitcArmorComponent;
+		UHelpers::CreateComponent<UStaticMeshComponent>(this, &StaitcArmorComponent, StaticAmorName[i], GetMesh());
+		if (ArmorComponents.Contains(StaticArmorType[i]))
+		{
+			ArmorComponents[StaticArmorType[i]].ArmorArray.Add(StaitcArmorComponent);
+		}
+		else
+		{
+			ArmorComponents.Add({ StaticArmorType[i] ,FArmorArray() });
+			ArmorComponents[StaticArmorType[i]].ArmorArray.Add(StaitcArmorComponent);
+		}
+	}
+}
+
+void APlayerCharacter::AttachArmorSocket()
+{
+	EEquipType Typename[3] = { EEquipType::ET_Head, EEquipType::ET_Top, EEquipType::ET_Hand };
+	FName SocketName[5] = { "HeadSocket","ShoulderLSocket","ShoulderRSocket","HandLSocket","HandRSocket" };
+	//소켓 설정
+	int j = 0;
+	for (int i = 0; i < 3; ++i)
+	{
+		for (UMeshComponent* armor : ArmorComponents[Typename[i]].ArmorArray)
+		{
+			auto StaticArmor = Cast<UStaticMeshComponent>(armor);
+			if (StaticArmor)
+				StaticArmor->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), SocketName[j++]);
+		}
+	}
+
+}
+
+void APlayerCharacter::SetInventoryCharacter()
+{
+	if(!!TargetingSphere)TargetingSphere->DestroyComponent();
 }
 
 void APlayerCharacter::Move(const FInputActionValue& value)
