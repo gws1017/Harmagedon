@@ -204,7 +204,11 @@ void UInventoryComponent::Equip(USlot* SelectSlot, USlot* InvenSlot, AItem* Item
 		Instance = Cast<AWeapon>(AItem::Spawn<AItem>(GetWorld(),
 			InvenSlot->ItemInfo.AssetData.ItemClass, Cast<ACharacter>(GetOwner())));
 		Player->SetWeapon(Type, Cast<AWeapon>(Instance));
-		if(!!InventoryPawn)InventoryPawn->SetCapture(Instance, true);
+		if (!!InventoryPawn)
+		{
+			InventoryPawn->SetCapture(Instance, true);
+			InventoryPawn->SetWeapon(Type, Cast<AWeapon>(Instance));
+		}
 	}
 	
 	if (!!ItemInstance)
@@ -212,6 +216,7 @@ void UInventoryComponent::Equip(USlot* SelectSlot, USlot* InvenSlot, AItem* Item
 
 	SelectSlot->ItemInstance = Instance;
 	Player->Equip(SelectSlot->EquipType,Instance);
+	if (!!InventoryPawn)InventoryPawn->Equip(SelectSlot->EquipType,Instance);
 	auto& EquippedMap = Player->GetEquipmentMap();
 
 	if (EquippedMap.Contains(Type))
@@ -241,6 +246,7 @@ void UInventoryComponent::UnEquip(USlot* EquipSlot)
 
 	auto Player = Cast<APlayerCharacter>(GetOwner());
 	Player->UnEquip(EquipSlot->EquipType);
+	if (!!InventoryPawn)InventoryPawn->UnEquip(EquipSlot->EquipType);
 	EquipSlot->ItemInstance = nullptr;
 
 	
@@ -252,6 +258,7 @@ void UInventoryComponent::QuickUnEquip(USlot* EquipSlot)
 	auto Player = Cast<APlayerCharacter>(GetOwner());
 	auto TargetSlot = GetItemData(EquipSlot->ItemInfo.ItemCode).Slot;
 	Player->QuickUnEquip(Cast<AWeapon>(TargetSlot->ItemInstance));
+	if (!!InventoryPawn)InventoryPawn->QuickUnEquip(Cast<AWeapon>(TargetSlot->ItemInstance));
 	UnEquip(TargetSlot);
 	TargetSlot->ClearSlot();
 }

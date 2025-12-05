@@ -123,14 +123,20 @@ void APlayerCharacter::BeginPlay()
 	//DataLoad
 	if (GameInstance->IsNewGame() == false)
 	{
-		APlayerCameraManager* CM = PlayerController->PlayerCameraManager;
-		CM->StartCameraFade(0, 1, 3.f, FLinearColor::Black);
-		PlayerController->ShowLoadingScreen();
-		FTimerHandle GameLoadTimer;
-		GetWorld()->GetTimerManager().SetTimer(GameLoadTimer, [this]() {
-			LoadGameData();
-			InitStatusInfo();
-		}, 3.f, false);
+		if (!!PlayerController)
+		{
+			APlayerCameraManager* CM = PlayerController->PlayerCameraManager;
+			if (!!(CM))
+			{
+				CM->StartCameraFade(0, 1, 3.f, FLinearColor::Black);
+				PlayerController->ShowLoadingScreen();
+				FTimerHandle GameLoadTimer;
+				GetWorld()->GetTimerManager().SetTimer(GameLoadTimer, [this]() {
+					LoadGameData();
+					InitStatusInfo();
+				}, 3.f, false);
+			}
+		}
 	}
 	else
 	{
@@ -371,6 +377,7 @@ float APlayerCharacter::GetFinalDamage(const EEquipType Type) const
 float APlayerCharacter::GetWeaponDamage(const EEquipType Type) const
 {
 	float Damage = 0.f;
+	CheckTrueResult(EquipmentMap.IsEmpty(), Damage);
 	if (EquipmentMap.Contains(Type) && EquipmentMap[Type])
 	{
 		AWeapon* WeaponInstance = Cast<AWeapon>(EquipmentMap[Type]);
@@ -782,7 +789,7 @@ void APlayerCharacter::AttachArmorSocket()
 	{
 		for (UMeshComponent* armor : ArmorComponents[Typename[i]].ArmorArray)
 		{
-			auto StaticArmor = Cast<UStaticMeshComponent>(armor);
+			UStaticMeshComponent* StaticArmor = Cast<UStaticMeshComponent>(armor);
 			if (StaticArmor)
 				StaticArmor->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), SocketName[j++]);
 		}
