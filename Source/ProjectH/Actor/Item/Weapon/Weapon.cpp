@@ -1,5 +1,6 @@
 #include "Actor/Item/Weapon/Weapon.h"
 #include "Actor/Character/PlayerCharacter.h"
+#include "Actor/Character/InventoryCharacter.h"
 
 #include "System/Sound/SoundManager.h"
 
@@ -162,7 +163,6 @@ void AWeapon::Equip(EEquipType Type)
 
 	if (DrawMontage)
 	{
-		auto AnimInstance = GetOwnerCharacter()->GetMesh()->GetAnimInstance();
 		FString SectionName;
 
 		if (Type == EEquipType::ET_LeftWeapon)
@@ -170,8 +170,12 @@ void AWeapon::Equip(EEquipType Type)
 		if (Type == EEquipType::ET_RightWeapon)
 			SectionName = "Right";
 
-		AnimInstance->Montage_Play(DrawMontage);
-		AnimInstance->Montage_JumpToSection(FName(SectionName));
+		APlayerCharacter* Player = Cast<APlayerCharacter>(GetOwnerCharacter());
+		CheckNull(Player);
+		auto Anim = Player->GetMesh()->GetAnimInstance();
+		Anim->Montage_Play(DrawMontage);
+		Anim->Montage_JumpToSection(FName(SectionName));
+
 	}
 	else
 	{
@@ -187,7 +191,6 @@ void AWeapon::UnEquip(EEquipType Type)
 
 	if (SheathMontage)
 	{
-		auto AnimInstance = GetOwnerCharacter()->GetMesh()->GetAnimInstance();
 		FString SectionName;
 
 		if (Type == EEquipType::ET_LeftWeapon)
@@ -195,8 +198,12 @@ void AWeapon::UnEquip(EEquipType Type)
 		if (Type == EEquipType::ET_RightWeapon)
 			SectionName = "Right";
 
-		AnimInstance->Montage_Play(SheathMontage);
-		AnimInstance->Montage_JumpToSection(FName(SectionName));
+		APlayerCharacter* Player = Cast<APlayerCharacter>(GetOwnerCharacter());
+		CheckNull(Player);
+		auto Anim = Player->GetMesh()->GetAnimInstance();
+		CheckNull(Anim);
+		Anim->Montage_Play(SheathMontage);
+		Anim->Montage_JumpToSection(FName(SectionName));
 	}
 	else
 		End_UnEquip();

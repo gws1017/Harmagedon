@@ -30,6 +30,7 @@ class AArmor;
 class APickupItem;
 class AExpItem;
 class AEnemy;
+class AInventoryCharacter;
 
 class IInteractionInterface;
 
@@ -197,7 +198,7 @@ public:
 	FORCEINLINE EMovementState GetMovementState() const { return MovementState; }
 	UFUNCTION(BlueprintCallable)
 		 UInventoryComponent* GetInventory() const { return InventoryComponent; }
-
+	AInventoryCharacter* GetInventoryPawn() const;
 	TMap<EEquipType, AEquipmentItem*>& GetEquipmentMap() { return EquipmentMap; }
 	TArray<UMeshComponent*> GetArmorComponent(const EEquipType Type) const { return ArmorComponents[Type].ArmorArray; }
 	UFUNCTION(BlueprintCallable)

@@ -342,6 +342,11 @@ AWeapon* APlayerCharacter::GetWeapon(const EEquipType Type) const
 	return nullptr;
 }
 
+AInventoryCharacter* APlayerCharacter::GetInventoryPawn() const
+{
+	return InventoryComponent->GetInventoryPawn();
+}
+
 float APlayerCharacter::GetArmorPhyscisDeffenseRate() const
 {
 	float Value = 0.f;
@@ -790,8 +795,12 @@ void APlayerCharacter::AttachArmorSocket()
 		for (UMeshComponent* armor : ArmorComponents[Typename[i]].ArmorArray)
 		{
 			UStaticMeshComponent* StaticArmor = Cast<UStaticMeshComponent>(armor);
-			if (StaticArmor)
+			if (!!StaticArmor)
 				StaticArmor->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), SocketName[j++]);
+			else
+			{
+				CLog::Log("Static Armor is nullptr");
+			}
 		}
 	}
 

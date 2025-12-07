@@ -85,6 +85,8 @@ public:
 	TArray<FInventoryItem> GetInventoryItemsFromItemType(const EItemType Type) const;
 	TArray<FInventoryItem> GetInventoryItemsFromEquipType(const EEquipType Type) const;
 	
+	AInventoryCharacter* GetInventoryPawn() { return InventoryPawn; }
+
 	void SetInventoryPawn(AInventoryCharacter* pawn) { InventoryPawn = pawn; }
 
 	//아이템 습득 및 삭제시 사용되는 함수(인벤토리에 추가 / 삭제)
