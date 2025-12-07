@@ -24,16 +24,13 @@ ASoundManager::ASoundManager()
 void ASoundManager::SetBGM(EBGMType Type)
 {
 	if (IsValid(this) == false) return;
-	if (BGMSoundMap.IsEmpty() == false)
+	USoundCue* const* SearchBGM = BGMSoundMap.Find(Type);
+	if (!SearchBGM || IsValid(*SearchBGM) == false)
 	{
-		if (BGMSoundMap[Type] == nullptr)
-		{
-			CLog::Log("Invalid BGM Type!");
-			return;
-		}
-		MainBGM = BGMSoundMap[Type];
-
+		CLog::Log("Invalid BGM Type!");
+		return;
 	}
+	MainBGM = *SearchBGM;
 }
 
 void ASoundManager::PlayBGM()
@@ -56,7 +53,7 @@ void ASoundManager::PlaySFX2D(ESFXType Type)
 {
 	CheckNull(SoundManagerInstance);
 
-	if ( !SFXSoundMap.IsEmpty())
+	if (!SFXSoundMap.IsEmpty())
 	{
 		if (SFXSoundMap.Contains(Type) == false)
 		{
@@ -85,7 +82,7 @@ void ASoundManager::PlaySFXAtLocation(AActor* PlayActor, ESFXType Type, FVector 
 		//재생할 액터에 채널이 달려있나 확인
 		if (SFXChannelMap.Contains(PlayActor->GetName()) == false)
 			AttachSFXChannel(PlayActor, Type);
-		
+
 		//미리 지정한 사운드가 있으면 그걸로 교체후 재생
 		if (!!Sound)
 			SFXChannelMap[PlayActor->GetName()]->SetSound(Sound);

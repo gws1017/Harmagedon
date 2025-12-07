@@ -6,12 +6,10 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/SpotLightComponent.h"
-#include "Components/SceneCaptureComponent2D.h"
 
 AInventoryCharacter::AInventoryCharacter()
 {
 	UHelpers::CreateComponent<USpotLightComponent>(this, &SpotLight, "SpotLight", SpringArm);
-	UHelpers::CreateComponent<USceneCaptureComponent2D>(this, &SceneCapture, "SceneCapture", GetCapsuleComponent());
 }
 void AInventoryCharacter::Tick(float DeltaTime)
 {
@@ -43,23 +41,23 @@ void AInventoryCharacter::BeginPlay()
 	AttachArmorSocket();
 
 	//인벤토리 방어구 캡처
-	
-	SceneCapture->PrimitiveRenderMode = ESceneCapturePrimitiveRenderMode::PRM_UseShowOnlyList; //등록된 것만 캡처
-	SceneCapture->ShowOnlyComponent(GetMesh());
-	for (auto [Type, ArmorArray] : ArmorComponents)
-	{
-		for (auto ArmorComponent : ArmorArray.ArmorArray)
-			SceneCapture->ShowOnlyComponent(ArmorComponent);
-	}
+
+	//SceneCapture->PrimitiveRenderMode = ESceneCapturePrimitiveRenderMode::PRM_UseShowOnlyList; //등록된 것만 캡처
+	//SceneCapture->ShowOnlyComponent(GetMesh());
+	//for (auto [Type, ArmorArray] : ArmorComponents)
+	//{
+	//	for (auto ArmorComponent : ArmorArray.ArmorArray)
+	//		SceneCapture->ShowOnlyComponent(ArmorComponent);
+	//}
 	
 }
 
-void AInventoryCharacter::SetCapture(AActor* InActor, const bool bIncludeFromChildActors)
-{
-	SceneCapture->ShowOnlyActorComponents(InActor, bIncludeFromChildActors);
-}
-
-void AInventoryCharacter::RemoveCapture(AActor* InActor, const bool bIncludeFromChildActors)
-{
-	SceneCapture->RemoveShowOnlyActorComponents(InActor, bIncludeFromChildActors);
-}
+//void AInventoryCharacter::SetCapture(AActor* InActor, const bool bIncludeFromChildActors)
+//{
+//	SceneCapture->ShowOnlyActorComponents(InActor, bIncludeFromChildActors);
+//}
+//
+//void AInventoryCharacter::RemoveCapture(AActor* InActor, const bool bIncludeFromChildActors)
+//{
+//	SceneCapture->RemoveShowOnlyActorComponents(InActor, bIncludeFromChildActors);
+//}

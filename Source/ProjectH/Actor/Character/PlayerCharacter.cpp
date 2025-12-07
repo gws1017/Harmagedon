@@ -28,6 +28,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
+#include "Components/SceneCaptureComponent2D.h"
 #include "Particles/ParticleSystem.h"
 #include "Animation/AnimMontage.h"
 
@@ -67,6 +68,7 @@ APlayerCharacter::APlayerCharacter()
 	UHelpers::CreateComponent<USpringArmComponent>(this, &SpringArm, "SpringArm", GetCapsuleComponent());
 	UHelpers::CreateComponent<UCameraComponent>(this, &Camera, "Camera", SpringArm);
 	UHelpers::CreateComponent<USphereComponent>(this, &TargetingSphere, "TargetingSphere", GetCapsuleComponent());
+	UHelpers::CreateComponent<USceneCaptureComponent2D>(this, &SceneCapture, "SceneCapture", GetCapsuleComponent());
 	UHelpers::CreateActorComponent<UInventoryComponent>(this, &InventoryComponent, "Inventory");
 
 	InitializeArmorComponent();
@@ -108,6 +110,15 @@ void APlayerCharacter::BeginPlay()
 
 	GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &APlayerCharacter::OnPlayerMontageEnded);
 
+	//인벤토리 방어구 캡처
+
+	SceneCapture->PrimitiveRenderMode = ESceneCapturePrimitiveRenderMode::PRM_UseShowOnlyList; //등록된 것만 캡처
+	SceneCapture->ShowOnlyComponent(GetMesh());
+	for (auto [Type, ArmorArray] : ArmorComponents)
+	{
+		for (auto ArmorComponent : ArmorArray.ArmorArray)
+			SceneCapture->ShowOnlyComponent(ArmorComponent);
+	}
 
 	//Debug Setting
 	if (UKismetSystemLibrary::IsPackagedForDistribution()) //Packagel
@@ -682,6 +693,7 @@ void APlayerCharacter::Equip(const EEquipType Type, AEquipmentItem* EquipItem)
 {
 	//플레이어가 가진 인스턴스를 장착하지말고 인스턴스를 넘겨받아 장착
 	EquipItem->Equip(Type);
+	SetCapture(EquipItem, true);
 }
 
 void APlayerCharacter::UnEquip(const EEquipType Type)
@@ -689,6 +701,7 @@ void APlayerCharacter::UnEquip(const EEquipType Type)
 	if (EquipmentMap.Contains(Type) && EquipmentMap[Type])
 	{
 		EquipmentMap[Type]->UnEquip(Type);
+		RemoveCapture(EquipmentMap[Type], true);
 	}
 }
 
@@ -743,6 +756,16 @@ ABasicPlayerController* APlayerCharacter::GetPlayerController()
 	if (!!PlayerController)
 		return PlayerController;
 	return GetController<ABasicPlayerController>();
+}
+
+void APlayerCharacter::SetCapture(AActor* InActor, const bool bIncludeFromChildActors)
+{
+	SceneCapture->ShowOnlyActorComponents(InActor, bIncludeFromChildActors);
+}
+
+void APlayerCharacter::RemoveCapture(AActor* InActor, const bool bIncludeFromChildActors)
+{
+	SceneCapture->RemoveShowOnlyActorComponents(InActor, bIncludeFromChildActors);
 }
 
 void APlayerCharacter::InitializeArmorComponent()

@@ -204,11 +204,7 @@ void UInventoryComponent::Equip(USlot* SelectSlot, USlot* InvenSlot, AItem* Item
 		Instance = Cast<AWeapon>(AItem::Spawn<AItem>(GetWorld(),
 			InvenSlot->ItemInfo.AssetData.ItemClass, Cast<ACharacter>(GetOwner())));
 		Player->SetWeapon(Type, Cast<AWeapon>(Instance));
-		if (!!InventoryPawn)
-		{
-			InventoryPawn->SetCapture(Instance, true);
-			InventoryPawn->SetWeapon(Type, Cast<AWeapon>(Instance));
-		}
+		if (!!InventoryPawn) InventoryPawn->SetWeapon(Type, Cast<AWeapon>(Instance));
 	}
 	
 	if (!!ItemInstance)

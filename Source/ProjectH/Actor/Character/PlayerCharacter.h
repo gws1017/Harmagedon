@@ -20,6 +20,7 @@ class UAnimMontage;
 class UInputMappingContext;
 class UInputAction;
 class UParticleSystem;
+class USceneCaptureComponent2D;
 
 class UInventoryComponent;
 
@@ -300,6 +301,9 @@ public:
 	bool GetCainDie() const { return CainDie; }
 	void SetCainDie(bool flag) { CainDie = flag; }
 
+	void SetCapture(AActor* InActor, const bool bIncludeFromChildActors);
+	void RemoveCapture(AActor* InActor, const bool bIncludeFromChildActors);
+
 protected:
 
 	void InitializeArmorComponent();
@@ -354,6 +358,8 @@ protected:
 		UCameraComponent* Camera;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Component")
 		USphereComponent* TargetingSphere;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Component", meta = (AllowPrivateAccess = "true"))
+		USceneCaptureComponent2D* SceneCapture;
 
 	UPROPERTY(VisibleAnywhere, Category = "Component")
 		UInventoryComponent* InventoryComponent;

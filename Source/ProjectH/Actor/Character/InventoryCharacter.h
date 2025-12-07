@@ -6,7 +6,6 @@
 
 
 class USpotLightComponent;
-class USceneCaptureComponent2D;
 
 UCLASS()
 class PROJECTH_API AInventoryCharacter : public APlayerCharacter
@@ -21,10 +20,10 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
-public:
-
-	void SetCapture(AActor* InActor, const bool bIncludeFromChildActors);
-	void RemoveCapture(AActor* InActor, const bool bIncludeFromChildActors);
+//public:
+//
+//	void SetCapture(AActor* InActor, const bool bIncludeFromChildActors);
+//	void RemoveCapture(AActor* InActor, const bool bIncludeFromChildActors);
 
 
 private:
@@ -36,7 +35,5 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Light")
 	USpotLightComponent* SpotLight;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Component", meta = (AllowPrivateAccess = "true"))
-	USceneCaptureComponent2D* SceneCapture;
 
 };
