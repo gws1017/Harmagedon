@@ -21,10 +21,10 @@
 
 ACain::ACain()
 {
-	// ¹èÄ¡µÇ°Å³ª ½ºÆùµÈ NPC µÑ ´Ù AI·Î ÅëÁ¦¹ŞÀ½
+	// ë°°ì¹˜ë˜ê±°ë‚˜ ìŠ¤í°ëœ NPC ë‘˜ ë‹¤ AIë¡œ í†µì œë°›ìŒ
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
-	// ¹«ºê¸ÕÆ® ÄÄÆ÷³ÍÆ® ¼³Á¤
+	// ë¬´ë¸Œë¨¼íŠ¸ ì»´í¬ë„ŒíŠ¸ ì„¤ì •
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f);
 	GetCharacterMovement()->JumpZVelocity = 700.f;
@@ -154,7 +154,7 @@ void ACain::PostInitializeComponents()
 
 	OnHpZero.AddUObject(this, &ACain::SetDead);
 
-	// µ¨¸®°ÔÀÌÆ®¿¡ ÇÔ¼ö µî·Ï, ´Ù¸¥ µ¨¸®°ÔÀÌÆ®º¸´Ù µÚ¿¡ È£Ãâ½ÃÅ°±â
+	// ë¸ë¦¬ê²Œì´íŠ¸ì— í•¨ìˆ˜ ë“±ë¡, ë‹¤ë¥¸ ë¸ë¦¬ê²Œì´íŠ¸ë³´ë‹¤ ë’¤ì— í˜¸ì¶œì‹œí‚¤ê¸°
 	RightHandTrigger->OnComponentBeginOverlap.AddDynamic(this, &ACain::OnOverlapBegin);
 	LeftHandTrigger->OnComponentBeginOverlap.AddDynamic(this, &ACain::OnOverlapBegin);
 	RightFootTrigger->OnComponentBeginOverlap.AddDynamic(this, &ACain::OnOverlapBegin);
@@ -168,7 +168,7 @@ void ACain::SetMontageFinDelegate(const FCainMontageFinished& InFinished)
 
 void ACain::PlayMontageByAI(EPattern InAnimMon)
 {
-	// ÁöÁ¤ÇÑ ¼Óµµ·Î ¸ùÅ¸ÁÖ Àç»ı
+	// ì§€ì •í•œ ì†ë„ë¡œ ëª½íƒ€ì£¼ ì¬ìƒ
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	CurrentStatus = static_cast<uint8>(InAnimMon);
 	AnimInstance->Montage_Play(PatternInfoes[CurrentStatus]->BTMontage, 1.0f);
@@ -177,13 +177,7 @@ void ACain::PlayMontageByAI(EPattern InAnimMon)
 	EndDelegate.BindUObject(this, &ACain::MontageEnd);
 	AnimInstance->Montage_SetEndDelegate(EndDelegate, PatternInfoes[static_cast<uint8>(InAnimMon)]->BTMontage);
 
-	if (CurrentStatus == static_cast<uint8>(EPattern::HOOK1)
-		|| CurrentStatus == static_cast<uint8>(EPattern::THROWAWAY)
-		|| CurrentStatus == static_cast<uint8>(EPattern::STOMP2)
-		|| CurrentStatus == static_cast<uint8>(EPattern::GROGGY))
-	{
-		bAllowNextPattern = false;
-	}
+	bAllowNextPattern = false;
 }
 
 void ACain::JumpMontageSection(FName SectionName, EPattern AnimMon)
@@ -194,16 +188,16 @@ void ACain::JumpMontageSection(FName SectionName, EPattern AnimMon)
 
 void ACain::GroggyAnim()
 {
-	// ±×·Î±â ½ÃÀÛ
+	// ê·¸ë¡œê¸° ì‹œì‘
 	PlayMontageByAI(EPattern::GROGGY);
 
-	// 0.24ÃÊ µÚ¿¡ Groggy ¼½¼ÇÀ¸·Î Á¡ÇÁ
+	// 0.24ì´ˆ ë’¤ì— Groggy ì„¹ì…˜ìœ¼ë¡œ ì í”„
 	FTimerHandle TimerHandle;
 	GetWorldTimerManager().SetTimer(TimerHandle, [this]() {
 		JumpMontageSection(FName("Groggy"), EPattern::GROGGY);
 		}, 0.24f, false);
 
-	// 2.57ÃÊ µÚ¿¡ GroggyEnd ¼½¼ÇÀ¸·Î Á¡ÇÁ
+	// 2.57ì´ˆ ë’¤ì— GroggyEnd ì„¹ì…˜ìœ¼ë¡œ ì í”„
 	TimerHandle.Invalidate();
 	GetWorldTimerManager().SetTimer(TimerHandle, [this]() {
 		JumpMontageSection(FName("GroggyEnd"), EPattern::GROGGY);
@@ -226,14 +220,15 @@ void ACain::StopAnim()
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance)
 	{
-		AnimInstance->Montage_Stop(0.2f); // ºí·»µå ¾Æ¿ô ½Ã°£ ¼³Á¤
+		AnimInstance->Montage_Stop(0.2f); // ë¸”ë Œë“œ ì•„ì›ƒ ì‹œê°„ ì„¤ì •
 	}
 }
 
 void ACain::MontageEnd(UAnimMontage* TargetMontage, bool IsProperlyEnded)
 {
-	// ÄŞº¸ Àü »óÅÂ·Î ÃÊ±âÈ­
+	// ì½¤ë³´ ì „ ìƒíƒœë¡œ ì´ˆê¸°í™”
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+	bAllowNextPattern = true;
 	OnMontageFinished.ExecuteIfBound();
 }
 
@@ -252,7 +247,7 @@ float ACain::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, ACo
 
 	if (HP <= KINDA_SMALL_NUMBER)
 	{
-		// hp = 0 ¾Ë¸²À» ±¸µ¶ÇÑ ¸ğµç °÷¿¡ ¾Ë¸®±â
+		// hp = 0 ì•Œë¦¼ì„ êµ¬ë…í•œ ëª¨ë“  ê³³ì— ì•Œë¦¬ê¸°
 		OnHpZero.Broadcast();
 		playerController->HideBossHUD();
 	}
@@ -268,7 +263,7 @@ void ACain::SetupCharacterWidget(UBossHpBarWidget* InUserWidget)
 		HpBarWidget->SetMaxHp(MaxHP);
 		HpBarWidget->UpdateHpBar(HP);
 
-		// ÀÚ½ÅÀÇ Hp¹Ù ³»ºÎ UpdateHpBarÇÔ¼ö°¡ hp º¯°æ ¾Ë¸²¿¡ ±¸µ¶
+		// ìì‹ ì˜ Hpë°” ë‚´ë¶€ UpdateHpBarí•¨ìˆ˜ê°€ hp ë³€ê²½ ì•Œë¦¼ì— êµ¬ë…
 		OnHpChanged.AddUObject(HpBarWidget, &UBossHpBarWidget::UpdateHpBar);
 	}
 }
@@ -279,7 +274,7 @@ void ACain::SetupHUDWidget(UBossHUDWidget* InHUDWidget)
 	{
 		InHUDWidget->UpdateHpBar(HP);
 
-		// µ¨¸®°ÔÀÌÆ®¿¡ ÇÔ¼ö µî·Ï
+		// ë¸ë¦¬ê²Œì´íŠ¸ì— í•¨ìˆ˜ ë“±ë¡
 		OnHpChanged.AddUObject(InHUDWidget, &UBossHUDWidget::UpdateHpBar);
 	}
 }
@@ -341,15 +336,15 @@ void ACain::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 	if (!playerActor)
 		return;
 
-	// ÇÃ·¹ÀÌ¾î Ä³¸¯ÅÍ °¨Áö
+	// í”Œë ˆì´ì–´ ìºë¦­í„° ê°ì§€
 	if (playerActor->GetCapsuleComponent() == OtherComp && AttackCheckStart)
 	{
-		// µ¥¹ÌÁö Àü´Ş
+		// ë°ë¯¸ì§€ ì „ë‹¬
 		playerActor->TakeDamage(CurrentAttackDamage, DamageEvent, GetController(), this);
 		playerActor->Hit(OverlappedComponent->GetComponentLocation());
 		AttackCheckStart = false;
 
-		// ¾Æ·¡´Â µ¥¹ÌÁö ÀÔÀº ÈÄ Ã³¸®
+		// ì•„ë˜ëŠ” ë°ë¯¸ì§€ ì…ì€ í›„ ì²˜ë¦¬
 		if (CurrentStatus == static_cast<uint8>(EPattern::STRONGKICK))
 		{
 			playerActor->LaunchCharacter(GetActorForwardVector() * 1000, false, false);
@@ -368,8 +363,8 @@ void ACain::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 			|| CurrentStatus == static_cast<uint8>(EPattern::STOMP1)
 			|| CurrentStatus == static_cast<uint8>(EPattern::STOMP2))
 		{
-			// BTD¸¦ ÅëÇØ ÇÇ°İ 3¹øÀÎÁö ÆÇÁ¤
-			// ÇÇ°İ Ä«¿îÆ®¸¦ 0À¸·Î ÃÊ±âÈ­
+			// BTDë¥¼ í†µí•´ í”¼ê²© 3ë²ˆì¸ì§€ íŒì •
+			// í”¼ê²© ì¹´ìš´íŠ¸ë¥¼ 0ìœ¼ë¡œ ì´ˆê¸°í™”
 			HitCount = 0;
 		}
 
@@ -449,7 +444,7 @@ bool ACain::IsSuccessParry()
 
 void ACain::SetDead()
 {
-	// ÀÌµ¿ ºÒ°¡ ¼³Á¤
+	// ì´ë™ ë¶ˆê°€ ì„¤ì •
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 	PlayDeadAnimation();
 
@@ -461,19 +456,19 @@ void ACain::SetDead()
 		player->SaveGameData();
 	}
 
-	// Ãæµ¹°¨Áö ²ô±â
+	// ì¶©ëŒê°ì§€ ë„ê¸°
 	SetActorEnableCollision(false);
 
-	// hp¹Ù ¼û±â±â (¿¡µğÅÍ¿¡¼­ Ã¼Å©)
+	// hpë°” ìˆ¨ê¸°ê¸° (ì—ë””í„°ì—ì„œ ì²´í¬)
 
-	// AIÄÁÆ®·Ñ·¯¶ó¸é ÁßÁöÇÏ±â
+	// AIì»¨íŠ¸ë¡¤ëŸ¬ë¼ë©´ ì¤‘ì§€í•˜ê¸°
 	ACainController* PdAIController = Cast<ACainController>(GetController());
 	if (PdAIController)
 	{
 		PdAIController->StopAI();
 	}
 
-	// DeadEventDelayTimeÀÌ Áö³­ ÈÄ ÆÄ±«
+	// DeadEventDelayTimeì´ ì§€ë‚œ í›„ íŒŒê´´
 	FTimerHandle DeadTimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(DeadTimerHandle, FTimerDelegate::CreateLambda(
 		[&]()
@@ -490,8 +485,8 @@ void ACain::SetDead()
 void ACain::PlayDeadAnimation()
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	// ±âÁ¸ ¸ùÅ¸ÁÖ ÁßÁö
+	// ê¸°ì¡´ ëª½íƒ€ì£¼ ì¤‘ì§€
 	AnimInstance->StopAllMontages(0.0f);
-	// »ç¸Á ¸ùÅ¸ÁÖ Àç»ı
+	// ì‚¬ë§ ëª½íƒ€ì£¼ ì¬ìƒ
 	AnimInstance->Montage_Play(DeadMontage, 1.0f);
 }

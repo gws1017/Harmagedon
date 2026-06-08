@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "BehaviorTree/CainPattern/BTD_HealthIsHalf.h"
@@ -15,14 +15,14 @@ bool UBTD_HealthIsHalf::CalculateRawConditionValue(UBehaviorTreeComponent& Owner
 {
 	bool bResult = Super::CalculateRawConditionValue(OwnerComp, NodeMemory);
 
-	// Æù °¡Á®¿À±â
+	// í° ê°€ì ¸ì˜¤ê¸°
 	APawn* ControllingPawn = OwnerComp.GetAIOwner()->GetPawn();
 	if (nullptr == ControllingPawn)
 	{
 		return false;
 	}
 
-	// AI ÆùÀ¸·Î º¯È¯
+	// AI í°ìœ¼ë¡œ ë³€í™˜
 	ICainPatternInterface* AIPawn = Cast<ICainPatternInterface>(ControllingPawn);
 	if (nullptr == AIPawn)
 	{
@@ -31,12 +31,13 @@ bool UBTD_HealthIsHalf::CalculateRawConditionValue(UBehaviorTreeComponent& Owner
 
 	if (AIPawn->IsFirstPhase())
 	{
-		AIPawn->ChangeIntoSecondPhase();
-		return AIPawn->IsHealthUnderHalf();
+		if (AIPawn->IsHealthUnderHalf())
+		{
+			AIPawn->ChangeIntoSecondPhase();
+			return true;
+		}
+		return false;
 	}
-	else
-	{
-		// ±×·Î±â »óÅÂ
-		return AIPawn->GetStatus() == static_cast<int32>(EPattern::GROGGY);
-	}
+    // ê·¸ë¡œê¸° ìƒíƒœ
+	return AIPawn->GetStatus() == static_cast<int32>(EPattern::GROGGY);
 }

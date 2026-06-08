@@ -1,11 +1,11 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "BehaviorTree/CainPattern/BTS_DrawRandomNumber.h"
 #include "AIController.h"
 #include "Interface/CainPatternInterface.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "Math/UnrealMathUtility.h" // FMath Çì´õ Æ÷ÇÔ
+#include "Math/UnrealMathUtility.h" // FMath í—¤ë” í¬í•¨
 #include "Data/CainAIKey.h"
 
 UBTS_DrawRandomNumber::UBTS_DrawRandomNumber()
@@ -18,14 +18,14 @@ void UBTS_DrawRandomNumber::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* N
 {
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 
-	// ºñÇìÀÌºñ¾î Æ®¸® ¼ÒÀ¯ÇÑ Æù °®°í¿À±â
+	// ë¹„í—¤ì´ë¹„ì–´ íŠ¸ë¦¬ ì†Œìœ í•œ í° ê°–ê³ ì˜¤ê¸°
 	APawn* ControllingPawn = OwnerComp.GetAIOwner()->GetPawn();
 	if (!ControllingPawn)
 	{
 		return;
 	}
 
-	// Æù À§Ä¡¿Í ÆùÀÌ ¼ÓÇÑ ¿ùµå °¡Á®¿À±â
+	// í° ìœ„ì¹˜ì™€ í°ì´ ì†í•œ ì›”ë“œ ê°€ì ¸ì˜¤ê¸°
 	FVector Center = ControllingPawn->GetActorLocation();
 	UWorld* World = ControllingPawn->GetWorld();
 	if (!World)
@@ -33,9 +33,14 @@ void UBTS_DrawRandomNumber::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* N
 		return;
 	}
 
-	// ÆùÀ» AIÆùÀ¸·Î º¯È¯
+	// í°ì„ AIí°ìœ¼ë¡œ ë³€í™˜
 	ICainPatternInterface* AIPawn = Cast<ICainPatternInterface>(ControllingPawn);
 	if (!AIPawn)
+	{
+		return;
+	}
+
+	if (!AIPawn->AllowNextPattern())
 	{
 		return;
 	}

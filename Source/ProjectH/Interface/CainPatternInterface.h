@@ -54,6 +54,7 @@ public:
 	virtual void PlayMontageByAI(EPattern AnimMon) = 0;
 	virtual void JumpMontageSection(FName SectionName, EPattern AnimMon) = 0;
 	virtual void GroggyAnim() = 0;
+	virtual void StopAnim() = 0;
 
 	virtual float GetAIDetectRoomRange() = 0;
 	virtual bool IsHealthUnderHalf() = 0;

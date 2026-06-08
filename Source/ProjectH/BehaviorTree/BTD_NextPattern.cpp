@@ -15,19 +15,29 @@ bool UBTD_NextPattern::CalculateRawConditionValue(UBehaviorTreeComponent& OwnerC
 {
 	bool bResult = Super::CalculateRawConditionValue(OwnerComp, NodeMemory);
 
-	// Æù °¡Á®¿À±â
+	// í° ê°€ì ¸ì˜¤ê¸°
 	APawn* ControllingPawn = OwnerComp.GetAIOwner()->GetPawn();
 	if (nullptr == ControllingPawn)
 	{
 		return false;
 	}
 
-	// AI ÆùÀ¸·Î º¯È¯
+	// AI í°ìœ¼ë¡œ ë³€í™˜
 	ICainPatternInterface* AIPawn = Cast<ICainPatternInterface>(ControllingPawn);
 	if (nullptr == AIPawn)
 	{
 		return false;
 	}
 
-	return AIPawn->AllowNextPattern();
+	const bool bAllow = AIPawn->AllowNextPattern();
+
+	// ?? 1?(Punch1/Grab/Punch2) ? BT ??? Inversed ??.
+	// Raw ???? ??? ? ? ? ???: ?? true ? raw false.
+	if (IsInversed())
+	{
+		return false;
+	}
+
+	// ?? 2?: 1? ??? ?? ???
+	return bAllow;
 }

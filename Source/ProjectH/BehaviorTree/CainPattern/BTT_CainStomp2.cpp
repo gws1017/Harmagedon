@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+Ôªø// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "BehaviorTree/CainPattern/BTT_CainStomp2.h"
@@ -15,33 +15,67 @@ EBTNodeResult::Type UBTT_CainStomp2::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 {
 	EBTNodeResult::Type Result = Super::ExecuteTask(OwnerComp, NodeMemory);
 
-	// ∆˘ ∞°¡Æø¿±‚
+	// Ìè∞ Í∞ÄÏ†∏Ïò§Í∏∞
 	APawn* ControllingPawn = Cast<APawn>(OwnerComp.GetAIOwner()->GetPawn());
 	if (nullptr == ControllingPawn)
 	{
 		return EBTNodeResult::Failed;
 	}
 
-	//AI ∆˘¿∏∑Œ ∫Ø»Ø
+	//AI Ìè∞ÏúºÎ°ú Î≥ÄÌôò
 	ICainPatternInterface* AIPawn = Cast<ICainPatternInterface>(ControllingPawn);
 	if (nullptr == AIPawn)
 	{
 		return EBTNodeResult::Failed;
 	}
 
-	// µ®∏Æ∞‘¿Ã∆Æø° «‘ºˆ µÓ∑œ
-	FCainMontageFinished OnFinished;
-	OnFinished.BindLambda(
-		[&]()
+	UBlackboardComponent* BB = OwnerComp.GetBlackboardComponent();
+	if (BB)
+	{
+		const float Dist = BB->GetValueAsFloat(BBKEY_DISTANCE);
+		if (Dist >= 400.f)
 		{
-			// InProgressø°º≠ ¿Ã ≈¬Ω∫≈©∏¶ º∫∞¯¿∏∑Œ ∏∂π´∏Æ ¡˛∞Ì ¥Ÿ¿Ω ≥ÎµÂ∑Œ ¿Ãµø
-			FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+			return EBTNodeResult::Failed;
 		}
-	);
+	}
+
+	auto bTaskCompleted = MakeShared<bool>(false);
+	// Îç∏Î¶¨Í≤åÏù¥Ìä∏Ïóê Ìï®Ïàò Îì±Î°ù
+	FCainMontageFinished OnFinished;
+	OnFinished.BindLambda([&OwnerComp, bTaskCompleted, this]()
+	{
+		if (*bTaskCompleted) return;
+		*bTaskCompleted = true;
+		// InProgressÏóêÏÑú Ïù¥ ÌÉúÏä§ÌÅ¨Î•º ÏÑ±Í≥µÏúºÎ°ú ÎßàÎ¨¥Î¶¨ ÏßìÍ≥† Îã§Ïùå ÎÖ∏ÎìúÎ°ú Ïù¥Îèô
+		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+	});
 	AIPawn->SetMontageFinDelegate(OnFinished);
 
-	// ∞¯∞›
+	// Í≥µÍ≤©
 	AIPawn->PlayMontageByAI(EPattern::STOMP2);
+	
+	// ÌÉÄÏù¥Î®∏Î°ú Ïï†ÎãàÎ©îÏù¥ÏÖò Ï¢ÖÎ£å Ï≤òÎ¶¨
+	APawn* PawnForTimer = ControllingPawn;
+	UBehaviorTreeComponent* OwnerCompPtr = &OwnerComp;
+	if (UWorld* World = ControllingPawn->GetWorld())
+	{
+		FTimerHandle TimerHandle;
+		World->GetTimerManager().SetTimer(TimerHandle, [AIPawn, PawnForTimer, OwnerCompPtr, bTaskCompleted, this]()
+		{
+			if (!IsValid(PawnForTimer)) return;
+
+			ICainPatternInterface* Pawn = Cast<ICainPatternInterface>(PawnForTimer);
+			if (Pawn && !Pawn->AllowNextPattern())
+			{
+				Pawn->StopAnim();
+			}
+			else if (!*bTaskCompleted && OwnerCompPtr && IsValid(OwnerCompPtr))
+			{
+				*bTaskCompleted = true;
+				FinishLatentTask(*OwnerCompPtr, EBTNodeResult::Succeeded);
+			}
+		}, 4.0f, false);
+	}
 
 	return EBTNodeResult::InProgress;
 }
