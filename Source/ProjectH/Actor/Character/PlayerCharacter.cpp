@@ -1,6 +1,8 @@
 #include "Actor/Character/PlayerCharacter.h"
 #include "Actor/Character/PlayerAnimInstance.h"
 #include "Actor/Character/Cain.h"
+#include "Component/CainAIDirector.h"
+#include "Kismet/GameplayStatics.h"
 #include "Actor/Controller/BasicPlayerController.h"
 #include "Actor/Character/Enemy.h"
 #include "Actor/Item/EquipmentItem.h"
@@ -21,8 +23,8 @@
 #include "Component/InventoryComponent.h"
 #include "Global.h"
 
-//¾ğ¸®¾ó °ü·Ã Çì´õ´Â ¾Æ·¡ÂÊ¿¡, ÇÁ·Î±×·¡¸Ó°¡ÀÛ¼ºÇÑ Çì´õ´Â À§ÂÊÀ¸·Î ºĞ¸®
-//Ä³¸¯ÅÍ ±âº» ±¸¼º ¿ä¼Òµé
+//ì–¸ë¦¬ì–¼ ê´€ë ¨ í—¤ë”ëŠ” ì•„ë˜ìª½ì—, í”„ë¡œê·¸ë˜ë¨¸ê°€ì‘ì„±í•œ í—¤ë”ëŠ” ìœ„ìª½ìœ¼ë¡œ ë¶„ë¦¬
+//ìºë¦­í„° ê¸°ë³¸ êµ¬ì„± ìš”ì†Œë“¤
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
@@ -32,7 +34,7 @@
 #include "Particles/ParticleSystem.h"
 #include "Animation/AnimMontage.h"
 
-//ÀÔ·Â
+//ì…ë ¥
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "InputActionValue.h"
@@ -58,7 +60,7 @@ APlayerCharacter::APlayerCharacter()
 	StartPoint(0.f, 0.f, 0.f),
 	LockInterpSpeed(10.0f)
 {
-	//TickÇÔ¼ö ¾È¾²¸é ÀÏ´Ü ²¨³õ±â
+	//Tickí•¨ìˆ˜ ì•ˆì“°ë©´ ì¼ë‹¨ êº¼ë†“ê¸°
 	PrimaryActorTick.bCanEverTick = true;
 
 	bUseControllerRotationPitch = false;
@@ -94,7 +96,7 @@ void APlayerCharacter::BeginPlay()
 
 	PlayerController = Cast<ABasicPlayerController>(GetController());
 
-	//ÀÎº¥Åä¸® ¾ÆÀÌÅÛ Ãß°¡
+	//ì¸ë²¤í† ë¦¬ ì•„ì´í…œ ì¶”ê°€
 	InventoryComponent->AddItem(1, false);
 	InventoryComponent->AddItem(10, false);
 	InventoryComponent->AddItem(20, false);
@@ -110,9 +112,9 @@ void APlayerCharacter::BeginPlay()
 
 	GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &APlayerCharacter::OnPlayerMontageEnded);
 
-	//ÀÎº¥Åä¸® ¹æ¾î±¸ Ä¸Ã³
+	//ì¸ë²¤í† ë¦¬ ë°©ì–´êµ¬ ìº¡ì²˜
 
-	SceneCapture->PrimitiveRenderMode = ESceneCapturePrimitiveRenderMode::PRM_UseShowOnlyList; //µî·ÏµÈ °Í¸¸ Ä¸Ã³
+	SceneCapture->PrimitiveRenderMode = ESceneCapturePrimitiveRenderMode::PRM_UseShowOnlyList; //ë“±ë¡ëœ ê²ƒë§Œ ìº¡ì²˜
 	SceneCapture->ShowOnlyComponent(GetMesh());
 	for (auto [Type, ArmorArray] : ArmorComponents)
 	{
@@ -203,7 +205,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	if (UEnhancedInputComponent* EnhancedInput = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
 	{
-		//±âº» Á¶ÀÛ - ÀÌµ¿, È¸Àü, ´Ş¸®±â
+		//ê¸°ë³¸ ì¡°ì‘ - ì´ë™, íšŒì „, ë‹¬ë¦¬ê¸°
 		EnhancedInput->BindAction(MovementAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Move);
 		EnhancedInput->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Look);
 		EnhancedInput->BindAction(RunAction, ETriggerEvent::Triggered, this, &APlayerCharacter::OnRunning);
@@ -211,26 +213,26 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 		EnhancedInput->BindAction(UseItemAction, ETriggerEvent::Triggered, this, &APlayerCharacter::UseComsumableItem);
 
-		//±¸¸£±â
+		//êµ¬ë¥´ê¸°
 		EnhancedInput->BindAction(RollAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Roll);
 
-		//¿ìÃø ¹«±â °ø°İ
+		//ìš°ì¸¡ ë¬´ê¸° ê³µê²©
 		EnhancedInput->BindAction(AttackAction, ETriggerEvent::Triggered, this, &APlayerCharacter::LeftClick);
 
-		//ÁÂÃø ¹«±â °ø°İ
+		//ì¢Œì¸¡ ë¬´ê¸° ê³µê²©
 		EnhancedInput->BindAction(RightClickAction, ETriggerEvent::Triggered, this, &APlayerCharacter::RightClick);
 		EnhancedInput->BindAction(RightClickAction, ETriggerEvent::Completed, this, &APlayerCharacter::OffRightClick);
-		//ÁÂÃø ¹«±â Æ¯¼ö ´É·Â
+		//ì¢Œì¸¡ ë¬´ê¸° íŠ¹ìˆ˜ ëŠ¥ë ¥
 		EnhancedInput->BindAction(RightClickSpecialAction, ETriggerEvent::Triggered, this, &APlayerCharacter::RightSpecialClick);
 
-		//¹«±â ÀåÂø
+		//ë¬´ê¸° ì¥ì°©
 		EnhancedInput->BindAction(EquipAction, ETriggerEvent::Triggered, this, &APlayerCharacter::EquipWeapon);
-		//»óÈ£ÀÛ¿ë
+		//ìƒí˜¸ì‘ìš©
 		EnhancedInput->BindAction(InteractionAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Interaction);
-		//¶ô¿Â
+		//ë½ì˜¨
 		EnhancedInput->BindAction(TargetLockAction, ETriggerEvent::Triggered, this, &APlayerCharacter::LockOn);
 
-		//UI°ü·Ã ÀÔ·Â ¹ÙÀÎµù
+		//UIê´€ë ¨ ì…ë ¥ ë°”ì¸ë”©
 		//EnhancedInput->BindAction(OpenEquipUIAction, ETriggerEvent::Triggered, GetPlayerController(), &ABasicPlayerController::ToggleEquipMenu);
 		//EnhancedInput->BindAction(EscAction, ETriggerEvent::Triggered, this, &APlayerCharacter::);
 	}
@@ -248,7 +250,7 @@ float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	if (DamageAmount <= 0) DamageAmount = 0;
 	
 	CLog::Log("Armor Block Dmg : " + FString::SanitizeFloat(prevDmg - DamageAmount));
-	// ¹«Àû»óÅÂ
+	// ë¬´ì ìƒíƒœ
 	if (bIFrame)
 		DamageAmount = 0;
 
@@ -262,7 +264,7 @@ float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	enemy = Cast<AEnemy>(DamageCauser->GetOwner());
 	if (!enemy) enemy = Cast<AEnemy>(DamageCauser);
 
-	//°¡µå ÁßÀÏ ¶§¸¸ Ã¼Å©
+	//ê°€ë“œ ì¤‘ì¼ ë•Œë§Œ ì²´í¬
 	if(bBlocking)
 		CheckGuard(DamageAmount, enemy, hitinfo);
 	CheckParry(DamageAmount, enemy);
@@ -290,7 +292,7 @@ void APlayerCharacter::Landed(const FHitResult& Hit)
 {
 	Super::Landed(Hit);
 
-	// °ÔÀÓ ÇÃ·¹ÀÌ ³» Ä«ÀÎ °¡Á®¿À±â
+	// ê²Œì„ í”Œë ˆì´ ë‚´ ì¹´ì¸ ê°€ì ¸ì˜¤ê¸°
 
 	if (IsThrownByBoss)
 	{
@@ -373,7 +375,7 @@ float APlayerCharacter::GetFinalPoise() const
 {
 	float PoiseValue = Stat.Poise;
 
-	//¹æ¾î±¸ °­ÀÎµµ ÇÕ»ê
+	//ë°©ì–´êµ¬ ê°•ì¸ë„ í•©ì‚°
 	for (auto [Type, Armor] : EquipmentMap)
 	{
 		if (Armor)
@@ -599,10 +601,10 @@ void APlayerCharacter::SaveGameData(int32 SaveType)
 		DeathLocation,
 		CainDie
 	};
-	if (SaveType == 1)//Á×¾úÀ»¶§ ¼öÁ¤ÇØ¾ßÇÏ´Â ºÎºĞ
+	if (SaveType == 1)//ì£½ì—ˆì„ë•Œ ìˆ˜ì •í•´ì•¼í•˜ëŠ” ë¶€ë¶„
 	{
 		SaveGameInstance->SaveData.Location = StartPoint;
-		SaveGameInstance->SaveData.LostExp = Stat.Exp; //ÇöÀç°æÇèÄ¡¸¦ LostExp·Î ÀúÀå, Æò¼Ò¿¡´Â 0ÀÌ ±âº»
+		SaveGameInstance->SaveData.LostExp = Stat.Exp; //í˜„ì¬ê²½í—˜ì¹˜ë¥¼ LostExpë¡œ ì €ì¥, í‰ì†Œì—ëŠ” 0ì´ ê¸°ë³¸
 		SaveGameInstance->SaveData.Status.Exp = 0;
 		SaveGameInstance->SaveData.Status.HP = Stat.MaxHP;
 		SaveGameInstance->SaveData.DeathLocation = GetActorLocation();
@@ -691,7 +693,7 @@ void APlayerCharacter::InitStatusInfo()
 
 void APlayerCharacter::Equip(const EEquipType Type, AEquipmentItem* EquipItem)
 {
-	//ÇÃ·¹ÀÌ¾î°¡ °¡Áø ÀÎ½ºÅÏ½º¸¦ ÀåÂøÇÏÁö¸»°í ÀÎ½ºÅÏ½º¸¦ ³Ñ°Ü¹Ş¾Æ ÀåÂø
+	//í”Œë ˆì´ì–´ê°€ ê°€ì§„ ì¸ìŠ¤í„´ìŠ¤ë¥¼ ì¥ì°©í•˜ì§€ë§ê³  ì¸ìŠ¤í„´ìŠ¤ë¥¼ ë„˜ê²¨ë°›ì•„ ì¥ì°©
 	EquipItem->Equip(Type);
 	SetCapture(EquipItem, true);
 }
@@ -716,11 +718,11 @@ void APlayerCharacter::UseComsumableItem()
 {
 	auto AnimInstance = GetMesh()->GetAnimInstance();
 
-	//ÀåÂøÇÑ ¾ÆÀÌÅÛ ºí·çÇÁ¸°Æ® Á¤º¸·Î ½ºÆùÇÑ´Ù
+	//ì¥ì°©í•œ ì•„ì´í…œ ë¸”ë£¨í”„ë¦°íŠ¸ ì •ë³´ë¡œ ìŠ¤í°í•œë‹¤
 	CheckNull(SelectItemClass);
 	auto SpawnItem = AItem::Spawn<AItem>(GetWorld(), SelectItemClass, this);
 
-	//ÀÎº¥Åä¸®¿¡¼­ ¾ÆÀÌÅÛ ¼ö·®À» °¡Á®¿Í¾ßÇÔ
+	//ì¸ë²¤í† ë¦¬ì—ì„œ ì•„ì´í…œ ìˆ˜ëŸ‰ì„ ê°€ì ¸ì™€ì•¼í•¨
 	//SpawnItem->GetItemData().ItemCode
 	if (Stat.CurrentPotionCount > 0)
 	{
@@ -811,7 +813,7 @@ void APlayerCharacter::AttachArmorSocket()
 {
 	EEquipType Typename[3] = { EEquipType::ET_Head, EEquipType::ET_Top, EEquipType::ET_Hand };
 	FName SocketName[5] = { "HeadSocket","ShoulderLSocket","ShoulderRSocket","HandLSocket","HandRSocket" };
-	//¼ÒÄÏ ¼³Á¤
+	//ì†Œì¼“ ì„¤ì •
 	int j = 0;
 	for (int i = 0; i < 3; ++i)
 	{
@@ -886,7 +888,7 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 
 void APlayerCharacter::OnRunning()
 {
-	// ´Ş¸®±â·Î ½ºÅ×¹Ì³ª ÀüºÎ¼Ò¸ğ½Ã ÀüºÎÈ¸º¹µÉ¶§±îÁö , ´Ş¸®±â°¡ ¸ÔÈ÷Áö ¾ÊÀ½ 
+	// ë‹¬ë¦¬ê¸°ë¡œ ìŠ¤í…Œë¯¸ë‚˜ ì „ë¶€ì†Œëª¨ì‹œ ì „ë¶€íšŒë³µë ë•Œê¹Œì§€ , ë‹¬ë¦¬ê¸°ê°€ ë¨¹íˆì§€ ì•ŠìŒ 
 	if (CanRun())
 	{
 		SetMovementState(EMovementState::EMS_Run);
@@ -902,7 +904,7 @@ void APlayerCharacter::OffRunning()
 
 void APlayerCharacter::SmoothRoll()
 {
-	//±¸¸£±â ¿¬¼ÓÀ¸·Î ÇÒ°æ¿ì ÀÌÀü ¹æÇâ º¸°£°ªÀ¸·Î ¹Ù²ãÁà¾ß ¹æÇâÀÌ ¹Ù²ï´Ù.
+	//êµ¬ë¥´ê¸° ì—°ì†ìœ¼ë¡œ í• ê²½ìš° ì´ì „ ë°©í–¥ ë³´ê°„ê°’ìœ¼ë¡œ ë°”ê¿”ì¤˜ì•¼ ë°©í–¥ì´ ë°”ë€ë‹¤.
 	if (EMovementState::EMS_Roll == MovementState)
 	{
 		if (!RollDestination.Equals(FRotator::ZeroRotator))
@@ -921,8 +923,19 @@ void APlayerCharacter::Roll()
 	SetMovementState(EMovementState::EMS_Roll);
 	DecrementStamina(RollStamina);
 	PlayAnimMontage(RollMontage);
-	//Ã³À½ ±¸¸£±â ¹æÇâ ÀúÀå
+	//ì²˜ìŒ êµ¬ë¥´ê¸° ë°©í–¥ ì €ì¥
 	RollDestination = UKismetMathLibrary::MakeRotFromX(GetLastMovementInputVector());
+
+	// AI Directorì— êµ¬ë¥´ê¸° í–‰ë™ ê¸°ë¡
+	ACain* Cain = Cast<ACain>(UGameplayStatics::GetActorOfClass(GetWorld(), ACain::StaticClass()));
+	if (Cain)
+	{
+		UCainAIDirector* Director = Cain->FindComponentByClass<UCainAIDirector>();
+		if (Director)
+		{
+			Director->RecordAction(EPlayerAction::Roll);
+		}
+	}
 }
 
 void APlayerCharacter::EquipWeapon()
@@ -1081,12 +1094,12 @@ void APlayerCharacter::SwapTargetLeft()
 
 bool APlayerCharacter::CheckFace(AActor* OtherActor)
 {
-	//Yaw°¢µµ Â÷ÀÌ´Â ¼­·Î °°Àº¹æÇâÀ» ¹Ù¶óº¸¸é 0¿¡ °¡±î¿öÁö°í(°°Àº °¢µµ´Ï±î), 
-	//¹İ´ë·Î ¸¶ÁÖº»´Ù¸é °¢µµÂ÷ÀÌ´Â Ä¿Áú °ÍÀÌ´Ù.
+	//Yawê°ë„ ì°¨ì´ëŠ” ì„œë¡œ ê°™ì€ë°©í–¥ì„ ë°”ë¼ë³´ë©´ 0ì— ê°€ê¹Œì›Œì§€ê³ (ê°™ì€ ê°ë„ë‹ˆê¹Œ), 
+	//ë°˜ëŒ€ë¡œ ë§ˆì£¼ë³¸ë‹¤ë©´ ê°ë„ì°¨ì´ëŠ” ì»¤ì§ˆ ê²ƒì´ë‹¤.
 	// 
-	//25.01.14 ¹ÚÇØ¼º
-	//Yaw °¢µµº¸´Ù Á÷°üÀûÀÎ ³»Àû¹æ½ÄÀ» ÀÌ¿ëÇØ ÆÇÁ¤ÇÏµµ·Ï ¼öÁ¤Çß½À´Ï´Ù.
-	//90µµº¸´Ù Å¬°æ¿ì ¸¶ÁÖº¸°í ÀÖ´Â°É·Î ÀÎ½ÄÇÕ´Ï´Ù.
+	//25.01.14 ë°•í•´ì„±
+	//Yaw ê°ë„ë³´ë‹¤ ì§ê´€ì ì¸ ë‚´ì ë°©ì‹ì„ ì´ìš©í•´ íŒì •í•˜ë„ë¡ ìˆ˜ì •í–ˆìŠµë‹ˆë‹¤.
+	//90ë„ë³´ë‹¤ í´ê²½ìš° ë§ˆì£¼ë³´ê³  ìˆëŠ”ê±¸ë¡œ ì¸ì‹í•©ë‹ˆë‹¤.
 
 	float DotResult = GetActorForwardVector().Dot(OtherActor->GetActorForwardVector());
 	float Angle = FMath::RadiansToDegrees(FMath::Acos(DotResult));
@@ -1101,22 +1114,22 @@ bool APlayerCharacter::CheckGuard(float& DamageAmount, AActor* DamageCauser, con
 
 	if (CheckFace(DamageCauser) == false)
 		bBlockFail = true;
-	//°¡µå¼º°ø
+	//ê°€ë“œì„±ê³µ
 	if (bBlocking && !bBlockFail)
 	{
-		//¿ŞÂÊ ¹«±â¿¡¼­ ¹°¸®°æ°¨·üÀ» ¾ò¾î¿Â´Ù, °¡µå´Â Ç×»ó ¿ŞÂÊ¹«±â·Î
+		//ì™¼ìª½ ë¬´ê¸°ì—ì„œ ë¬¼ë¦¬ê²½ê°ë¥ ì„ ì–»ì–´ì˜¨ë‹¤, ê°€ë“œëŠ” í•­ìƒ ì™¼ìª½ë¬´ê¸°ë¡œ
 		CheckNullResult(LeftWeapon, false);
 		ret = true;
 		LeftWeapon->Hit(HitInfo.ImpactPoint);
-	}//°¡µå ½ÇÆĞ
+	}//ê°€ë“œ ì‹¤íŒ¨
 	else if (bBlockFail)
 	{
-		//¹Ş´Â µ¥¹ÌÁö Áõ°¡
+		//ë°›ëŠ” ë°ë¯¸ì§€ ì¦ê°€
 		ret = false;
 		DamageAmount *= 1.2f;
 	}
 
-	//°¡µåÁß È÷Æ® ½Ã °¡µå ¼º°ø¿©ºÎ¿Í »ó°ü¾øÀÌ ½ºÅ×¹Ì³ª°¡ ¼Ò¸ğµÇ¾î¾ßÇÑ´Ù
+	//ê°€ë“œì¤‘ íˆíŠ¸ ì‹œ ê°€ë“œ ì„±ê³µì—¬ë¶€ì™€ ìƒê´€ì—†ì´ ìŠ¤í…Œë¯¸ë‚˜ê°€ ì†Œëª¨ë˜ì–´ì•¼í•œë‹¤
 	if(bBlocking)
 		DecrementStamina(Stat.MaxStamina * BlockStaminaRate);
 
@@ -1125,14 +1138,14 @@ bool APlayerCharacter::CheckGuard(float& DamageAmount, AActor* DamageCauser, con
 
 bool APlayerCharacter::CheckParry(float& DamageAmount, AActor* DamageCauser)
 {
-	//ÆĞ¸®°¡´ÉÇÑ»óÅÂ¿¡¼­ µ¥¹ÌÁö°¡ µé¾î¿À¸é ÆĞ¸®¼º°øÃ³¸®
-	//ÇÃ·¹ÀÌ¾î ¹æÇâÀ» È®ÀÎÇÏ¶ó
+	//íŒ¨ë¦¬ê°€ëŠ¥í•œìƒíƒœì—ì„œ ë°ë¯¸ì§€ê°€ ë“¤ì–´ì˜¤ë©´ íŒ¨ë¦¬ì„±ê³µì²˜ë¦¬
+	//í”Œë ˆì´ì–´ ë°©í–¥ì„ í™•ì¸í•˜ë¼
 	if (CheckFace(DamageCauser) == false)
 		bParryFail = true;
 
 	if (bCanParry && !bParryFail)
 	{
-		if (DamageAmount > 0)//¹«ÀûÀº¾Æ´ÏÁö¸¸ ÀÌÈÄ 4ÇÁ·¹ÀÓ¿¡¼­ ÆĞ¸µÀ» ¼º°øÇÔ
+		if (DamageAmount > 0)//ë¬´ì ì€ì•„ë‹ˆì§€ë§Œ ì´í›„ 4í”„ë ˆì„ì—ì„œ íŒ¨ë§ì„ ì„±ê³µí•¨
 		{
 			CheckNullResult(LeftWeapon, false);
 			DamageAmount = DamageAmount * (1.0f - LeftWeapon->GetPhysicalDefenseRate());
@@ -1147,7 +1160,7 @@ bool APlayerCharacter::CheckParry(float& DamageAmount, AActor* DamageCauser)
 
 		CLog::Print("Parry Succ");
 	}
-	else if (bCanParry && bParryFail) //ÆĞ¸® ½ÇÆĞ½Ã ÆĞ³ÎÆ¼ ºÎ¿©
+	else if (bCanParry && bParryFail) //íŒ¨ë¦¬ ì‹¤íŒ¨ì‹œ íŒ¨ë„í‹° ë¶€ì—¬
 	{
 		CLog::Print("Parry Fail");
 		DamageAmount = DamageAmount * (1.0f - LeftWeapon->GetPhysicalDefenseRate());
@@ -1247,7 +1260,7 @@ bool APlayerCharacter::CanBlock()
 		}
 		bBlockFail = true;
 		OffRightClick();
-		//¹Ş´Âµ¥¹ÌÁö 1ÃÊ°£ Áõ°¡
+		//ë°›ëŠ”ë°ë¯¸ì§€ 1ì´ˆê°„ ì¦ê°€
 		return false;
 	}
 	return true;
@@ -1255,7 +1268,7 @@ bool APlayerCharacter::CanBlock()
 
 void APlayerCharacter::UpdateStamina(float DeltaStamina)
 {
-	CheckTrue(MovementState == EMovementState::EMS_Dead); //Á×¾úÀ» ¶§ Á¾·á
+	CheckTrue(MovementState == EMovementState::EMS_Dead); //ì£½ì—ˆì„ ë•Œ ì¢…ë£Œ
 	CheckTrue(MovementState == EMovementState::EMS_Roll)
 
 		if (GetStaminaRate() <= RunStamina)
@@ -1273,7 +1286,7 @@ void APlayerCharacter::UpdateStamina(float DeltaStamina)
 		}
 	}
 
-	CheckTrue((Stat.Stamina == Stat.MaxStamina) && (MovementState != EMovementState::EMS_Run)); //½ºÅ×¹Ì³ª º¯µ¿ÀÌ ¾øÀ» ½Ã Á¾·á
+	CheckTrue((Stat.Stamina == Stat.MaxStamina) && (MovementState != EMovementState::EMS_Run)); //ìŠ¤í…Œë¯¸ë‚˜ ë³€ë™ì´ ì—†ì„ ì‹œ ì¢…ë£Œ
 
 	CanBlock();
 

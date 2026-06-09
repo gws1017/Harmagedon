@@ -8,6 +8,7 @@
 #include "Actor/Character/PlayerCharacter.h"
 #include "AIModule/Classes/AIController.h"
 #include "Data/CainAIKey.h"
+#include "Component/CainAIDirector.h"
 
 void UAnimNotify_CainParryCheck::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
@@ -23,11 +24,19 @@ void UAnimNotify_CainParryCheck::Notify(USkeletalMeshComponent* MeshComp, UAnimS
 			if (BlackboardComp)
 			{
 				APlayerCharacter* playercharacter = Cast<APlayerCharacter>(BlackboardComp->GetValueAsObject(BBKEY_ROOMTARGET));
-				// ÆÐ¸µ¼º°ø½Ã
+				// íŒ¨ë§ ì„±ê³µ ì²´í¬
 				if (playercharacter->GetParrySucc())
 				{
 					BossCain->IsSuccessParry(true);
-					//º¸½º ¾Ö´Ï¸ÞÀÌ¼Ç ÁßÁö
+
+					// íŒ¨ë§ ì„±ê³µ ê¸°ë¡ â†’ AI Director
+					UCainAIDirector* Director = BossCain->FindComponentByClass<UCainAIDirector>();
+					if (Director)
+					{
+						Director->RecordAction(EPlayerAction::Parry);
+					}
+
+					// ì• ë‹ˆë©”ì´ì…˜ ì •ì§€
 					BossCain->StopAnim();
 				}
 			}

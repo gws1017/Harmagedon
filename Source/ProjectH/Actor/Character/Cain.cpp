@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Actor/Character/Cain.h"
@@ -6,6 +6,7 @@
 #include "Actor/Character/PlayerCharacter.h"
 #include "Actor/Controller/BasicPlayerController.h"
 #include "Component/CainPatternInfo.h"
+#include "Component/CainAIDirector.h"
 #include "UI/BossHpBarWidget.h"
 #include "UI/BossHUDWidget.h"
 #include "UI/BossWidgetComponent.h"
@@ -53,6 +54,9 @@ ACain::ACain()
 
 	MaxHP = 2462.0;
 	HP = 2462.0;
+
+	// AI Director 컴포넌트 등록
+	AIDirector = CreateDefaultSubobject<UCainAIDirector>(TEXT("AIDirector"));
 
 	TArray<const TCHAR*> PatternRefs = {
 		TEXT("/Script/Engine.AnimMontage'/Game/Actor/Characters/Enemy/Boss/Animation/AM_CainStrongKick.AM_CainStrongKick'"),
@@ -168,7 +172,14 @@ void ACain::SetMontageFinDelegate(const FCainMontageFinished& InFinished)
 
 void ACain::PlayMontageByAI(EPattern InAnimMon)
 {
-	// 지정한 속도로 몽타주 재생
+	// Mode 2만 선행 요청 , 요청내용과 기본난수 로직의 최적화 방안
+	const int32 Mode = IConsoleManager::Get().FindConsoleVariable(TEXT("r.CainPatternMode"))
+		? IConsoleManager::Get().FindConsoleVariable(TEXT("r.CainPatternMode"))->GetInt() : 0;
+	if (AIDirector && Mode == 2)
+	{
+		AIDirector->RequestNextPatternAsync();
+	}
+
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	CurrentStatus = static_cast<uint8>(InAnimMon);
 	AnimInstance->Montage_Play(PatternInfoes[CurrentStatus]->BTMontage, 1.0f);
@@ -177,7 +188,18 @@ void ACain::PlayMontageByAI(EPattern InAnimMon)
 	EndDelegate.BindUObject(this, &ACain::MontageEnd);
 	AnimInstance->Montage_SetEndDelegate(EndDelegate, PatternInfoes[static_cast<uint8>(InAnimMon)]->BTMontage);
 
+	// @PHS 260610
+	// 모든 패턴 실행 시 false로 설정
+	// → MontageEnd 또는 피격 처리에서 true로 복원
+	// 일부 패턴만 막던 기존 로직은 PUNCH2/HOOK2/UPPERCUT 등이
+	// 실행 중에도 BTS가 BB를 덮어쓰는 문제를 유발
 	bAllowNextPattern = false;
+
+	// AI Director: 패턴 시작 알림 — 콤보 중 BTS가 BB를 덮어쓰지 않도록
+	if (AIDirector)
+	{
+		AIDirector->NotifyPatternStarted();
+	}
 }
 
 void ACain::JumpMontageSection(FName SectionName, EPattern AnimMon)
@@ -228,7 +250,19 @@ void ACain::MontageEnd(UAnimMontage* TargetMontage, bool IsProperlyEnded)
 {
 	// 콤보 전 상태로 초기화
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+
+	// STOMP2/HOOK1/THROWAWAY 등 피격으로 조기종료되지 않는 패턴은
+	// 여기서 반드시 복원해야 다음 패턴 선택 가능
 	bAllowNextPattern = true;
+
+	// Mode 1: AI 다음 명령 전까지 BT가 패턴 분기로 못 들어가게 idle 상태 고정 260610 @PHS
+	const IConsoleVariable* ModeCVar = IConsoleManager::Get().FindConsoleVariable(TEXT("r.CainPatternMode"));
+	const int32 PatternMode = ModeCVar ? ModeCVar->GetInt() : 0;
+	if (AIDirector && PatternMode == 1 && !AIDirector->HasCachedAIPattern())
+	{
+		AIDirector->ApplyAIWaitSentinel();
+	}
+
 	OnMontageFinished.ExecuteIfBound();
 }
 
@@ -237,6 +271,12 @@ float ACain::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, ACo
 	const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
 	++HitCount;
+
+	// 플레이어가 카인을 공격했음을 기록
+	if (AIDirector)
+	{
+		AIDirector->RecordAction(EPlayerAction::Hit);
+	}
 
 	APlayerCharacter* playerCharacter = Cast<APlayerCharacter>(DamageCauser->GetOwner());
 	if(playerCharacter == nullptr)

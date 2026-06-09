@@ -8,20 +8,20 @@ public class ProjectH : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-        //∏µ‚√ﬂ∞°
-		PublicDependencyModuleNames.AddRange(new string[] 
+        //Î™®ÎìàÏ∂îÍ∞Ä
+		PublicDependencyModuleNames.AddRange(new string[]
         { "Core", "CoreUObject", "Engine", "InputCore"
         ,"EnhancedInput","AIModule","GameplayTasks", "AnimGraphRuntime", "UMG"
         ,"FieldSystemEngine","NavigationSystem", "Niagara"
-        ,"GeometryCollectionEngine","PhysicsCore","LevelSequence","MovieScene"});
+        ,"GeometryCollectionEngine","PhysicsCore","LevelSequence","MovieScene"
+        ,"HTTP","Json","JsonUtilities"});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
-        //ªÛ¥Î∞Ê∑Œ∑Œ µÓ∑œ∞°¥…
+        //ÏÉÅÎåÄÍ≤ΩÎ°úÎ°ú Îì±Î°ùÍ∞ÄÎä•
         PublicIncludePaths.Add(ModuleDirectory);
 
-        // Uncomment if you are using Slate UI
-        // PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
+        PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
 
         // Uncomment if you are using online features
         // PrivateDependencyModuleNames.Add("OnlineSubsystem");

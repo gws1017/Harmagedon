@@ -14,6 +14,7 @@ DECLARE_MULTICAST_DELEGATE(FOnHpZeroDelegate);
 
 class USphereComponent;
 class UCainPatternInfo;
+class UCainAIDirector;
 class USphereComponent;
 class UBossHpBarWidget;
 class UBossHUDWidget;
@@ -24,9 +25,9 @@ class UAnimMontage;
 
 
  /**************************************************************************************************
- * º¸½º ¸ó½ºÅÍ (Ä«ÀÎ)
+ * ë³´ìŠ¤ ëª¬ìŠ¤í„° (ì¹´ì¸)
  *
- * @author	Á¶Çö½Ä
+ * @author	ì¡°í˜„ì‹
  * @date	2024-05-03
  **************************************************************************************************/
 UCLASS()
@@ -49,14 +50,14 @@ public:
 
 	FOnHpChangedDelegate OnHpChanged;
 	TObjectPtr<APlayerCharacter> HoldingPlayer;
-	bool bAllowNextPattern = false;
+	bool bAllowNextPattern = false; //2íƒ€ ë° ë‹¤ìŒíŒ¨í„´ìœ¼ë¡œ ë„˜ì–´ê°ˆìˆ˜ ìˆëŠ”ì§€ í™•ì¸ ë³€ìˆ˜
 
 protected:
 	virtual void BeginPlay() override;
 
 	virtual void PostInitializeComponents() override;
 
-// AI ÀÎÅÍÆäÀÌ½º
+// AI ì¸í„°í˜ì´ìŠ¤
 protected:
 	virtual void SetMontageFinDelegate(const FCainMontageFinished& InOnAttackFinished) override;
 	virtual void PlayMontageByAI(EPattern AnimMon) override;
@@ -82,7 +83,7 @@ public:
 
 
 
-// ³ëÆ¼ÆÄÀÌ ÀÎÅÍÆäÀÌ½º
+// ë…¸í‹°íŒŒì´ ì¸í„°í˜ì´ìŠ¤
 public:
 	virtual void AttackHitCheck() override;
 	virtual void AttackHitCheckEnd() override;
@@ -93,7 +94,7 @@ protected:
 
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
-// »ç¸Á
+// ì‚¬ë§
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Montage, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UAnimMontage> DeadMontage;
@@ -151,4 +152,8 @@ protected:
 	int32 PrevRandomNumber;
 
 	bool bSuccessParry = false;
+
+	// AI Director ì»´í¬ë„ŒíŠ¸ ì¶”ê°€ 260610 @PHS
+	UPROPERTY(VisibleAnywhere, Category = "AI Director")
+	TObjectPtr<UCainAIDirector> AIDirector;
 };

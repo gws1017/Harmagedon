@@ -22,7 +22,7 @@ bool UBTD_HealthIsHalf::CalculateRawConditionValue(UBehaviorTreeComponent& Owner
 		return false;
 	}
 
-	// AI 폰으로 변환
+	// AI 인터페이스 변환
 	ICainPatternInterface* AIPawn = Cast<ICainPatternInterface>(ControllingPawn);
 	if (nullptr == AIPawn)
 	{
@@ -31,6 +31,7 @@ bool UBTD_HealthIsHalf::CalculateRawConditionValue(UBehaviorTreeComponent& Owner
 
 	if (AIPawn->IsFirstPhase())
 	{
+		// HP 50% 이하일 때만 2페이즈로 전환
 		if (AIPawn->IsHealthUnderHalf())
 		{
 			AIPawn->ChangeIntoSecondPhase();
@@ -38,6 +39,9 @@ bool UBTD_HealthIsHalf::CalculateRawConditionValue(UBehaviorTreeComponent& Owner
 		}
 		return false;
 	}
-    // 그로기 상태
-	return AIPawn->GetStatus() == static_cast<int32>(EPattern::GROGGY);
+	else
+	{
+		// 이미 2페이즈 → 그로기 상태 체크
+		return AIPawn->GetStatus() == static_cast<int32>(EPattern::GROGGY);
+	}
 }
